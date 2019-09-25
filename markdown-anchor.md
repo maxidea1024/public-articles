@@ -148,6 +148,7 @@ The language
 2.16.12. Thread
 2.16.13. Weak Reference
 
+---
 
 ### <a id="license"></a> LICENSE
 

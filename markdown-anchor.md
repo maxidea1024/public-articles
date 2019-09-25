@@ -18,7 +18,7 @@
 
 
 [LICENSE](#license)
-[LICENSE2](license2#license)
+[LICENSE2](license2.md#license)
 
 The language
 2.1. Lexical Structure

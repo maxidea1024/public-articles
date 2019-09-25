@@ -131,24 +131,24 @@
 2.13.1. Handling weak references explicitly
 2.14. Delegation
 2.15. Metamethods
-2.15.1. __set__
-2.15.2. __get__
-2.15.3. __newslot__
-2.15.4. __delslot__
-2.15.5. __add__
-2.15.6. __sub__
-2.15.7. __mul__
-2.15.8. __div__
-2.15.9. __modulo__
-2.15.10. __unm__
-2.15.11. __tyoeof__
-2.15.12. __cmp__
-2.15.13. __call__
-2.15.14. __cloned__
-2.15.15. __nexti__
-2.15.16. __tostring__
-2.15.17. __inherited__
-2.15.18. __newmember__
+2.15.1. \__set__
+2.15.2. \__get__
+2.15.3. \__newslot__
+2.15.4. \__delslot__
+2.15.5. \__add__
+2.15.6. \__sub__
+2.15.7. \__mul__
+2.15.8. \__div__
+2.15.9. \__modulo__
+2.15.10. \__unm__
+2.15.11. \__tyoeof__
+2.15.12. \__cmp__
+2.15.13. \__call__
+2.15.14. \__cloned__
+2.15.15. \__nexti__
+2.15.16. \__tostring__
+2.15.17. \__inherited__
+2.15.18. \__newmember__
 2.16. Built-in Functions
 2.16.1. Global Symbols
 2.16.1.1. Default delegates

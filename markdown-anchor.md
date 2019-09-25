@@ -17,6 +17,10 @@
 <a id="anchor-id"></a> ...
 ```
 
+<br>
+<br>
+<br>
+<br>
 
 이하는 예제
 ===
@@ -26,7 +30,9 @@
 [LICENSE2](license2.md#license)
 
 
-The language
+### 2. The language
+
+> 전체 BNF를 넣을 수 있으면 좋을듯한데...
 
 2.1. Lexical Structure
 2.1.1. Identifiers
@@ -125,24 +131,24 @@ The language
 2.13.1. Handling weak references explicitly
 2.14. Delegation
 2.15. Metamethods
-2.15.1. _set
-2.15.2. _get
-2.15.3. _newslot
-2.15.4. _delslot
-2.15.5. _add
-2.15.6. _sub
-2.15.7. _mul
-2.15.8. _div
-2.15.9. _modulo
-2.15.10. _unm
-2.15.11. _tyoeof
-2.15.12. _cmp
-2.15.13. _call
-2.15.14. _cloned
-2.15.15. _nexti
-2.15.16. _tostring
-2.15.17. _inherited
-2.15.18. _newmember
+2.15.1. __set__
+2.15.2. __get__
+2.15.3. __newslot__
+2.15.4. __delslot__
+2.15.5. __add__
+2.15.6. __sub__
+2.15.7. __mul__
+2.15.8. __div__
+2.15.9. __modulo__
+2.15.10. __unm__
+2.15.11. __tyoeof__
+2.15.12. __cmp__
+2.15.13. __call__
+2.15.14. __cloned__
+2.15.15. __nexti__
+2.15.16. __tostring__
+2.15.17. __inherited__
+2.15.18. __newmember__
 2.16. Built-in Functions
 2.16.1. Global Symbols
 2.16.1.1. Default delegates

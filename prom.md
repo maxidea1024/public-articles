@@ -123,9 +123,12 @@ exception InvalidRequestException {
 
 여타 `IDL`과는 다르게 3가지의 서비스를 지원합니다. 다소 의아할수도 있는데, 제가 생각했던 모든 목적에 맞는 일반환된 서비스 형태를 구현하기 쉽지 않았고, 그결과 3가지의 서비스로 분화하기로 결정했습니다. 구체적으로 다음과 같은 서비스들을 지원합니다.
 
-- Simple Service
-- Regular Service
-- Realtime Service
+| 종류 | 설명 |
+|---|---|
+| Simple Service | 제일 단순한 형태의 `Request`, `Response` 형태의 서비스 |
+| Regular Service | 제일 단순한 형태의 `Request`, `Response` 형태의 서비스(struct 정의 없이 일반 함수처럼 정의) |
+| Realtime Service | 실시간 게임서버를 위한 서비스 |
+
 
 상세한 내용은 아래의 내용을 참조하시길 바랍니다.
 
@@ -226,7 +229,7 @@ enum AnimalType {
 기존 언어들의 상수정의와 유사하며, `.prom` 파일내에서 사용이 가능하며 동시에 코드 생성시에 해당 정의와 값들이 출력되어서 프로그래머가 바로 사용할 수 있습니다. 이를 활용하면 하나의 파일에 공통된 정의들이 담기게 되므로 관리가 용이해지는 효과가 있습니다.
 
 ```csharp
-namespace dotnet Example;
+namespace * Example;
 
 const MAX_PATHLEN :int = 512;
 const DEFAULT_KEY :string = "blabla";

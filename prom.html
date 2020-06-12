@@ -261,10 +261,10 @@ pre[data-line] .line-highlight[data-end]:after {
     </head>
     <body for="html-export">
       <div class="mume markdown-preview  ">
-      <h2 class="mume-header" id="prom">PROM</h2>
+      <h2 class="mume-header" id="prom-grammar">PROM Grammar</h2>
 
 <p>&#xAC04;&#xB2E8;&#xD55C; &#xC778;&#xD130;&#xD398;&#xC774;&#xC2A4; &#xC815;&#xC758; &#xC608;&#xB294; &#xC544;&#xB798;&#xC640; &#xAC19;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
-<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet <span class="token string">&quot;Greeting&quot;</span><span class="token punctuation">;</span>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet Greeting<span class="token punctuation">;</span>
 
 sservice Greeting <span class="token punctuation">{</span>
   <span class="token function">SayHello</span><span class="token punctuation">(</span>HelloRequest<span class="token punctuation">)</span>
@@ -279,10 +279,10 @@ sservice Greeting <span class="token punctuation">{</span>
   greeting <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
 </pre><br>
-<h3 class="mume-header" id="module-%EC%A0%95%EC%9D%98">Module &#xC815;&#xC758;</h3>
+<h3 class="mume-header" id="module">Module</h3>
 
-<p><code>Module</code>&#xC740; <code>.prom</code> &#xD30C;&#xC77C; &#xC790;&#xCCB4;&#xB97C; <code>Module</code>&#xC774;&#xB77C;&#xACE0; &#xCE6D;&#xD569;&#xB2C8;&#xB2E4;. <code>Module</code> &#xD30C;&#xC77C;&#xC548;&#xC5D0;&#xB294; &#xAC01;&#xC885; &#xC815;&#xC758;&#xB4E4;&#xC774; &#xB2F4;&#xAE30;&#xAC8C; &#xB429;&#xB2C8;&#xB2E4;. &#xB610;&#xD55C;, &#xB2E4;&#xB978; <code>.prom</code> &#xD30C;&#xC77C; &#xC989;, <code>Module</code>&#xC744; &#xD3EC;&#xD568;&#xD560; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
-<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet <span class="token string">&quot;Example&quot;</span><span class="token punctuation">;</span>
+<p><code>Module</code>&#xC740; <code>.prom</code> &#xD30C;&#xC77C; &#xC790;&#xCCB4;&#xB97C; <code>Module</code>&#xC774;&#xB77C;&#xACE0; &#xCE6D;&#xD569;&#xB2C8;&#xB2E4;. <code>Module</code> &#xD30C;&#xC77C; &#xC548;&#xC5D0;&#xB294; &#xAC01;&#xC885; &#xC815;&#xC758;&#xB4E4;&#xC774; &#xB2F4;&#xAE30;&#xAC8C; &#xB429;&#xB2C8;&#xB2E4;. &#xB610;&#xD55C;, &#xB2E4;&#xB978; <code>.prom</code> &#xD30C;&#xC77C; &#xC989;, <code>Module</code>&#xC744; &#xD3EC;&#xD568;&#xD560; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet Example<span class="token punctuation">;</span>
 
 import <span class="token string">&quot;Types&quot;</span><span class="token punctuation">;</span>
 import <span class="token string">&quot;Errors&quot;</span><span class="token punctuation">;</span>
@@ -291,10 +291,10 @@ import <span class="token string">&quot;Models&quot;</span><span class="token pu
   <span class="token punctuation">.</span>
   <span class="token punctuation">.</span>
   <span class="token punctuation">.</span>
-</pre><h3 class="mume-header" id="struct-%EC%A0%95%EC%9D%98">Struct &#xC815;&#xC758;</h3>
+</pre><h3 class="mume-header" id="struct">Struct</h3>
 
-<p><code>struct</code>&#xB294; <code>protobuf</code>&#xC758; <code>message</code>&#xC640; &#xAC19;&#xC740; &#xAC19;&#xC740; &#xC131;&#xC9C8;&#xC744; &#xAC00;&#xC9C0;&#xB294; &#xD0C0;&#xC785;&#xC785;&#xB2C8;&#xB2E4;. <code>struct</code>&#xB294; &#xC5EC;&#xB7EC;&#xAC1C;&#xC758; &#xD544;&#xB4DC;&#xB4E4;&#xB85C; &#xAD6C;&#xC131;&#xB420; &#xC218; &#xC788;&#xC73C;&#xBA70;, &#xC0C1;&#xC18D;&#xC740; &#xC9C0;&#xC6D0;&#xD558;&#xC9C0; &#xC54A;&#xC2B5;&#xB2C8;&#xB2E4;. &#xAC01; &#xD544;&#xB4DC; &#xC55E;&#xC5D0;&#xB294; <code>protobuf</code>&#xC640; &#xAC19;&#xC774; &#xD0DC;&#xADF8;&#xB97C; &#xC9C0;&#xC815;&#xD560; &#xC218; &#xC788;&#xC73C;&#xBA70;, &#xC0DD;&#xB7B5;&#xB3C4; &#xAC00;&#xB2A5;&#xD569;&#xB2C8;&#xB2E4;. &#xB2E8;, &#xC0DD;&#xB7B5;&#xD588;&#xC744; &#xACBD;&#xC6B0;&#xC5D0;&#xB294; &#xC911;&#xAC04;&#xC5D0; &#xD544;&#xB4DC;&#xC544;&#xC774;&#xB514;&#xB97C; &#xC9C0;&#xC815;&#xD558;&#xAC70;&#xB098; &#xBC84;&#xC83C;&#xC5C5;&#xC2DC;&#xC5D0; &#xD544;&#xB4DC; &#xC544;&#xC774;&#xB514; &#xC9C0;&#xC815; &#xC5C6;&#xC774; &#xC911;&#xAC04;&#xC5D0; &#xD544;&#xB4DC;&#xB97C; &#xB07C;&#xC6CC;&#xB123;&#xC73C;&#xBA74; &#xD638;&#xD658;&#xC774; &#xB418;&#xC9C0; &#xC54A;&#xB294; &#xB4F1;&#xC758; &#xC8FC;&#xC758; &#xC0AC;&#xD56D;&#xC774; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
-<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet <span class="token string">&quot;Example&quot;</span><span class="token punctuation">;</span>
+<p><code>struct</code>&#xB294; <code>protobuf</code>&#xC758; <code>message</code>&#xC640; &#xAC19;&#xC740; &#xAC19;&#xC740; &#xC131;&#xACA9;&#xC744; &#xAC00;&#xC9C0;&#xB294; &#xD0C0;&#xC785;&#xC785;&#xB2C8;&#xB2E4;. <code>struct</code>&#xB294; &#xC5EC;&#xB7EC;&#xAC1C;&#xC758; &#xD544;&#xB4DC;&#xB4E4;&#xB85C; &#xAD6C;&#xC131;&#xB420; &#xC218; &#xC788;&#xC73C;&#xBA70;, &#xC0C1;&#xC18D;&#xC740; &#xC9C0;&#xC6D0;&#xD558;&#xC9C0; &#xC54A;&#xC2B5;&#xB2C8;&#xB2E4;. &#xAC01; &#xD544;&#xB4DC; &#xC55E;&#xC5D0;&#xB294; <code>protobuf</code>&#xC640; &#xAC19;&#xC774; &#xD0DC;&#xADF8;&#xB97C; &#xC9C0;&#xC815;&#xD560; &#xC218; &#xC788;&#xC73C;&#xBA70;, &#xC0DD;&#xB7B5;&#xB3C4; &#xAC00;&#xB2A5;&#xD569;&#xB2C8;&#xB2E4;. &#xB2E8;, &#xC0DD;&#xB7B5;&#xD588;&#xC744; &#xACBD;&#xC6B0;&#xC5D0;&#xB294; &#xC911;&#xAC04;&#xC5D0; &#xD544;&#xB4DC;&#xC544;&#xC774;&#xB514;&#xB97C; &#xC9C0;&#xC815;&#xD558;&#xAC70;&#xB098; &#xBC84;&#xC83C;&#xC5C5;&#xC2DC;&#xC5D0; &#xD544;&#xB4DC; &#xC544;&#xC774;&#xB514; &#xC9C0;&#xC815; &#xC5C6;&#xC774; &#xC911;&#xAC04;&#xC5D0; &#xD544;&#xB4DC;&#xB97C; &#xB07C;&#xC6CC;&#xB123;&#xC73C;&#xBA74; &#xD638;&#xD658;&#xC774; &#xB418;&#xC9C0; &#xC54A;&#xB294; &#xB4F1;&#xC758; &#xC8FC;&#xC758; &#xC0AC;&#xD56D;&#xC774; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet Example<span class="token punctuation">;</span>
 
 <span class="token comment">// Without field tags</span>
 <span class="token keyword">struct</span> Monster <span class="token punctuation">{</span>
@@ -307,10 +307,10 @@ import <span class="token string">&quot;Models&quot;</span><span class="token pu
   @<span class="token number">1</span> index <span class="token punctuation">:</span>int64<span class="token punctuation">;</span>
   @<span class="token number">2</span> count <span class="token punctuation">:</span>int32<span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
-</pre><h3 class="mume-header" id="oneof-%EC%A0%95%EC%9D%98">Oneof &#xC815;&#xC758;</h3>
+</pre><h3 class="mume-header" id="oneof">Oneof</h3>
 
-<p><code>C&#xC5B8;&#xC5B4;</code>&#xC758; &#xACF5;&#xC6A9;&#xCCB4;(union)&#xACFC; &#xAC19;&#xC740; &#xC18D;&#xC131;&#xC744; &#xAC00;&#xC9C0;&#xACE0; &#xC788;&#xB294; &#xD0C0;&#xC785;&#xB2C8;&#xB2E4;. <code>oneof</code>&#xB0B4;&#xC5D0; &#xC815;&#xC758;&#xB41C; &#xD544;&#xB4DC;&#xB4E4;&#xC911; &#xD558;&#xB098;&#xB9CC; &#xC720;&#xD6A8;&#xD55C; &#xAC12;&#xC744; &#xAC00;&#xC9C0;&#xBA70;, &#xC5B4;&#xB5A4;&#xAC12;&#xC774; &#xC720;&#xD6A8;&#xD55C;&#xC9C0;&#xB294; &#xC0DD;&#xC131;&#xB41C; &#xCF54;&#xB4DC;&#xC5D0;&#xC11C; <code>which</code> &#xC811;&#xADFC;&#xC790;&#xB85C; &#xCC98;&#xB9AC;&#xD560; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. <code>protobuf</code>&#xC758; <code>oneof</code>&#xC640; &#xC720;&#xC0AC;&#xD569;&#xB2C8;&#xB2E4;. <code>protobuf</code>&#xAC00; <code>message</code>&#xB0B4;&#xC5D0; &#xC815;&#xC758;&#xD558;&#xB294; &#xAC83;&#xACFC;&#xB294; &#xB2E4;&#xB974;&#xAC8C; <code>struct</code>&#xCC98;&#xB7FC; &#xB3C5;&#xB9BD;&#xC801;&#xC73C;&#xB85C; &#xC815;&#xC758;&#xD574;&#xC57C;&#xD569;&#xB2C8;&#xB2E4;.</p>
-<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet <span class="token string">&quot;Example&quot;</span><span class="token punctuation">;</span>
+<p><code>C&#xC5B8;&#xC5B4;</code>&#xC758; &#xACF5;&#xC6A9;&#xCCB4;(union)&#xACFC; &#xAC19;&#xC740; &#xC18D;&#xC131;&#xC744; &#xAC00;&#xC9C0;&#xACE0; &#xC788;&#xB294; &#xD0C0;&#xC785;&#xB2C8;&#xB2E4;. <code>oneof</code>&#xB0B4;&#xC5D0; &#xC815;&#xC758;&#xB41C; &#xD544;&#xB4DC;&#xB4E4;&#xC911; &#xD558;&#xB098;&#xB9CC; &#xC720;&#xD6A8;&#xD55C; &#xAC12;&#xC744; &#xAC00;&#xC9C0;&#xBA70;, &#xC5B4;&#xB5A4;&#xAC12;&#xC774; &#xC720;&#xD6A8;&#xD55C;&#xC9C0;&#xB294; &#xC0DD;&#xC131;&#xB41C; &#xCF54;&#xB4DC;&#xC5D0;&#xC11C; <code>which</code> &#xC811;&#xADFC;&#xC790;&#xB85C; &#xCC98;&#xB9AC;&#xD560; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. <code>protobuf</code>&#xC758; <code>oneof</code>&#xC640; &#xC720;&#xC0AC;&#xD569;&#xB2C8;&#xB2E4;. <code>protobuf</code>&#xAC00; <code>message</code>&#xB0B4;&#xC5D0; &#xC815;&#xC758;&#xD558;&#xB294;&#xAC83;&#xACFC;&#xB294; &#xB2E4;&#xB974;&#xAC8C; <code>struct</code>&#xCC98;&#xB7FC; &#xB3C5;&#xB9BD;&#xC801;&#xC73C;&#xB85C; &#xC815;&#xC758;&#xD574;&#xC57C;&#xD569;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet Example<span class="token punctuation">;</span>
 
 oneof SizeUnit  <span class="token punctuation">{</span>
   pound <span class="token punctuation">:</span>int32<span class="token punctuation">;</span>
@@ -318,11 +318,11 @@ oneof SizeUnit  <span class="token punctuation">{</span>
   standardCrates <span class="token punctuation">:</span>int16<span class="token punctuation">;</span>
   metricTons <span class="token punctuation">:</span><span class="token keyword">double</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
-</pre><h3 class="mume-header" id="exception-%EC%A0%95%EC%9D%98">Exception &#xC815;&#xC758;</h3>
+</pre><h3 class="mume-header" id="exception">Exception</h3>
 
 <p>&#xC11C;&#xBE44;&#xC2A4; &#xD568;&#xC218; &#xAD6C;&#xD604;&#xCF54;&#xB4DC;&#xC5D0;&#xC11C; &#xBC1C;&#xC0DD;&#xD560; &#xC218; &#xC788;&#xB294; &#xC608;&#xC678; &#xD0C0;&#xC785;&#xB4E4;&#xC785;&#xB2C8;&#xB2E4;. <code>API</code> &#xC0AC;&#xC6A9; &#xBB38;&#xC11C; &#xC791;&#xC131;&#xC2DC;&#xC5D0; &#xD574;&#xB2F9; <code>API</code>&#xC5D0;&#xC11C; &#xBC1C;&#xC0DD;&#xD558;&#xB294; &#xC11C;&#xBE44;&#xC2A4; &#xC624;&#xB958;&#xB4E4;&#xC744; &#xC804;&#xB2EC;&#xD574;&#xC57C;&#xD558;&#xB294;&#xB370;, &#xBCC4;&#xB3C4;&#xC758; &#xBB38;&#xC11C;&#xC5D0; &#xAE30;&#xC785;&#xD558;&#xB294; &#xBC29;&#xBC95;&#xBCF4;&#xB2E4;&#xB294; <code>.prom</code> &#xD30C;&#xC77C;&#xB0B4;&#xC5D0; &#xC815;&#xC758;&#xD574;&#xB450;&#xBA74; &#xC790;&#xB3D9;&#xC73C;&#xB85C; <code>API</code> &#xC0AC;&#xC6A9;&#xAD00;&#xB828; &#xBB38;&#xC11C;&#xAC00; &#xC0DD;&#xC131;&#xB420;&#xB54C; &#xBC1C;&#xC0DD; &#xAC00;&#xB2A5;&#xD55C; &#xC608;&#xC678; &#xB610;&#xB294; &#xC624;&#xB958;&#xCF54;&#xB4DC;&#xAC00; &#xCD9C;&#xB825;&#xB418;&#xBBC0;&#xB85C;, &#xBCC4;&#xB3C4;&#xC758; <code>API</code> &#xB3C4;&#xC6C0;&#xB9D0;&#xC744; &#xC791;&#xC131;&#xD560; &#xD544;&#xC694;&#xAC00; &#xC5C6;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
-<p>&#xAE30;&#xBCF8;&#xC801;&#xC73C;&#xB85C; &#xCF54;&#xB4DC; &#xC0DD;&#xC131;&#xAE30;&#xB294; &#xC608;&#xC678;&#xB97C; &#xC0AC;&#xC6A9;&#xD558;&#xB294; &#xCF54;&#xB4DC;&#xB97C; &#xC0DD;&#xC131;&#xD569;&#xB2C8;&#xB2E4;. &#xC790;&#xCCB4; &#xBC29;&#xCE68;&#xB4F1;&#xC5D0; &#xB530;&#xB77C;&#xC11C; &#xC608;&#xC678; &#xC0AC;&#xC6A9;&#xC774; &#xD5C8;&#xC6A9;&#xB418;&#xB294; &#xC54A;&#xB294; &#xD658;&#xACBD;&#xC5D0;&#xC11C;&#xB294; &#xCF54;&#xB4DC; &#xC0DD;&#xC131;&#xC2DC;&#xC5D0; <code>--no-exceptions-handling</code> &#xC635;&#xC158;&#xC744; &#xC8FC;&#xC5B4;&#xC11C; &#xC608;&#xC678; &#xAD00;&#xB828; &#xCF54;&#xB4DC;&#xAC00; &#xC0DD;&#xC131;&#xB418;&#xC9C0; &#xC54A;&#xB3C4;&#xB85D; &#xD574;&#xC57C;&#xD569;&#xB2C8;&#xB2E4;. &#xC774;&#xB54C;&#xB294; &#xC608;&#xC678; &#xB300;&#xC2E0; &#xC624;&#xB958;&#xCF54;&#xB4DC;&#xB97C; &#xC0AC;&#xC6A9;&#xD558;&#xAC8C; &#xB418;&#xB294;&#xB370;, &#xC608;&#xC678; &#xC815;&#xC758;&#xC2DC;&#xC5D0; &#xBC18;&#xB4EF;&#xC774; &#xC608;&#xC678;&#xC815;&#xC758; &#xC2DC;&#xC791; &#xBD80;&#xBD84;&#xC5D0; &#xC624;&#xB958;&#xCF54;&#xB4DC;&#xB97C; &#xBA85;&#xC2DC;&#xD574;&#xC57C; &#xD569;&#xB2C8;&#xB2E4;.</p>
-<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet <span class="token string">&quot;Example&quot;</span><span class="token punctuation">;</span>
+<p>&#xAE30;&#xBCF8;&#xC801;&#xC73C;&#xB85C; &#xCF54;&#xB4DC; &#xC0DD;&#xC131;&#xAE30;&#xB294; &#xC608;&#xC678;&#xB97C; &#xC0AC;&#xC6A9;&#xD558;&#xB294; &#xCF54;&#xB4DC;&#xB97C; &#xC0DD;&#xC131;&#xD569;&#xB2C8;&#xB2E4;. &#xC790;&#xCCB4; &#xBC29;&#xCE68;&#xB4F1;&#xC5D0; &#xB530;&#xB77C;&#xC11C; &#xC608;&#xC678; &#xC0AC;&#xC6A9;&#xC774; &#xD5C8;&#xC6A9;&#xB418;&#xB294; &#xC54A;&#xB294; &#xD658;&#xACBD;&#xC5D0;&#xC11C;&#xB294; &#xCF54;&#xB4DC; &#xC0DD;&#xC131;&#xC2DC;&#xC5D0; <code>--no-exceptions-handling</code> &#xC635;&#xC158;&#xC744; &#xC8FC;&#xC5B4;&#xC11C; &#xC608;&#xC678; &#xAD00;&#xB828; &#xCF54;&#xB4DC;&#xAC00; &#xC0DD;&#xC131;&#xB418;&#xC9C0; &#xC54A;&#xB3C4;&#xB85D; &#xD574;&#xC57C;&#xD569;&#xB2C8;&#xB2E4;. &#xC774;&#xB54C;&#xB294; &#xC608;&#xC678; &#xB300;&#xC2E0; &#xC624;&#xB958;&#xCF54;&#xB4DC;&#xB97C; &#xC0AC;&#xC6A9;&#xD558;&#xAC8C; &#xB418;&#xB294;&#xB370;, &#xC608;&#xC678; &#xC815;&#xC758;&#xC2DC;&#xC5D0; &#xBC18;&#xB4EF;&#xC774; &#xC608;&#xC678;&#xC815;&#xC758; &#xC2DC;&#xC791; &#xBD80;&#xBD84;&#xC5D0; &#xC624;&#xB958;&#xCF54;&#xB4DC;&#xB97C; &#xBA85;&#xC2DC;&#xD574;&#xC57C;&#xD569;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet Example<span class="token punctuation">;</span>
 
 exception NotFoundException <span class="token punctuation">{</span>
   reason <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">;</span>
@@ -332,19 +332,61 @@ exception NotFoundException <span class="token punctuation">{</span>
 <span class="token function">exception</span><span class="token punctuation">(</span><span class="token number">404</span><span class="token punctuation">)</span>  NotFoundException <span class="token punctuation">{</span>
   reason <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
-</pre><h3 class="mume-header" id="service-%EC%A0%95%EC%9D%98">Service &#xC815;&#xC758;</h3>
+</pre><pre data-role="codeBlock" data-info="csharp" class="language-csharp">sservice Auth <span class="token punctuation">{</span>
+  <span class="token comment">/** &#xB85C;&#xADF8;&#xC778;&#xC744; &#xC694;&#xCCAD;&#xD569;&#xB2C8;&#xB2E4;. */</span>
+  <span class="token function">Login</span><span class="token punctuation">(</span>LoginRequest<span class="token punctuation">)</span>
+      <span class="token function">returns</span> <span class="token punctuation">(</span>LoginResponse<span class="token punctuation">)</span>
+      <span class="token function">throws</span> <span class="token punctuation">(</span>
+          <span class="token comment">/** &#xACC4;&#xC815;&#xC774; &#xBE14;&#xB7ED; &#xB418;&#xC5C8;&#xC2B5;&#xB2C8;&#xB2E4;. */</span>
+          AccountBlockedException<span class="token punctuation">,</span>
+          <span class="token comment">/** &#xC810;&#xAC80;&#xC911;&#xC785;&#xB2C8;&#xB2E4;. */</span>
+          InMaintenanceException<span class="token punctuation">,</span>
+          <span class="token comment">/** &#xC798;&#xBABB;&#xB41C; &#xC694;&#xCCAD;&#xC785;&#xB2C8;&#xB2E4;. */</span>
+          InvalidRequestException<span class="token punctuation">,</span>
+      <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">/** &#xD574;&#xB2F9; &#xACC4;&#xC815;&#xC774; &#xBE14;&#xB7ED;&#xB418;&#xC5C8;&#xC744; &#xACBD;&#xC6B0;&#xC5D0; &#xBC1C;&#xC0DD; */</span>
+exception AccountBlockedException <span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">/** &#xC11C;&#xBC84;&#xAC00; &#xC810;&#xAC80;&#xC911;&#xC77C;&#xB54C; &#xBC1C;&#xC0DD; */</span>
+exception InMaintenanceException <span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">/** &#xC798;&#xBABB;&#xB41C; &#xC694;&#xCCAD;&#xC774; &#xC654;&#xC744;&#xB54C; &#xBC1C;&#xC0DD; */</span>
+exception InvalidRequestException <span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+</pre><h3 class="mume-header" id="service">Service</h3>
 
 <p>&#xC5EC;&#xD0C0; <code>IDL</code>&#xACFC;&#xB294; &#xB2E4;&#xB974;&#xAC8C; 3&#xAC00;&#xC9C0;&#xC758; &#xC11C;&#xBE44;&#xC2A4;&#xB97C; &#xC9C0;&#xC6D0;&#xD569;&#xB2C8;&#xB2E4;. &#xB2E4;&#xC18C; &#xC758;&#xC544;&#xD560;&#xC218;&#xB3C4; &#xC788;&#xB294;&#xB370;, &#xC81C;&#xAC00; &#xC0DD;&#xAC01;&#xD588;&#xB358; &#xBAA8;&#xB4E0; &#xBAA9;&#xC801;&#xC5D0; &#xB9DE;&#xB294; &#xC77C;&#xBC18;&#xD658;&#xB41C; &#xC11C;&#xBE44;&#xC2A4; &#xD615;&#xD0DC;&#xB97C; &#xAD6C;&#xD604;&#xD558;&#xAE30; &#xC27D;&#xC9C0; &#xC54A;&#xC558;&#xACE0;, &#xADF8;&#xACB0;&#xACFC; 3&#xAC00;&#xC9C0;&#xC758; &#xC11C;&#xBE44;&#xC2A4;&#xB85C; &#xBD84;&#xD654;&#xD558;&#xAE30;&#xB85C; &#xACB0;&#xC815;&#xD588;&#xC2B5;&#xB2C8;&#xB2E4;. &#xAD6C;&#xCCB4;&#xC801;&#xC73C;&#xB85C; &#xB2E4;&#xC74C;&#xACFC; &#xAC19;&#xC740; &#xC11C;&#xBE44;&#xC2A4;&#xB4E4;&#xC744; &#xC9C0;&#xC6D0;&#xD569;&#xB2C8;&#xB2E4;.</p>
-<ul>
-<li>Simple Service</li>
-<li>Regular Service</li>
-<li>Realtime Service</li>
-</ul>
+<table>
+<thead>
+<tr>
+<th>&#xC885;&#xB958;</th>
+<th>&#xC124;&#xBA85;</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Simple Service</td>
+<td>&#xC81C;&#xC77C; &#xB2E8;&#xC21C;&#xD55C; &#xD615;&#xD0DC;&#xC758; <code>Request</code>, <code>Response</code> &#xD615;&#xD0DC;&#xC758; &#xC11C;&#xBE44;&#xC2A4;</td>
+</tr>
+<tr>
+<td>Regular Service</td>
+<td>&#xC81C;&#xC77C; &#xB2E8;&#xC21C;&#xD55C; &#xD615;&#xD0DC;&#xC758; <code>Request</code>, <code>Response</code> &#xD615;&#xD0DC;&#xC758; &#xC11C;&#xBE44;&#xC2A4;(struct &#xC815;&#xC758; &#xC5C6;&#xC774; &#xC77C;&#xBC18; &#xD568;&#xC218;&#xCC98;&#xB7FC; &#xC815;&#xC758;)</td>
+</tr>
+<tr>
+<td>Realtime Service</td>
+<td>&#xC2E4;&#xC2DC;&#xAC04; &#xAC8C;&#xC784;&#xC11C;&#xBC84;&#xB97C; &#xC704;&#xD55C; &#xC11C;&#xBE44;&#xC2A4;</td>
+</tr>
+</tbody>
+</table>
 <p>&#xC0C1;&#xC138;&#xD55C; &#xB0B4;&#xC6A9;&#xC740; &#xC544;&#xB798;&#xC758; &#xB0B4;&#xC6A9;&#xC744; &#xCC38;&#xC870;&#xD558;&#xC2DC;&#xAE38; &#xBC14;&#xB78D;&#xB2C8;&#xB2E4;.</p>
-<h4 class="mume-header" id="simple-service-%EC%A0%95%EC%9D%98">Simple Service &#xC815;&#xC758;</h4>
+<h4 class="mume-header" id="simple-service">Simple Service</h4>
 
 <p><code>gRPC</code>&#xB4F1;&#xC5D0;&#xC11C; &#xC9C0;&#xC6D0;&#xD558;&#xB294; &#xB2E8;&#xC21C;&#xD55C; <code>Request</code>, <code>Response</code> &#xD615;&#xD0DC;&#xB97C; &#xC9C0;&#xC6D0;&#xD558;&#xB294; &#xC11C;&#xBE44;&#xC2A4;&#xC785;&#xB2C8;&#xB2E4;. <code>Request</code>, <code>Response</code> &#xC5D0; &#xD5C8;&#xC6A9;&#xB418;&#xB294; &#xD0C0;&#xC785;&#xC740; <code>struct</code>, <code>void</code> &#xB450; &#xD0C0;&#xC785;&#xBFD0;&#xC785;&#xB2C8;&#xB2E4;. &#xC989;, &#xC694;&#xCCAD;/&#xC751;&#xB2F5;&#xC774; &#xC788;&#xAC70;&#xB098; &#xC5C6;&#xAC70;&#xB098;&#xB9CC; &#xC9C0;&#xC815;&#xD560; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
-<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet <span class="token string">&quot;Example&quot;</span><span class="token punctuation">;</span>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet Example<span class="token punctuation">;</span>
 
 sservice Greeting <span class="token punctuation">{</span>
   <span class="token function">SayHello</span><span class="token punctuation">(</span>HelloRequest<span class="token punctuation">)</span> <span class="token function">returns</span> <span class="token punctuation">(</span>HelloReply<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -359,10 +401,10 @@ sservice Greeting <span class="token punctuation">{</span>
 <span class="token keyword">struct</span> HelloReply <span class="token punctuation">{</span>
   greeting <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
-</pre><h4 class="mume-header" id="regular-service-%EC%A0%95%EC%9D%98">Regular Service &#xC815;&#xC758;</h4>
+</pre><h4 class="mume-header" id="regular-service">Regular Service</h4>
 
-<p>&#xBCF8;&#xC9C8;&#xC801;&#xC73C;&#xB85C; &#xC704;&#xC5D0;&#xC11C; &#xC598;&#xAE30;&#xD55C; <code>Simple Service</code>&#xC640; &#xB3D9;&#xC77C;&#xD569;&#xB2C8;&#xB2E4;. &#xB2E4;&#xB9CC;, <code>Request</code>, <code>Response</code>&#xC5D0; &#xAC01;&#xAC01; &#xD55C;&#xAC1C;&#xC758; <code>struct</code>&#xAC00; &#xC640;&#xC57C;&#xD558;&#xB294; <code>Simple Service</code>&#xC640;&#xB294; &#xB2E4;&#xB974;&#xAC8C; &#xC77C;&#xBC18;&#xC801;&#xC778; <code>C&#xC5B8;&#xC5B4;</code> &#xD568;&#xC218;&#xC815;&#xC758; &#xD615;&#xD0DC;&#xC640; &#xC720;&#xC0AC;&#xD55C; &#xD615;&#xD0DC;&#xB97C; &#xAC00;&#xC9D1;&#xB2C8;&#xB2E4;.</p>
-<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet <span class="token string">&quot;Example&quot;</span><span class="token punctuation">;</span>
+<p>&#xBCF8;&#xC9C8;&#xC801;&#xC73C;&#xB85C; &#xC704;&#xC5D0;&#xC11C; &#xC598;&#xAE30;&#xD55C; <code>Simple Service</code>&#xC640; &#xB3D9;&#xC77C;&#xD569;&#xB2C8;&#xB2E4;. &#xB2E4;&#xB9CC;, <code>Request</code>, <code>Response</code>&#xC5D0; &#xAC01;&#xAC01; &#xD55C;&#xAC1C;&#xC758; <code>struct</code>&#xAC00; &#xC640;&#xC57C;&#xD558;&#xB294; <code>Simple Service</code>&#xC640;&#xB294; &#xB2E4;&#xB974;&#xAC8C; &#xC77C;&#xBC18;&#xC801;&#xC778; <code>C&#xC5B8;&#xC5B4;</code> &#xD568;&#xC218;&#xC815;&#xC758; &#xD615;&#xD0DC;&#xC640; &#xC720;&#xC0AC;&#xD55C; &#xD615;&#xD0DC;&#xB97C; &#xAC00;&#xC9D1;&#xB2C8;&#xB2E4;. <code>Simple Service</code>&#xB97C; &#xC0AC;&#xC6A9;&#xD558;&#xC9C0; &#xC54A;&#xACE0;, <code>Regular Service</code>&#xB97C; &#xC0AC;&#xC6A9;&#xD558;&#xB294; &#xC7A5;&#xC810;&#xC740; &#xBB34;&#xC5C7;&#xC77C;&#xAE4C;&#xC694;? <code>Simple Service</code>&#xB294; <code>Request</code>, <code>Response</code> <code>struct</code>&#xB97C; &#xC815;&#xC758;&#xD574;&#xC57C;&#xD558;&#xB294; &#xBD80;&#xB2F4;&#xC774; &#xC788;&#xB294;&#xB370; &#xBC18;&#xD574;, <code>Regular Service</code>&#xB294; &#xADF8;&#xB7F0; &#xBD80;&#xB2F4;&#xC774; &#xC5C6;&#xC2B5;&#xB2C8;&#xB2E4;. &#xADF8;&#xC678;&#xC5D0;&#xB294; &#xCC28;&#xC774;&#xAC00; &#xC5C6;&#xC73C;&#xBA70;, &#xC2E4;&#xC81C; &#xB0B4;&#xBD80; &#xAD6C;&#xD604;&#xB3C4; &#xB3D9;&#xC77C;&#xD569;&#xB2C8;&#xB2E4;. &#xB2E8;&#xC9C0;, <code>Request</code>, <code>Response</code> &#xAD6C;&#xC870;&#xCCB4; &#xC815;&#xC758;&#xB97C; &#xC548;&#xD574;&#xB3C4; &#xB41C;&#xB2E4;&#xB9CC; &#xB2E4;&#xB985;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet Example<span class="token punctuation">;</span>
 
 rservice Greeting <span class="token punctuation">{</span>
   <span class="token function">SayHello</span><span class="token punctuation">(</span>name <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">)</span> <span class="token function">returns</span> <span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -381,39 +423,331 @@ rservice Greeting <span class="token punctuation">{</span>
 <span class="token keyword">struct</span> HelloReply <span class="token punctuation">{</span>
   greeting <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
-</pre><h4 class="mume-header" id="realtime-service-%EC%A0%95%EC%9D%98">Realtime Service &#xC815;&#xC758;</h4>
+</pre><h4 class="mume-header" id="realtime-service">Realtime Service</h4>
 
 <p>&#xC704;&#xC758; &#xB450;&#xAC1C; &#xC11C;&#xBE44;&#xC2A4; &#xD615;&#xD0DC;&#xC640;&#xB294; &#xC644;&#xC804;&#xD788; &#xB2E4;&#xB978; &#xC885;&#xB958;&#xC758; &#xC11C;&#xBE44;&#xC2A4;&#xC785;&#xB2C8;&#xB2E4;. &#xC704; &#xB450; &#xC11C;&#xBE44;&#xC2A4;&#xC640;&#xC758; &#xCC28;&#xC774;&#xC810;&#xC740; &#xC544;&#xB798;&#xC640; &#xAC19;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
 <ul>
 <li>&#xBC18;&#xD658; &#xAC12;&#xC744; &#xAC00;&#xC9C8; &#xC218; &#xC5C6;&#xC2B5;&#xB2C8;&#xB2E4;.</li>
 <li>&#xC608;&#xC678;&#xB97C; &#xCC98;&#xB9AC;&#xD558;&#xC9C0; &#xC54A;&#xC2B5;&#xB2C8;&#xB2E4;.</li>
-<li>&#xC694;&#xCCAD;&#xC5D0; &#xB300;&#xD55C; &#xC751;&#xB2F5;&#xC744; &#xAE30;&#xB2E4;&#xB9AC;&#xC9C0; &#xC54A;&#xC2B5;&#xB2C8;&#xB2E4;.</li>
+<li>&#xC11C;&#xBC84;&#xCE21;&#xC758; &#xC751;&#xB2F5;&#xC744; &#xAE30;&#xB2E4;&#xB9AC;&#xC9C0; &#xC54A;&#xC2B5;&#xB2C8;&#xB2E4;.</li>
 </ul>
-<p>&#xC608;&#xC678;&#xCC98;&#xB9AC;&#xB3C4; &#xC5C6;&#xACE0; &#xBC18;&#xD658;&#xAC12; &#xCC98;&#xB9AC;&#xB3C4; &#xC5C6;&#xB294; &#xC774;&#xB7F0; &#xC11C;&#xBE44;&#xC2A4;&#xB97C; &#xC5B4;&#xB514;&#xC5D0; &#xC0AC;&#xC6A9;&#xD574;&#xC57C;&#xD560;&#xC9C0; &#xC758;&#xBB38;&#xC774; &#xB4E4;&#xAC83;&#xC785;&#xB2C8;&#xB2E4;. <code>&#xC2E4;&#xC2DC;&#xAC04;</code> &#xAC8C;&#xC784; &#xB124;&#xD2B8;&#xC6CC;&#xD0B9;&#xC758; &#xACBD;&#xC6B0; <code>Request</code>, <code>Resonse</code> &#xD615;&#xD0DC;&#xAC00; &#xC544;&#xB2CC; &#xACBD;&#xC6B0;&#xAC00; &#xB9CE;&#xC73C;&#xBBC0;&#xB85C;, &#xC774;&#xB54C; &#xC0AC;&#xC6A9;&#xD558;&#xAE30; &#xC704;&#xD574; &#xC0AC;&#xC6A9;&#xD558;&#xB294; &#xC11C;&#xBE44;&#xC2A4;&#xC785;&#xB2C8;&#xB2E4;. &#xC608;&#xB97C;&#xB4E4;&#xC5B4;, &#xD50C;&#xB808;&#xC774;&#xC5B4;&#xAC00; &#xC11C;&#xBC84;&#xC5D0;&#xAC8C; &#xC6C0;&#xC9C1;&#xC784;&#xC744; &#xC694;&#xCCAD;&#xD588;&#xC744;&#xB54C; &#xC6C0;&#xC9C1;&#xC784; &#xC694;&#xCCAD;&#xC5D0; &#xB300;&#xD55C; &#xACB0;&#xACFC;&#xAC00; &#xC544;&#xB2CC;, &#xC0C1;&#xD638;&#xC791;&#xC6A9;&#xC774; &#xC77C;&#xC5B4;&#xB098;&#xB294; &#xC77C;&#xB828;&#xC758; &#xC0C1;&#xD0DC;&#xB97C; &#xD074;&#xB77C;&#xC774;&#xC5B8;&#xD2B8;&#xC5D0;&#xAC8C; &#xBCF4;&#xB0B4;&#xC8FC;&#xB294; &#xD615;&#xD0DC;&#xB4E4;&#xC5D0; &#xC0AC;&#xC6A9;&#xD558;&#xAE30; &#xC704;&#xD55C; &#xC11C;&#xBE44;&#xC2A4;&#xC785;&#xB2C8;&#xB2E4;.</p>
-<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet <span class="token string">&quot;Example&quot;</span><span class="token punctuation">;</span>
+<p>&#xC608;&#xC678;&#xCC98;&#xB9AC;&#xB3C4; &#xC5C6;&#xACE0; &#xBC18;&#xD658;&#xAC12; &#xCC98;&#xB9AC;&#xB3C4; &#xC5C6;&#xB294; &#xC774;&#xB7F0; &#xC11C;&#xBE44;&#xC2A4;&#xB97C; &#xC5B4;&#xB514;&#xC5D0; &#xC0AC;&#xC6A9;&#xD574;&#xC57C;&#xD560;&#xC9C0; &#xC758;&#xBB38;&#xC774; &#xB4E4;&#xAC83;&#xC785;&#xB2C8;&#xB2E4;. <code>&#xC2E4;&#xC2DC;&#xAC04;</code> &#xAC8C;&#xC784; &#xB124;&#xD2B8;&#xC6CC;&#xD0B9;&#xC758; &#xACBD;&#xC6B0; <code>Request</code>, <code>Resonse</code> &#xD615;&#xD0DC;&#xAC00; &#xC544;&#xB2CC; &#xACBD;&#xC6B0;&#xAC00; &#xB9CE;&#xC73C;&#xBBC0;&#xB85C;, &#xC774;&#xB54C; &#xC0AC;&#xC6A9;&#xD558;&#xAE30; &#xC704;&#xD574; &#xC0AC;&#xC6A9;&#xD558;&#xB294; &#xC11C;&#xBE44;&#xC2A4;&#xC785;&#xB2C8;&#xB2E4;. &#xC608;&#xB97C;&#xB4E4;&#xC5B4;, &#xD50C;&#xB808;&#xC774;&#xC5B4;&#xAC00; &#xC11C;&#xBC84;&#xC5D0;&#xAC8C; &#xC6C0;&#xC9C1;&#xC784;&#xC744; &#xC694;&#xCCAD;&#xD588;&#xC744;&#xB54C; &#xC6C0;&#xC9C1;&#xC784; &#xC694;&#xCCAD;&#xC5D0; &#xB300;&#xD55C; &#xACB0;&#xACFC;&#xAC00; &#xC544;&#xB2CC;, &#xC0C1;&#xD638;&#xC791;&#xC6A9;&#xC774; &#xC77C;&#xC5B4;&#xB098;&#xB294; &#xC77C;&#xB828;&#xC758; &#xC0C1;&#xD0DC;&#xB97C; &#xD074;&#xB77C;&#xC774;&#xC5B8;&#xD2B8;&#xC5D0;&#xAC8C; &#xBCF4;&#xB0B4;&#xC8FC;&#xB294; &#xD615;&#xD0DC;&#xB4E4;&#xC5D0; &#xC0AC;&#xC6A9;&#xD558;&#xAE30; &#xC704;&#xD55C; &#xC11C;&#xBE44;&#xC2A4;&#xC785;&#xB2C8;&#xB2E4;. &#xB610;&#xD55C;, <code>Client to Server</code>, <code>Server to Client</code> &#xC678;&#xC5D0; <code>Peer to Peer</code> &#xD1B5;&#xC2E0;&#xC5D0; &#xC801;&#xC6A9;&#xD558;&#xAE30;&#xB3C4; &#xC6A9;&#xC774;&#xD569;&#xB2C8;&#xB2E4;.</p>
+<p><code>Realtime Service</code>&#xB294; &#xAC8C;&#xC784;&#xB9CC;&#xC744; &#xC704;&#xD55C; &#xC804;&#xC6A9; &#xAE30;&#xB2A5;&#xC774;&#xAE30;&#xC5D0; &#xC6F9;&#xC11C;&#xBE44;&#xC2A4;&#xC5D0; &#xC801;&#xD569;&#xD558;&#xC9C0; &#xC54A;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet Example<span class="token punctuation">;</span>
 
 rtservice GameC2S <span class="token punctuation">{</span>
-  <span class="token function">Move</span><span class="token punctuation">(</span>actorId <span class="token punctuation">:</span><span class="token keyword">int</span><span class="token punctuation">,</span> x <span class="token punctuation">:</span><span class="token keyword">int</span><span class="token punctuation">,</span> y <span class="token punctuation">:</span><span class="token keyword">int</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token comment">/** &#xC11C;&#xBC84;&#xC5D0; &#xC774;&#xB3D9;&#xD558;&#xAE30;&#xB97C; &#xC694;&#xCCAD;&#xD569;&#xB2C8;&#xB2E4;. */</span>
+  <span class="token function">Move</span><span class="token punctuation">(</span>
+        <span class="token comment">/** &#xC774;&#xB3D9;&#xD560; x &#xC88C;&#xD45C;&#xC785;&#xB2C8;&#xB2E4;. */</span>
+        x <span class="token punctuation">:</span><span class="token keyword">int</span><span class="token punctuation">,</span>
+        <span class="token comment">/** &#xC774;&#xB3D9;&#xD560; y &#xC88C;&#xD45C;&#xC785;&#xB2C8;&#xB2E4;. */</span>
+        y <span class="token punctuation">:</span><span class="token keyword">int</span>
+      <span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
 
 rtservice GameS2C <span class="token punctuation">{</span>
+  <span class="token comment">/** &#xC11C;&#xBC84;&#xC5D0;&#xC11C; &#xD074;&#xB77C;&#xC774;&#xC5B8;&#xD2B8;&#xB85C; &#xC774;&#xB3D9; &#xAD00;&#xB828;&#xD55C; &#xC774;&#xBCA4;&#xD2B8;&#xB97C; &#xC804;&#xC1A1;&#xD569;&#xB2C8;&#xB2E4;. */</span>
   <span class="token function">MoveSync</span><span class="token punctuation">(</span>moveEvents <span class="token punctuation">:</span>MoveEvent<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
-</pre><h3 class="mume-header" id="%EC%83%81%EC%88%98%EC%A0%95%EC%9D%98">&#xC0C1;&#xC218;&#xC815;&#xC758;</h3>
+</pre><h3 class="mume-header" id="%EC%97%B4%EA%B1%B0%ED%98%95">&#xC5F4;&#xAC70;&#xD615;</h3>
+
+<p><code>C &#xC5B8;&#xC5B4;</code>&#xC758; &#xADF8;&#xAC83;&#xCC98;&#xB7FC; &#xB098;&#xC5F4;&#xC2DD;&#xC744; &#xC815;&#xC758;&#xD560; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. &#xB4A4;&#xC5D0; &#xAC12;&#xC744; &#xC9C0;&#xC815;&#xD558;&#xC9C0; &#xC54A;&#xC73C;&#xBA74; &#xC22B;&#xC790; <code>0</code>&#xBD80;&#xD130; &#xCC28;&#xB840;&#xB85C; &#xC99D;&#xAC00;&#xD55C; &#xAC12;&#xC774; &#xC124;&#xC815;&#xB429;&#xB2C8;&#xB2E4;. &#xBA85;&#xD655;&#xD558;&#xAC8C; &#xD558;&#xACE0; &#xC2F6;&#xB2E4;&#xBA74;, &#xB4A4;&#xC5D0; &#xC22B;&#xC790;&#xB97C; &#xC9C0;&#xC815;&#xD574;&#xC90D;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">enum</span> AnimalType <span class="token punctuation">{</span>
+  Elephant<span class="token punctuation">,</span>
+  Tiger<span class="token punctuation">,</span>
+  Lion<span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+</pre><h3 class="mume-header" id="%EC%83%81%EC%88%98">&#xC0C1;&#xC218;</h3>
 
 <p>&#xAE30;&#xC874; &#xC5B8;&#xC5B4;&#xB4E4;&#xC758; &#xC0C1;&#xC218;&#xC815;&#xC758;&#xC640; &#xC720;&#xC0AC;&#xD558;&#xBA70;, <code>.prom</code> &#xD30C;&#xC77C;&#xB0B4;&#xC5D0;&#xC11C; &#xC0AC;&#xC6A9;&#xC774; &#xAC00;&#xB2A5;&#xD558;&#xBA70; &#xB3D9;&#xC2DC;&#xC5D0; &#xCF54;&#xB4DC; &#xC0DD;&#xC131;&#xC2DC;&#xC5D0; &#xD574;&#xB2F9; &#xC815;&#xC758;&#xC640; &#xAC12;&#xB4E4;&#xC774; &#xCD9C;&#xB825;&#xB418;&#xC5B4;&#xC11C; &#xD504;&#xB85C;&#xADF8;&#xB798;&#xBA38;&#xAC00; &#xBC14;&#xB85C; &#xC0AC;&#xC6A9;&#xD560; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. &#xC774;&#xB97C; &#xD65C;&#xC6A9;&#xD558;&#xBA74; &#xD558;&#xB098;&#xC758; &#xD30C;&#xC77C;&#xC5D0; &#xACF5;&#xD1B5;&#xB41C; &#xC815;&#xC758;&#xB4E4;&#xC774; &#xB2F4;&#xAE30;&#xAC8C; &#xB418;&#xBBC0;&#xB85C; &#xAD00;&#xB9AC;&#xAC00; &#xC6A9;&#xC774;&#xD574;&#xC9C0;&#xB294; &#xD6A8;&#xACFC;&#xAC00; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
-<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> <span class="token punctuation">.</span> <span class="token string">&quot;Example&quot;</span><span class="token punctuation">;</span>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> <span class="token operator">*</span> Example<span class="token punctuation">;</span>
 
 <span class="token keyword">const</span> MAX_PATHLEN <span class="token punctuation">:</span><span class="token keyword">int</span> <span class="token operator">=</span> <span class="token number">512</span><span class="token punctuation">;</span>
 <span class="token keyword">const</span> DEFAULT_KEY <span class="token punctuation">:</span><span class="token keyword">string</span> <span class="token operator">=</span> <span class="token string">&quot;blabla&quot;</span><span class="token punctuation">;</span>
-</pre><h3 class="mume-header" id="%EB%AC%B8%EC%84%9C%ED%99%94">&#xBB38;&#xC11C;&#xD654;</h3>
+</pre><h3 class="mume-header" id="import">Import</h3>
 
-<p>&#xBB38;&#xC11C;&#xD654;&#xB294; <code>API</code> &#xC815;&#xC758;&#xC2DC;&#xC5D0; &#xB9E4;&#xC6B0; &#xC911;&#xC694;&#xD55C; &#xBD80;&#xBD84;&#xC785;&#xB2C8;&#xB2E4;. &#xB300;&#xBD80;&#xBD84;&#xC758; &#xACBD;&#xC6B0; &#xC791;&#xC131;&#xC790;&#xC640; &#xC0AC;&#xC6A9;&#xC790;&#xAC00; &#xB2E4;&#xB974;&#xAE30; &#xB54C;&#xBB38;&#xC785;&#xB2C8;&#xB2E4;. &#xD1B5;&#xC0C1;&#xC801;&#xC73C;&#xB85C; &#xC774; &#xBD80;&#xBD84;&#xC744; &#xC0C1;&#xC1C4;&#xD558;&#xAE30; &#xC704;&#xD574;&#xC11C;, &#xBCC4;&#xB3C4;&#xC758; <code>API</code> &#xC0AC;&#xC6A9;&#xBC95;&#xC744; &#xB2F4;&#xC740; &#xBB38;&#xC11C;&#xC791;&#xC5C5;&#xC744; &#xD558;&#xAC8C; &#xB429;&#xB2C8;&#xB2E4;. &#xC774; &#xC791;&#xC5C5;&#xC740; &#xC801;&#xC9C0; &#xC54A;&#xC740; &#xBD80;&#xB2F4;&#xC774;&#xBA70;, &#xAC1C;&#xBC1C;&#xC790;&#xB4E4;&#xC5D0;&#xAC8C;&#xB294; &#xB54C;&#xB85C;&#xB294; &#xACE0;&#xD1B5;&#xC77C; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. <code>PROM</code>&#xC5D0;&#xC11C;&#xB294; <code>thrift</code> &#xCC98;&#xB7FC; <code>javadoc</code> &#xC2A4;&#xD0C0;&#xC77C;&#xC758; &#xC8FC;&#xC11D;&#xC744; &#xB2EC;&#xC544;&#xC8FC;&#xBA74; &#xC790;&#xB3D9;&#xC73C;&#xB85C; &#xBB38;&#xC11C;&#xD654;&#xAC8C; &#xB418;&#xB3C4;&#xB85D; &#xC124;&#xACC4;&#xB418;&#xC5B4; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. &#xC774;&#xB97C; &#xC798; &#xD65C;&#xC6A9;&#xD558;&#xBA74;, &#xBCC4;&#xB3C4;&#xC758; <code>API</code> &#xBB38;&#xC11C;&#xC791;&#xC5C5;&#xC774; &#xC0DD;&#xB7B5; &#xB420;&#xC218;&#xB3C4; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. &#xB610;&#xD55C;, <code>PROM</code>&#xC740; &#xC790;&#xCCB4;&#xC801;&#xC73C;&#xB85C; <code>markdown</code> &#xD0DC;&#xADF8;&#xB97C; &#xC0AC;&#xC6A9;&#xD574;, <code>.html</code> &#xD30C;&#xC77C;&#xB85C; &#xCD9C;&#xB825;&#xD558;&#xB294; &#xAE30;&#xB2A5;&#xC744; &#xC9C0;&#xC6D0;&#xD569;&#xB2C8;&#xB2E4;. (<code>markdown</code> &#xB80C;&#xB354;&#xB7EC;&#xB97C; &#xB0B4;&#xC7A5;&#xD558;&#xACE0; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.)</p>
-<p>&#xAD6C;&#xCCB4;&#xC801;&#xC778; &#xBB38;&#xC11C;&#xD654;&#xC758; &#xACB0;&#xACFC;&#xBB3C;&#xC740; &#xB2E4;&#xC74C;&#xACFC; &#xAC19;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+<p>&#xD558;&#xB098;&#xC758; <code>.prom</code> &#xD30C;&#xC77C;&#xC5D0; &#xBAA8;&#xB4E0; &#xC815;&#xC758;&#xB97C; &#xB123;&#xC744; &#xC218;&#xB3C4; &#xC788;&#xC9C0;&#xB9CC;, &#xB0B4;&#xC6A9;&#xC774; &#xB108;&#xBB34; &#xB9CE;&#xC544;&#xC9C0;&#xBA74; &#xC77D;&#xAE30;&#xB3C4; &#xBD88;&#xD3B8;&#xD558;&#xACE0;, &#xAD00;&#xB9AC;&#xC758; &#xBD80;&#xB2F4;&#xC774; &#xB298;&#xC5B4;&#xB098;&#xAC8C; &#xB429;&#xB2C8;&#xB2E4;. &#xC774;&#xB54C; &#xC801;&#xB2F9;&#xD788; &#xBD84;&#xB958;&#xD574;&#xC11C; &#xC5EC;&#xB7EC;&#xAC1C;&#xC758; <code>.prom</code> &#xD30C;&#xC77C;&#xB85C; &#xB098;&#xB204;&#xC5B4;&#xC11C; &#xAD00;&#xB9AC;&#xD558;&#xAC8C; &#xB418;&#xBA74;, &#xC791;&#xC5C5;&#xC774; &#xC218;&#xC6D4;&#xD574;&#xC9C8;&#xAC83;&#xC785;&#xB2C8;&#xB2E4;. &#xC774;&#xB54C; &#xC0AC;&#xC6A9;&#xD558;&#xB294; &#xAD6C;&#xBB38;&#xC774; <code>import</code> &#xAD6C;&#xBB38;&#xC785;&#xB2C8;&#xB2E4;. &#xB2E4;&#xB978; <code>.prom</code> &#xD30C;&#xC77C;&#xC744; &#xC784;&#xD3EC;&#xD2B8; &#xD558;&#xAC8C; &#xB418;&#xBA74; &#xBC14;&#xB85C; &#xC811;&#xADFC;&#xC774; &#xBD88;&#xAC00;&#xB2A5;&#xD558;&#xACE0; <code>&#xD30C;&#xC77C;&#xBA85;.&#xC774;&#xB984;</code> &#xD615;&#xD0DC;&#xB85C; &#xC811;&#xADFC;&#xD560; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. &#xC774;&#xAC8C; &#xBD88;&#xD3B8;&#xD558;&#xB2E4;&#xBA74; &#xC804;&#xC5ED; &#xC2A4;&#xCF54;&#xD504;&#xC5D0; &#xB9F5;&#xD551;&#xD560; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. &#xC774;&#xB54C;&#xB294; <code>import . &#xD30C;&#xC77C;&#xBA85;</code> &#xD615;&#xD0DC;&#xB85C; &#xC9C0;&#xC815;&#xD574;&#xBA74; &#xB429;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token comment">// ErrorCodes.prom</span>
+
+<span class="token keyword">enum</span> ErrorCode <span class="token punctuation">{</span>
+  <span class="token punctuation">.</span>
+  <span class="token punctuation">.</span>
+  <span class="token punctuation">.</span>
+<span class="token punctuation">}</span>
+</pre><pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token comment">// Types.prom</span>
+
+</pre><pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token comment">// All.prom</span>
+
+import <span class="token string">&quot;ErrorCodes.prom&quot;</span>
+import <span class="token string">&quot;Types.prom&quot;</span>
+</pre><h3 class="mume-header" id="namespace">Namespace</h3>
+
+<p><code>Namespace</code>&#xB294; <code>IDL</code>&#xB0B4;&#xC5D0;&#xC11C;&#xB294; &#xC544;&#xBB34;&#xB7F0; &#xAE30;&#xB2A5;&#xB3C4; &#xD558;&#xC9C0; &#xC54A;&#xB294; &#xC694;&#xC18C;&#xC785;&#xB2C8;&#xB2E4;. <code>Namespace</code>&#xB294; &#xCF54;&#xB4DC; &#xC0DD;&#xC131;&#xC2DC;&#xC5D0; &#xC9C0;&#xC815;&#xD55C; &#xC5B8;&#xC5B4;&#xC5D0; &#xC801;&#xC6A9;&#xB420; <code>namespace</code>&#xB97C; &#xC124;&#xC815;&#xD560; &#xC218; &#xC788;&#xB3C4;&#xB85D; &#xD574;&#xC90D;&#xB2C8;&#xB2E4;.</p>
+<p><code>C#</code> &#xCF54;&#xB4DC;&#xC758; &#xC608;&#xB97C; &#xBCF4;&#xC790;&#xBA74;,</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token comment">// MyGame.prom</span>
+<span class="token keyword">namespace</span> dotnet MyGame<span class="token punctuation">;</span>
+
+<span class="token keyword">struct</span> AvatarInfo <span class="token punctuation">{</span>
+  <span class="token punctuation">.</span>
+  <span class="token punctuation">.</span>
+  <span class="token punctuation">.</span>
+<span class="token punctuation">}</span>
+</pre><p>&#xC704; &#xC815;&#xC758; &#xAE30;&#xC900;&#xC73C;&#xB85C; &#xC0DD;&#xC131;&#xB41C; C# &#xCF54;&#xB4DC;&#xC785;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token comment">// MyGame.cs</span>
+<span class="token keyword">namespace</span> MyGame
+<span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">AvatarInfo</span> <span class="token punctuation">:</span> <span class="token keyword">global</span><span class="token punctuation">::</span>Prom<span class="token punctuation">.</span>Core<span class="token punctuation">.</span>IGeneratedStruct
+    <span class="token punctuation">{</span>
+        <span class="token punctuation">.</span>
+        <span class="token punctuation">.</span>
+        <span class="token punctuation">.</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</pre><h3 class="mume-header" id="typedef">Typedef</h3>
+
+<p>&#xD2B9;&#xC815;&#xD55C; &#xD0C0;&#xC785;&#xC744; &#xC880;&#xB354; &#xC758;&#xBBF8;&#xC788;&#xAC8C; &#xC0AC;&#xC6A9;&#xD558;&#xACE0; &#xC2F6;&#xC744; &#xB54C;&#xAC00; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. &#xC608;&#xB97C;&#xB4E4;&#xC5B4;&#xC11C; <code>UserID</code>&#xC5D0; <code>int</code> &#xD0C0;&#xC785;&#xC744; &#xC0AC;&#xC6A9;&#xD560; &#xACBD;&#xC6B0; <code>UserID</code>&#xB97C; &#xC815;&#xC758;&#xD574;&#xC11C; &#xC0AC;&#xC6A9;&#xD558;&#xACE0; &#xC2F6;&#xC744; &#xAC83;&#xC785;&#xB2C8;&#xB2E4;. &#xADF8;&#xB7F4;&#xB54C; &#xC0AC;&#xC6A9;&#xD558;&#xB294; &#xAC83;&#xC774; <code>Typedef</code>&#xC785;&#xB2C8;&#xB2E4;. &#xB2E4;&#xB9CC;, &#xC0DD;&#xC131; &#xD0C0;&#xAC9F; &#xC5B8;&#xC5B4;&#xC5D0;&#xC11C; <code>typedef</code>&#xB97C; &#xC9C0;&#xC6D0;&#xD558;&#xC9C0; &#xC54A;&#xC744; &#xACBD;&#xC6B0;, &#xBCF8;&#xB798;&#xC758; &#xD0C0;&#xC785;&#xC73C;&#xB85C; &#xCD9C;&#xB825; &#xB429;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp">typedef UserID <span class="token punctuation">:</span><span class="token keyword">int</span><span class="token punctuation">;</span>
+
+<span class="token keyword">struct</span> UserInfo <span class="token punctuation">{</span>
+  userId <span class="token punctuation">:</span>UserID<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</pre><h3 class="mume-header" id="containers">Containers</h3>
+
+<p><code>PROM</code>&#xC5D0;&#xC11C;&#xB294; &#xC138;&#xAC00;&#xC9C0;&#xC758; &#xCEE8;&#xD14C;&#xC774;&#xB108;&#xB97C; &#xD0C0;&#xC785;&#xC744; &#xC9C0;&#xC6D0;&#xD569;&#xB2C8;&#xB2E4;.</p>
 <ul>
-<li>html&#xB85C; &#xCD9C;&#xB825;</li>
-<li>json/xml &#xD615;&#xD0DC;&#xB85C; &#xC2A4;&#xD0A4;&#xB9C8; &#xCD9C;&#xB825;</li>
+<li>Map</li>
+<li>Set</li>
+<li>List</li>
 </ul>
+<p>&#xC774; &#xD0C0;&#xC785;&#xB4E4;&#xC740; &#xC5ED;&#xC9C1;&#xB82C;&#xD654;(deserailization)&#xC2DC;&#xC5D0; <code>Lazy</code> &#xB85C;&#xB4DC; &#xB429;&#xB2C8;&#xB2E4;. &#xC774; &#xB9D0;&#xC740; &#xC811;&#xADFC;&#xD558;&#xB294; &#xC21C;&#xAC04;&#xC5D0; &#xC2E4;&#xC81C;&#xB85C; &#xB370;&#xC774;&#xD130;&#xB97C; &#xC77D;&#xC5B4;&#xC11C; &#xCEE8;&#xD14C;&#xC774;&#xB108; &#xAC1D;&#xCCB4;&#xB97C; &#xC0DD;&#xC131;&#xD55C;&#xB2E4;&#xB294; &#xAC83;&#xC785;&#xB2C8;&#xB2E4;. &#xC774;&#xB7EC;&#xD55C; &#xCC98;&#xB9AC;&#xAC00; &#xD544;&#xC694;&#xD55C; &#xC774;&#xC720;&#xB294; &#xCEF4;&#xD14C;&#xC774;&#xB108;&#xB294; &#xB300;&#xBD80;&#xBD84; &#xD06C;&#xAE30;&#xAC00; &#xD074;&#xC218;&#xAC00; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. &#xC774;&#xB54C; &#xC544;&#xC9C1; &#xC0AC;&#xC6A9;&#xD558;&#xC9C0;&#xB3C4; &#xC54A;&#xC740; &#xC694;&#xC18C;&#xB4E4;&#xC744; &#xC704;&#xD574;&#xC11C; &#xBB34;&#xC870;&#xAC74; &#xC77D;&#xC5B4;&#xB4E4;&#xC774;&#xACE0; &#xAC1D;&#xCCB4;&#xB97C; &#xC0DD;&#xC131;&#xD558;&#xB294; &#xAC83;&#xBCF4;&#xB2E4;&#xB294; &#xD544;&#xC694;&#xD560;&#xB54C;(&#xC811;&#xADFC;&#xD560;&#xB54C;) &#xC77D;&#xC5B4;&#xB4E4;&#xC774;&#xACE0; &#xC0DD;&#xC131;&#xD558;&#xB294;&#xAC8C; &#xD6A8;&#xC728;&#xC801;&#xC77C; &#xC218; &#xC788;&#xAE30; &#xB54C;&#xBB38;&#xC785;&#xB2C8;&#xB2E4;. &#xB2E8;, &#xC774;&#xB7EC;&#xD55C; &#xCC98;&#xB9AC;&#xB97C; &#xC704;&#xD574;&#xC11C; &#xBD80;&#xAC00; &#xC815;&#xBCF4;&#xAC00; &#xD544;&#xC694;&#xD558;&#xAC8C; &#xB418;&#xACE0; &#xC774;&#xB97C; &#xB124;&#xD2B8;&#xC6CC;&#xD06C; &#xB118;&#xC5B4;&#xB85C; &#xC804;&#xC1A1;&#xD574;&#xC57C; &#xD558;&#xBBC0;&#xB85C; &#xC57C;&#xAC04;&#xC758; &#xD06C;&#xAE30;&#xB294; &#xC99D;&#xAC00;&#xB420; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. &#xD574;&#xB2F9; &#xAE30;&#xB2A5;&#xC740; &#xC635;&#xC158;&#xD615;&#xD0DC;&#xB85C; &#xD65C;&#xC131;&#xD654;/&#xBE44;&#xD65C;&#xC131;&#xD654; &#xD560; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+<h3 class="mume-header" id="primitive-types">Primitive Types</h3>
+
+<p><code>PROM</code> &#xC790;&#xCCB4;&#xC801;&#xC73C;&#xB85C; &#xC9C0;&#xC6D0;&#xD558;&#xB294; &#xAE30;&#xBCF8; &#xD0C0;&#xC785;&#xB4E4;&#xC5D0;&#xB294; &#xB2E4;&#xC74C;&#xACFC; &#xAC19;&#xC740; &#xAC83;&#xB4E4;&#xC774; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+<table>
+<thead>
+<tr>
+<th>No</th>
+<th>&#xD0C0;&#xC785;</th>
+<th>&#xC124;&#xBA85;</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>bool</td>
+<td>Boolean type, true / false</td>
+</tr>
+<tr>
+<td>2</td>
+<td>int8</td>
+<td>Signed 8bit integer (-128 ~ 127)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>int16</td>
+<td>Signed 16bit integer</td>
+</tr>
+<tr>
+<td>4</td>
+<td>int32</td>
+<td>Signed 32bit integer</td>
+</tr>
+<tr>
+<td>5</td>
+<td>int64</td>
+<td>Signed 64bit integer</td>
+</tr>
+<tr>
+<td>6</td>
+<td>uint8</td>
+<td>Unsigned 8bit integer (0 ~ 255)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>uint16</td>
+<td>Unsigned 16bit integer</td>
+</tr>
+<tr>
+<td>8</td>
+<td>uint32</td>
+<td>Unsigned 32bit integer</td>
+</tr>
+<tr>
+<td>9</td>
+<td>uint64</td>
+<td>Unsigned 64bit integer</td>
+</tr>
+<tr>
+<td>10</td>
+<td>sfixed8</td>
+<td>Signed 8bit integer (-128 ~ 127)</td>
+</tr>
+<tr>
+<td>11</td>
+<td>sfixed16</td>
+<td>Signed 16bit integer</td>
+</tr>
+<tr>
+<td>12</td>
+<td>sfixed32</td>
+<td>Signed 32bit integer</td>
+</tr>
+<tr>
+<td>13</td>
+<td>sfixed64</td>
+<td>Signed 64bit integer</td>
+</tr>
+<tr>
+<td>14</td>
+<td>fixed8</td>
+<td>Unsigned 8bit integer (0 ~ 255)</td>
+</tr>
+<tr>
+<td>15</td>
+<td>fixed16</td>
+<td>Unsigned 16bit integer</td>
+</tr>
+<tr>
+<td>16</td>
+<td>fixed32</td>
+<td>Unsigned 32bit integer</td>
+</tr>
+<tr>
+<td>17</td>
+<td>fixed64</td>
+<td>Unsigned 64bit integer</td>
+</tr>
+<tr>
+<td>18</td>
+<td>float</td>
+<td>32 bit float</td>
+</tr>
+<tr>
+<td>19</td>
+<td>double</td>
+<td>64 bit double</td>
+</tr>
+<tr>
+<td>20</td>
+<td>float32</td>
+<td>32 bit float</td>
+</tr>
+<tr>
+<td>21</td>
+<td>float64</td>
+<td>64 bit float</td>
+</tr>
+<tr>
+<td>22</td>
+<td>string</td>
+<td>UTF8 encoded string</td>
+</tr>
+<tr>
+<td>23</td>
+<td>bytes</td>
+<td>Variable byte array</td>
+</tr>
+<tr>
+<td>24</td>
+<td>datetime</td>
+<td>64 bit UTC timestamp</td>
+</tr>
+<tr>
+<td>25</td>
+<td>datetimelite</td>
+<td>32 bit timestamp</td>
+</tr>
+<tr>
+<td>26</td>
+<td>timespan</td>
+<td>64 bit timespan</td>
+</tr>
+<tr>
+<td>27</td>
+<td>uuid</td>
+<td>128 bit UUID</td>
+</tr>
+</tbody>
+</table>
+<h5 class="mume-header" id="%EC%95%84%EB%9E%98%EC%9D%98-%ED%83%80%EC%9E%85%EB%93%A4%EC%9D%80-%ED%98%B8%ED%99%98%EC%9D%84-%EC%9C%84%ED%95%B4%EC%84%9C-%EC%A1%B4%EC%9E%AC%ED%95%98%EB%8A%94-%ED%83%80%EC%9E%85%EB%93%A4%EC%9E%85%EB%8B%88%EB%8B%A4">&#xC544;&#xB798;&#xC758; &#xD0C0;&#xC785;&#xB4E4;&#xC740; &#xD638;&#xD658;&#xC744; &#xC704;&#xD574;&#xC11C; &#xC874;&#xC7AC;&#xD558;&#xB294; &#xD0C0;&#xC785;&#xB4E4;&#xC785;&#xB2C8;&#xB2E4;.</h5>
+
+<table>
+<thead>
+<tr>
+<th>No</th>
+<th>&#xD0C0;&#xC785;</th>
+<th>&#xC124;&#xBA85;</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>int</td>
+<td>...</td>
+</tr>
+<tr>
+<td>2</td>
+<td>uint</td>
+<td>...</td>
+</tr>
+<tr>
+<td>3</td>
+<td>long</td>
+<td>...</td>
+</tr>
+<tr>
+<td>4</td>
+<td>ulong</td>
+<td>...</td>
+</tr>
+<tr>
+<td>5</td>
+<td>byte</td>
+<td>...</td>
+</tr>
+<tr>
+<td>6</td>
+<td>word</td>
+<td>...</td>
+</tr>
+<tr>
+<td>7</td>
+<td>dword</td>
+<td>...</td>
+</tr>
+<tr>
+<td>8</td>
+<td>qword</td>
+<td>...</td>
+</tr>
+<tr>
+<td>9</td>
+<td>sbyte</td>
+<td>...</td>
+</tr>
+<tr>
+<td>10</td>
+<td>sword</td>
+<td>...</td>
+</tr>
+<tr>
+<td>11</td>
+<td>sdword</td>
+<td>...</td>
+</tr>
+<tr>
+<td>12</td>
+<td>sqword</td>
+<td>...</td>
+</tr>
+</tbody>
+</table>
+<h3 class="mume-header" id="annotations">Annotations</h3>
+
+<p>&#xC77C;&#xC885;&#xC758; <code>Meta</code> &#xC815;&#xBCF4;&#xB85C;&#xC11C; &#xCF54;&#xB4DC; &#xC0DD;&#xC131;&#xC2DC;&#xC5D0; &#xC635;&#xC158; &#xCC98;&#xB9AC;&#xB4F1;&#xC744; &#xD560; &#xC218; &#xC788;&#xB294; &#xADFC;&#xAC70;&#xAC00; &#xB420; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+<h3 class="mume-header" id="%EB%AC%B8%EC%84%9C%ED%99%94">&#xBB38;&#xC11C;&#xD654;</h3>
+
+<p>&#xBB38;&#xC11C;&#xD654;&#xB294; <code>API</code> &#xC815;&#xC758;&#xC2DC;&#xC5D0; &#xB9E4;&#xC6B0; &#xC911;&#xC694;&#xD55C; &#xBD80;&#xBD84;&#xC785;&#xB2C8;&#xB2E4;. &#xB300;&#xBD80;&#xBD84;&#xC758; &#xACBD;&#xC6B0; &#xC791;&#xC131;&#xC790;&#xC640; &#xC0AC;&#xC6A9;&#xC790;&#xAC00; &#xB2E4;&#xB974;&#xAE30; &#xB54C;&#xBB38;&#xC785;&#xB2C8;&#xB2E4;. &#xD1B5;&#xC0C1;&#xC801;&#xC73C;&#xB85C; &#xBCC4;&#xB3C4;&#xC758; <code>API</code> &#xC0AC;&#xC6A9;&#xBC95;&#xC744; &#xB2F4;&#xC740; &#xBB38;&#xC11C;&#xC791;&#xC5C5;&#xC744; &#xD558;&#xAC8C; &#xB429;&#xB2C8;&#xB2E4;. &#xC774; &#xC791;&#xC5C5;&#xC740; &#xC801;&#xC9C0; &#xC54A;&#xC740; &#xBD80;&#xB2F4;&#xC774;&#xBA70;, &#xAC1C;&#xBC1C;&#xC790;&#xB4E4;&#xC5D0;&#xAC8C;&#xB294; &#xB54C;&#xB85C;&#xB294; &#xACE0;&#xD1B5;&#xC77C; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. <code>PROM</code>&#xC5D0;&#xC11C;&#xB294; <code>thrift</code> &#xCC98;&#xB7FC; <code>javadoc</code> &#xC2A4;&#xD0C0;&#xC77C;&#xC758; &#xC8FC;&#xC11D;&#xC744; &#xB2EC;&#xC544;&#xC8FC;&#xBA74; &#xC790;&#xB3D9;&#xC73C;&#xB85C; &#xBB38;&#xC11C;&#xD654;&#xAC8C; &#xB418;&#xB3C4;&#xB85D; &#xC124;&#xACC4;&#xB418;&#xC5B4; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. &#xC774;&#xB97C; &#xC798; &#xD65C;&#xC6A9;&#xD558;&#xBA74;, &#xBCC4;&#xB3C4;&#xC758; <code>API</code> &#xBB38;&#xC11C;&#xC791;&#xC5C5;&#xC774; &#xD544;&#xC694;&#xD558;&#xC9C0; &#xC54A;&#xC744; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
 <pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token comment">/** The greeter sevice definition. */</span>
 sservice Greeter <span class="token punctuation">{</span>
   <span class="token comment">/** Sends a greeting */</span>
@@ -433,16 +767,18 @@ sservice Greeter <span class="token punctuation">{</span>
 <span class="token punctuation">}</span>
 </pre><hr>
 <h2>&#xC804;&#xCCB4; &#xBB38;&#xBC95;</h2>
-<h3 class="mume-header" id="module">MODULE</h3>
+<h3 class="mume-header" id="module-1">MODULE</h3>
 
 <pre data-role="codeBlock" data-info class="language-"><code>[] MODULE ::= HEADER* DEFINITION*
 </code></pre><h3 class="mume-header" id="header">HEADER</h3>
 
 <pre data-role="codeBlock" data-info class="language-"><code>[] HEADER ::= IMPORT | NAMESPACE
-</code></pre><h3 class="mume-header" id="import">IMPORT</h3>
+</code></pre><h3 class="mume-header" id="import-1">IMPORT</h3>
 
-<pre data-role="codeBlock" data-info class="language-"><code>[] IMPORT ::= &apos;import&apos; &apos;.&apos;? LITERAL
-</code></pre><h3 class="mume-header" id="namespace">NAMESPACE</h3>
+<pre data-role="codeBlock" data-info class="language-"><code>[] IMPORT ::= &apos;import&apos; IMPORT_SCOPE? LITERAL
+
+[] IMPORT_SCOPE ::= &apos;.&apos;
+</code></pre><h3 class="mume-header" id="namespace-1">NAMESPACE</h3>
 
 <pre data-role="codeBlock" data-info class="language-"><code>[] NAMESPACE ::= &apos;namespace&apos; NAMESPACE_LANG IDENTIFIER SEPARATOR?
 
@@ -455,30 +791,30 @@ sservice Greeter <span class="token punctuation">{</span>
 </code></pre><h3 class="mume-header" id="const">CONST</h3>
 
 <pre data-role="codeBlock" data-info class="language-"><code>[] CONST ::= &apos;const&apos; IDENTIFIER &apos;:&apos; FIELD_TYPE &apos;=&apos; CONST_VALUE SEPARATOR?
-</code></pre><h3 class="mume-header" id="typedef">TYPEDEF</h3>
+</code></pre><h3 class="mume-header" id="typedef-1">TYPEDEF</h3>
 
 <pre data-role="codeBlock" data-info class="language-"><code>[] TYPEDEF ::= &apos;typedef&apos; IDENTIFIFER &apos;:&apos; DEFINITION_TYPE SEPARATOR?
 </code></pre><h3 class="mume-header" id="enum">ENUM</h3>
 
 <pre data-role="codeBlock" data-info class="language-"><code>[] ENUM ::= &apos;enum&apos; IDENTIFIER &apos;{&apos; (IDENTIFIER (&apos;=&apos; INT_CONSTANT)? SEPARATOR?)* &apos;}&apos;
-</code></pre><h3 class="mume-header" id="struct">STRUCT</h3>
+</code></pre><h3 class="mume-header" id="struct-1">STRUCT</h3>
 
 <pre data-role="codeBlock" data-info class="language-"><code>[] STRUCT ::= &apos;struct&apos; IDENTIFIER &apos;{&apos; FIELD* &apos;}&apos;
-</code></pre><h3 class="mume-header" id="oneof">ONEOF</h3>
+</code></pre><h3 class="mume-header" id="oneof-1">ONEOF</h3>
 
 <pre data-role="codeBlock" data-info class="language-"><code>[] ONEOF ::= &apos;oneof&apos; IDENTIFIER &apos;{&apos; FIELD* &apos;}&apos;
-</code></pre><h3 class="mume-header" id="exception">EXCEPTION</h3>
+</code></pre><h3 class="mume-header" id="exception-1">EXCEPTION</h3>
 
 <pre data-role="codeBlock" data-info class="language-"><code>[] EXCEPTION ::= &apos;exception&apos; EXCEPTION_ID? IDENTIFIER &apos;{&apos; FIELD* &apos;}&apos;
 
 [] EXCEPTION_ID ::= &apos;(&apos; INT_CONSTANT &apos;)&apos;
-</code></pre><h3 class="mume-header" id="simple-service">SIMPLE SERVICE</h3>
+</code></pre><h3 class="mume-header" id="simple-service-1">SIMPLE SERVICE</h3>
 
 <pre data-role="codeBlock" data-info class="language-"><code>[] SIMPLE_SERVICE ::= &apos;sservice&apos; IDENTIFIER (&apos;extends&apos; IDENTIFIER)? &apos;{&apos; SIMPLE_FUNCTION* &apos;}&apos;
-</code></pre><h3 class="mume-header" id="regular-service">REGULAR SERVICE</h3>
+</code></pre><h3 class="mume-header" id="regular-service-1">REGULAR SERVICE</h3>
 
 <pre data-role="codeBlock" data-info class="language-"><code>[] REGULAR_SERVICE ::= &apos;rservice&apos; IDENTIFIER (&apos;extends&apos; IDENTIFIER)? &apos;{&apos; REGULAR_FUNCTION* &apos;}&apos;
-</code></pre><h3 class="mume-header" id="realtime-service">REALTIME SERVICE</h3>
+</code></pre><h3 class="mume-header" id="realtime-service-1">REALTIME SERVICE</h3>
 
 <pre data-role="codeBlock" data-info class="language-"><code>[] REALTIME_SERVICE ::= &apos;rtservice&apos; IDENTIFIER (&apos;extends&apos; IDENTIFIER)? &apos;{&apos; SIMPLE_FUNCTION* &apos;}&apos;
 </code></pre><h3 class="mume-header" id="simple-function">SIMPLE FUNCTION</h3>
@@ -555,7 +891,7 @@ sservice Greeter <span class="token punctuation">{</span>
 [] CONST_LIST ::= &apos;[&apos; (CONST_VALUE SEPARATOR?)* &apos;]&apos;
 
 [] CONST_MAP ::= &apos;{&apos; (CONST_VALUE &apos;:&apos; CONST_VALUE SEPARATOR?)* &apos;}&apos;
-</code></pre><h3 class="mume-header" id="annotations">ANNOTATIONS</h3>
+</code></pre><h3 class="mume-header" id="annotations-1">ANNOTATIONS</h3>
 
 <pre data-role="codeBlock" data-info class="language-"><code>[] ANNOTATIONS ::= &apos;(&apos; ANNOTATION* &apos;)&apos;
 

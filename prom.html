@@ -1,0 +1,598 @@
+<!DOCTYPE html><html><head>
+      <title>prom</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="file:///c:\Users\PurpleOcean_DMC_1\.vscode\extensions\shd101wyy.markdown-preview-enhanced-0.5.12\node_modules\@shd101wyy\mume\dependencies\katex\katex.min.css">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <style>
+      /**
+ * prism.js Github theme based on GitHub's theme.
+ * @author Sam Clarke
+ */
+code[class*="language-"],
+pre[class*="language-"] {
+  color: #333;
+  background: none;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.4;
+
+  -moz-tab-size: 8;
+  -o-tab-size: 8;
+  tab-size: 8;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+  padding: .8em;
+  overflow: auto;
+  /* border: 1px solid #ddd; */
+  border-radius: 3px;
+  /* background: #fff; */
+  background: #f5f5f5;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+  padding: .1em;
+  border-radius: .3em;
+  white-space: normal;
+  background: #f5f5f5;
+}
+
+.token.comment,
+.token.blockquote {
+  color: #969896;
+}
+
+.token.cdata {
+  color: #183691;
+}
+
+.token.doctype,
+.token.punctuation,
+.token.variable,
+.token.macro.property {
+  color: #333;
+}
+
+.token.operator,
+.token.important,
+.token.keyword,
+.token.rule,
+.token.builtin {
+  color: #a71d5d;
+}
+
+.token.string,
+.token.url,
+.token.regex,
+.token.attr-value {
+  color: #183691;
+}
+
+.token.property,
+.token.number,
+.token.boolean,
+.token.entity,
+.token.atrule,
+.token.constant,
+.token.symbol,
+.token.command,
+.token.code {
+  color: #0086b3;
+}
+
+.token.tag,
+.token.selector,
+.token.prolog {
+  color: #63a35c;
+}
+
+.token.function,
+.token.namespace,
+.token.pseudo-element,
+.token.class,
+.token.class-name,
+.token.pseudo-class,
+.token.id,
+.token.url-reference .token.variable,
+.token.attr-name {
+  color: #795da3;
+}
+
+.token.entity {
+  cursor: help;
+}
+
+.token.title,
+.token.title .token.punctuation {
+  font-weight: bold;
+  color: #1d3e81;
+}
+
+.token.list {
+  color: #ed6a43;
+}
+
+.token.inserted {
+  background-color: #eaffea;
+  color: #55a532;
+}
+
+.token.deleted {
+  background-color: #ffecec;
+  color: #bd2c00;
+}
+
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+
+/* JSON */
+.language-json .token.property {
+  color: #183691;
+}
+
+.language-markup .token.tag .token.punctuation {
+  color: #333;
+}
+
+/* CSS */
+code.language-css,
+.language-css .token.function {
+  color: #0086b3;
+}
+
+/* YAML */
+.language-yaml .token.atrule {
+  color: #63a35c;
+}
+
+code.language-yaml {
+  color: #183691;
+}
+
+/* Ruby */
+.language-ruby .token.function {
+  color: #333;
+}
+
+/* Markdown */
+.language-markdown .token.url {
+  color: #795da3;
+}
+
+/* Makefile */
+.language-makefile .token.symbol {
+  color: #795da3;
+}
+
+.language-makefile .token.variable {
+  color: #183691;
+}
+
+.language-makefile .token.builtin {
+  color: #0086b3;
+}
+
+/* Bash */
+.language-bash .token.keyword {
+  color: #0086b3;
+}
+
+/* highlight */
+pre[data-line] {
+  position: relative;
+  padding: 1em 0 1em 3em;
+}
+pre[data-line] .line-highlight-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: transparent;
+  display: block;
+  width: 100%;
+}
+
+pre[data-line] .line-highlight {
+  position: absolute;
+  left: 0;
+  right: 0;
+  padding: inherit 0;
+  margin-top: 1em;
+  background: hsla(24, 20%, 50%,.08);
+  background: linear-gradient(to right, hsla(24, 20%, 50%,.1) 70%, hsla(24, 20%, 50%,0));
+  pointer-events: none;
+  line-height: inherit;
+  white-space: pre;
+}
+
+pre[data-line] .line-highlight:before, 
+pre[data-line] .line-highlight[data-end]:after {
+  content: attr(data-start);
+  position: absolute;
+  top: .4em;
+  left: .6em;
+  min-width: 1em;
+  padding: 0 .5em;
+  background-color: hsla(24, 20%, 50%,.4);
+  color: hsl(24, 20%, 95%);
+  font: bold 65%/1.5 sans-serif;
+  text-align: center;
+  vertical-align: .3em;
+  border-radius: 999px;
+  text-shadow: none;
+  box-shadow: 0 1px white;
+}
+
+pre[data-line] .line-highlight[data-end]:after {
+  content: attr(data-end);
+  top: auto;
+  bottom: .4em;
+}html body{font-family:"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ul,html body>ol{margin-bottom:16px}html body ul,html body ol{padding-left:2em}html body ul.no-list,html body ol.no-list{padding:0;list-style-type:none}html body ul ul,html body ul ol,html body ol ol,html body ol ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:bold;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:bold}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em !important;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::before,html body code::after{letter-spacing:-0.2em;content:"\00a0"}html body pre>code{padding:0;margin:0;font-size:.85em !important;word-break:normal;white-space:pre;background:transparent;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;font-size:.85em !important;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:before,html body pre tt:before,html body pre code:after,html body pre tt:after{content:normal}html body p,html body blockquote,html body ul,html body ol,html body dl,html body pre{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body pre,html body code{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview .pagebreak,.markdown-preview .newpage{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center !important}.markdown-preview:not([for="preview"]) .code-chunk .btn-group{display:none}.markdown-preview:not([for="preview"]) .code-chunk .status{display:none}.markdown-preview:not([for="preview"]) .code-chunk .output-div{margin-bottom:16px}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0}@media screen and (min-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{font-size:14px !important;padding:1em}}@media print{html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,0.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{padding:0 1.6em;margin-top:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc li{margin-bottom:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{list-style-type:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% -  300px);padding:2em calc(50% - 457px -  150px);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+      </style>
+    </head>
+    <body for="html-export">
+      <div class="mume markdown-preview  ">
+      <h2 class="mume-header" id="prom">PROM</h2>
+
+<p>&#xAC04;&#xB2E8;&#xD55C; &#xC778;&#xD130;&#xD398;&#xC774;&#xC2A4; &#xC815;&#xC758; &#xC608;&#xB294; &#xC544;&#xB798;&#xC640; &#xAC19;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet <span class="token string">&quot;Greeting&quot;</span><span class="token punctuation">;</span>
+
+sservice Greeting <span class="token punctuation">{</span>
+  <span class="token function">SayHello</span><span class="token punctuation">(</span>HelloRequest<span class="token punctuation">)</span>
+      <span class="token function">returns</span> <span class="token punctuation">(</span>HelloResponse<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">struct</span> HelloRequest <span class="token punctuation">{</span>
+  name <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">struct</span> HelloResponse <span class="token punctuation">{</span>
+  greeting <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</pre><br>
+<h3 class="mume-header" id="module-%EC%A0%95%EC%9D%98">Module &#xC815;&#xC758;</h3>
+
+<p><code>Module</code>&#xC740; <code>.prom</code> &#xD30C;&#xC77C; &#xC790;&#xCCB4;&#xB97C; <code>Module</code>&#xC774;&#xB77C;&#xACE0; &#xCE6D;&#xD569;&#xB2C8;&#xB2E4;. <code>Module</code> &#xD30C;&#xC77C;&#xC548;&#xC5D0;&#xB294; &#xAC01;&#xC885; &#xC815;&#xC758;&#xB4E4;&#xC774; &#xB2F4;&#xAE30;&#xAC8C; &#xB429;&#xB2C8;&#xB2E4;. &#xB610;&#xD55C;, &#xB2E4;&#xB978; <code>.prom</code> &#xD30C;&#xC77C; &#xC989;, <code>Module</code>&#xC744; &#xD3EC;&#xD568;&#xD560; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet <span class="token string">&quot;Example&quot;</span><span class="token punctuation">;</span>
+
+import <span class="token string">&quot;Types&quot;</span><span class="token punctuation">;</span>
+import <span class="token string">&quot;Errors&quot;</span><span class="token punctuation">;</span>
+import <span class="token string">&quot;Models&quot;</span><span class="token punctuation">;</span>
+
+  <span class="token punctuation">.</span>
+  <span class="token punctuation">.</span>
+  <span class="token punctuation">.</span>
+</pre><h3 class="mume-header" id="struct-%EC%A0%95%EC%9D%98">Struct &#xC815;&#xC758;</h3>
+
+<p><code>struct</code>&#xB294; <code>protobuf</code>&#xC758; <code>message</code>&#xC640; &#xAC19;&#xC740; &#xAC19;&#xC740; &#xC131;&#xC9C8;&#xC744; &#xAC00;&#xC9C0;&#xB294; &#xD0C0;&#xC785;&#xC785;&#xB2C8;&#xB2E4;. <code>struct</code>&#xB294; &#xC5EC;&#xB7EC;&#xAC1C;&#xC758; &#xD544;&#xB4DC;&#xB4E4;&#xB85C; &#xAD6C;&#xC131;&#xB420; &#xC218; &#xC788;&#xC73C;&#xBA70;, &#xC0C1;&#xC18D;&#xC740; &#xC9C0;&#xC6D0;&#xD558;&#xC9C0; &#xC54A;&#xC2B5;&#xB2C8;&#xB2E4;. &#xAC01; &#xD544;&#xB4DC; &#xC55E;&#xC5D0;&#xB294; <code>protobuf</code>&#xC640; &#xAC19;&#xC774; &#xD0DC;&#xADF8;&#xB97C; &#xC9C0;&#xC815;&#xD560; &#xC218; &#xC788;&#xC73C;&#xBA70;, &#xC0DD;&#xB7B5;&#xB3C4; &#xAC00;&#xB2A5;&#xD569;&#xB2C8;&#xB2E4;. &#xB2E8;, &#xC0DD;&#xB7B5;&#xD588;&#xC744; &#xACBD;&#xC6B0;&#xC5D0;&#xB294; &#xC911;&#xAC04;&#xC5D0; &#xD544;&#xB4DC;&#xC544;&#xC774;&#xB514;&#xB97C; &#xC9C0;&#xC815;&#xD558;&#xAC70;&#xB098; &#xBC84;&#xC83C;&#xC5C5;&#xC2DC;&#xC5D0; &#xD544;&#xB4DC; &#xC544;&#xC774;&#xB514; &#xC9C0;&#xC815; &#xC5C6;&#xC774; &#xC911;&#xAC04;&#xC5D0; &#xD544;&#xB4DC;&#xB97C; &#xB07C;&#xC6CC;&#xB123;&#xC73C;&#xBA74; &#xD638;&#xD658;&#xC774; &#xB418;&#xC9C0; &#xC54A;&#xB294; &#xB4F1;&#xC758; &#xC8FC;&#xC758; &#xC0AC;&#xD56D;&#xC774; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet <span class="token string">&quot;Example&quot;</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Without field tags</span>
+<span class="token keyword">struct</span> Monster <span class="token punctuation">{</span>
+  name <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">;</span>
+  level <span class="token punctuation">:</span><span class="token keyword">int</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// With field tags</span>
+<span class="token keyword">struct</span> Item <span class="token punctuation">{</span>
+  @<span class="token number">1</span> index <span class="token punctuation">:</span>int64<span class="token punctuation">;</span>
+  @<span class="token number">2</span> count <span class="token punctuation">:</span>int32<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</pre><h3 class="mume-header" id="oneof-%EC%A0%95%EC%9D%98">Oneof &#xC815;&#xC758;</h3>
+
+<p><code>C&#xC5B8;&#xC5B4;</code>&#xC758; &#xACF5;&#xC6A9;&#xCCB4;(union)&#xACFC; &#xAC19;&#xC740; &#xC18D;&#xC131;&#xC744; &#xAC00;&#xC9C0;&#xACE0; &#xC788;&#xB294; &#xD0C0;&#xC785;&#xB2C8;&#xB2E4;. <code>oneof</code>&#xB0B4;&#xC5D0; &#xC815;&#xC758;&#xB41C; &#xD544;&#xB4DC;&#xB4E4;&#xC911; &#xD558;&#xB098;&#xB9CC; &#xC720;&#xD6A8;&#xD55C; &#xAC12;&#xC744; &#xAC00;&#xC9C0;&#xBA70;, &#xC5B4;&#xB5A4;&#xAC12;&#xC774; &#xC720;&#xD6A8;&#xD55C;&#xC9C0;&#xB294; &#xC0DD;&#xC131;&#xB41C; &#xCF54;&#xB4DC;&#xC5D0;&#xC11C; <code>which</code> &#xC811;&#xADFC;&#xC790;&#xB85C; &#xCC98;&#xB9AC;&#xD560; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. <code>protobuf</code>&#xC758; <code>oneof</code>&#xC640; &#xC720;&#xC0AC;&#xD569;&#xB2C8;&#xB2E4;. <code>protobuf</code>&#xAC00; <code>message</code>&#xB0B4;&#xC5D0; &#xC815;&#xC758;&#xD558;&#xB294; &#xAC83;&#xACFC;&#xB294; &#xB2E4;&#xB974;&#xAC8C; <code>struct</code>&#xCC98;&#xB7FC; &#xB3C5;&#xB9BD;&#xC801;&#xC73C;&#xB85C; &#xC815;&#xC758;&#xD574;&#xC57C;&#xD569;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet <span class="token string">&quot;Example&quot;</span><span class="token punctuation">;</span>
+
+oneof SizeUnit  <span class="token punctuation">{</span>
+  pound <span class="token punctuation">:</span>int32<span class="token punctuation">;</span>
+  kilograms <span class="token punctuation">:</span>int64<span class="token punctuation">;</span>
+  standardCrates <span class="token punctuation">:</span>int16<span class="token punctuation">;</span>
+  metricTons <span class="token punctuation">:</span><span class="token keyword">double</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</pre><h3 class="mume-header" id="exception-%EC%A0%95%EC%9D%98">Exception &#xC815;&#xC758;</h3>
+
+<p>&#xC11C;&#xBE44;&#xC2A4; &#xD568;&#xC218; &#xAD6C;&#xD604;&#xCF54;&#xB4DC;&#xC5D0;&#xC11C; &#xBC1C;&#xC0DD;&#xD560; &#xC218; &#xC788;&#xB294; &#xC608;&#xC678; &#xD0C0;&#xC785;&#xB4E4;&#xC785;&#xB2C8;&#xB2E4;. <code>API</code> &#xC0AC;&#xC6A9; &#xBB38;&#xC11C; &#xC791;&#xC131;&#xC2DC;&#xC5D0; &#xD574;&#xB2F9; <code>API</code>&#xC5D0;&#xC11C; &#xBC1C;&#xC0DD;&#xD558;&#xB294; &#xC11C;&#xBE44;&#xC2A4; &#xC624;&#xB958;&#xB4E4;&#xC744; &#xC804;&#xB2EC;&#xD574;&#xC57C;&#xD558;&#xB294;&#xB370;, &#xBCC4;&#xB3C4;&#xC758; &#xBB38;&#xC11C;&#xC5D0; &#xAE30;&#xC785;&#xD558;&#xB294; &#xBC29;&#xBC95;&#xBCF4;&#xB2E4;&#xB294; <code>.prom</code> &#xD30C;&#xC77C;&#xB0B4;&#xC5D0; &#xC815;&#xC758;&#xD574;&#xB450;&#xBA74; &#xC790;&#xB3D9;&#xC73C;&#xB85C; <code>API</code> &#xC0AC;&#xC6A9;&#xAD00;&#xB828; &#xBB38;&#xC11C;&#xAC00; &#xC0DD;&#xC131;&#xB420;&#xB54C; &#xBC1C;&#xC0DD; &#xAC00;&#xB2A5;&#xD55C; &#xC608;&#xC678; &#xB610;&#xB294; &#xC624;&#xB958;&#xCF54;&#xB4DC;&#xAC00; &#xCD9C;&#xB825;&#xB418;&#xBBC0;&#xB85C;, &#xBCC4;&#xB3C4;&#xC758; <code>API</code> &#xB3C4;&#xC6C0;&#xB9D0;&#xC744; &#xC791;&#xC131;&#xD560; &#xD544;&#xC694;&#xAC00; &#xC5C6;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+<p>&#xAE30;&#xBCF8;&#xC801;&#xC73C;&#xB85C; &#xCF54;&#xB4DC; &#xC0DD;&#xC131;&#xAE30;&#xB294; &#xC608;&#xC678;&#xB97C; &#xC0AC;&#xC6A9;&#xD558;&#xB294; &#xCF54;&#xB4DC;&#xB97C; &#xC0DD;&#xC131;&#xD569;&#xB2C8;&#xB2E4;. &#xC790;&#xCCB4; &#xBC29;&#xCE68;&#xB4F1;&#xC5D0; &#xB530;&#xB77C;&#xC11C; &#xC608;&#xC678; &#xC0AC;&#xC6A9;&#xC774; &#xD5C8;&#xC6A9;&#xB418;&#xB294; &#xC54A;&#xB294; &#xD658;&#xACBD;&#xC5D0;&#xC11C;&#xB294; &#xCF54;&#xB4DC; &#xC0DD;&#xC131;&#xC2DC;&#xC5D0; <code>--no-exceptions-handling</code> &#xC635;&#xC158;&#xC744; &#xC8FC;&#xC5B4;&#xC11C; &#xC608;&#xC678; &#xAD00;&#xB828; &#xCF54;&#xB4DC;&#xAC00; &#xC0DD;&#xC131;&#xB418;&#xC9C0; &#xC54A;&#xB3C4;&#xB85D; &#xD574;&#xC57C;&#xD569;&#xB2C8;&#xB2E4;. &#xC774;&#xB54C;&#xB294; &#xC608;&#xC678; &#xB300;&#xC2E0; &#xC624;&#xB958;&#xCF54;&#xB4DC;&#xB97C; &#xC0AC;&#xC6A9;&#xD558;&#xAC8C; &#xB418;&#xB294;&#xB370;, &#xC608;&#xC678; &#xC815;&#xC758;&#xC2DC;&#xC5D0; &#xBC18;&#xB4EF;&#xC774; &#xC608;&#xC678;&#xC815;&#xC758; &#xC2DC;&#xC791; &#xBD80;&#xBD84;&#xC5D0; &#xC624;&#xB958;&#xCF54;&#xB4DC;&#xB97C; &#xBA85;&#xC2DC;&#xD574;&#xC57C; &#xD569;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet <span class="token string">&quot;Example&quot;</span><span class="token punctuation">;</span>
+
+exception NotFoundException <span class="token punctuation">{</span>
+  reason <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// With error codes</span>
+<span class="token function">exception</span><span class="token punctuation">(</span><span class="token number">404</span><span class="token punctuation">)</span>  NotFoundException <span class="token punctuation">{</span>
+  reason <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</pre><h3 class="mume-header" id="service-%EC%A0%95%EC%9D%98">Service &#xC815;&#xC758;</h3>
+
+<p>&#xC5EC;&#xD0C0; <code>IDL</code>&#xACFC;&#xB294; &#xB2E4;&#xB974;&#xAC8C; 3&#xAC00;&#xC9C0;&#xC758; &#xC11C;&#xBE44;&#xC2A4;&#xB97C; &#xC9C0;&#xC6D0;&#xD569;&#xB2C8;&#xB2E4;. &#xB2E4;&#xC18C; &#xC758;&#xC544;&#xD560;&#xC218;&#xB3C4; &#xC788;&#xB294;&#xB370;, &#xC81C;&#xAC00; &#xC0DD;&#xAC01;&#xD588;&#xB358; &#xBAA8;&#xB4E0; &#xBAA9;&#xC801;&#xC5D0; &#xB9DE;&#xB294; &#xC77C;&#xBC18;&#xD658;&#xB41C; &#xC11C;&#xBE44;&#xC2A4; &#xD615;&#xD0DC;&#xB97C; &#xAD6C;&#xD604;&#xD558;&#xAE30; &#xC27D;&#xC9C0; &#xC54A;&#xC558;&#xACE0;, &#xADF8;&#xACB0;&#xACFC; 3&#xAC00;&#xC9C0;&#xC758; &#xC11C;&#xBE44;&#xC2A4;&#xB85C; &#xBD84;&#xD654;&#xD558;&#xAE30;&#xB85C; &#xACB0;&#xC815;&#xD588;&#xC2B5;&#xB2C8;&#xB2E4;. &#xAD6C;&#xCCB4;&#xC801;&#xC73C;&#xB85C; &#xB2E4;&#xC74C;&#xACFC; &#xAC19;&#xC740; &#xC11C;&#xBE44;&#xC2A4;&#xB4E4;&#xC744; &#xC9C0;&#xC6D0;&#xD569;&#xB2C8;&#xB2E4;.</p>
+<ul>
+<li>Simple Service</li>
+<li>Regular Service</li>
+<li>Realtime Service</li>
+</ul>
+<p>&#xC0C1;&#xC138;&#xD55C; &#xB0B4;&#xC6A9;&#xC740; &#xC544;&#xB798;&#xC758; &#xB0B4;&#xC6A9;&#xC744; &#xCC38;&#xC870;&#xD558;&#xC2DC;&#xAE38; &#xBC14;&#xB78D;&#xB2C8;&#xB2E4;.</p>
+<h4 class="mume-header" id="simple-service-%EC%A0%95%EC%9D%98">Simple Service &#xC815;&#xC758;</h4>
+
+<p><code>gRPC</code>&#xB4F1;&#xC5D0;&#xC11C; &#xC9C0;&#xC6D0;&#xD558;&#xB294; &#xB2E8;&#xC21C;&#xD55C; <code>Request</code>, <code>Response</code> &#xD615;&#xD0DC;&#xB97C; &#xC9C0;&#xC6D0;&#xD558;&#xB294; &#xC11C;&#xBE44;&#xC2A4;&#xC785;&#xB2C8;&#xB2E4;. <code>Request</code>, <code>Response</code> &#xC5D0; &#xD5C8;&#xC6A9;&#xB418;&#xB294; &#xD0C0;&#xC785;&#xC740; <code>struct</code>, <code>void</code> &#xB450; &#xD0C0;&#xC785;&#xBFD0;&#xC785;&#xB2C8;&#xB2E4;. &#xC989;, &#xC694;&#xCCAD;/&#xC751;&#xB2F5;&#xC774; &#xC788;&#xAC70;&#xB098; &#xC5C6;&#xAC70;&#xB098;&#xB9CC; &#xC9C0;&#xC815;&#xD560; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet <span class="token string">&quot;Example&quot;</span><span class="token punctuation">;</span>
+
+sservice Greeting <span class="token punctuation">{</span>
+  <span class="token function">SayHello</span><span class="token punctuation">(</span>HelloRequest<span class="token punctuation">)</span> <span class="token function">returns</span> <span class="token punctuation">(</span>HelloReply<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token function">SayBye</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">struct</span> HelloRequest <span class="token punctuation">{</span>
+  name <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">struct</span> HelloReply <span class="token punctuation">{</span>
+  greeting <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</pre><h4 class="mume-header" id="regular-service-%EC%A0%95%EC%9D%98">Regular Service &#xC815;&#xC758;</h4>
+
+<p>&#xBCF8;&#xC9C8;&#xC801;&#xC73C;&#xB85C; &#xC704;&#xC5D0;&#xC11C; &#xC598;&#xAE30;&#xD55C; <code>Simple Service</code>&#xC640; &#xB3D9;&#xC77C;&#xD569;&#xB2C8;&#xB2E4;. &#xB2E4;&#xB9CC;, <code>Request</code>, <code>Response</code>&#xC5D0; &#xAC01;&#xAC01; &#xD55C;&#xAC1C;&#xC758; <code>struct</code>&#xAC00; &#xC640;&#xC57C;&#xD558;&#xB294; <code>Simple Service</code>&#xC640;&#xB294; &#xB2E4;&#xB974;&#xAC8C; &#xC77C;&#xBC18;&#xC801;&#xC778; <code>C&#xC5B8;&#xC5B4;</code> &#xD568;&#xC218;&#xC815;&#xC758; &#xD615;&#xD0DC;&#xC640; &#xC720;&#xC0AC;&#xD55C; &#xD615;&#xD0DC;&#xB97C; &#xAC00;&#xC9D1;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet <span class="token string">&quot;Example&quot;</span><span class="token punctuation">;</span>
+
+rservice Greeting <span class="token punctuation">{</span>
+  <span class="token function">SayHello</span><span class="token punctuation">(</span>name <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">)</span> <span class="token function">returns</span> <span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// or</span>
+
+rservice Greeting <span class="token punctuation">{</span>
+  <span class="token function">SayHello</span><span class="token punctuation">(</span>request <span class="token punctuation">:</span>HelloRequest<span class="token punctuation">)</span> <span class="token function">returns</span> <span class="token punctuation">(</span>HelloReply<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">struct</span> HelloRequest <span class="token punctuation">{</span>
+  name <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">struct</span> HelloReply <span class="token punctuation">{</span>
+  greeting <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</pre><h4 class="mume-header" id="realtime-service-%EC%A0%95%EC%9D%98">Realtime Service &#xC815;&#xC758;</h4>
+
+<p>&#xC704;&#xC758; &#xB450;&#xAC1C; &#xC11C;&#xBE44;&#xC2A4; &#xD615;&#xD0DC;&#xC640;&#xB294; &#xC644;&#xC804;&#xD788; &#xB2E4;&#xB978; &#xC885;&#xB958;&#xC758; &#xC11C;&#xBE44;&#xC2A4;&#xC785;&#xB2C8;&#xB2E4;. &#xC704; &#xB450; &#xC11C;&#xBE44;&#xC2A4;&#xC640;&#xC758; &#xCC28;&#xC774;&#xC810;&#xC740; &#xC544;&#xB798;&#xC640; &#xAC19;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+<ul>
+<li>&#xBC18;&#xD658; &#xAC12;&#xC744; &#xAC00;&#xC9C8; &#xC218; &#xC5C6;&#xC2B5;&#xB2C8;&#xB2E4;.</li>
+<li>&#xC608;&#xC678;&#xB97C; &#xCC98;&#xB9AC;&#xD558;&#xC9C0; &#xC54A;&#xC2B5;&#xB2C8;&#xB2E4;.</li>
+<li>&#xC694;&#xCCAD;&#xC5D0; &#xB300;&#xD55C; &#xC751;&#xB2F5;&#xC744; &#xAE30;&#xB2E4;&#xB9AC;&#xC9C0; &#xC54A;&#xC2B5;&#xB2C8;&#xB2E4;.</li>
+</ul>
+<p>&#xC608;&#xC678;&#xCC98;&#xB9AC;&#xB3C4; &#xC5C6;&#xACE0; &#xBC18;&#xD658;&#xAC12; &#xCC98;&#xB9AC;&#xB3C4; &#xC5C6;&#xB294; &#xC774;&#xB7F0; &#xC11C;&#xBE44;&#xC2A4;&#xB97C; &#xC5B4;&#xB514;&#xC5D0; &#xC0AC;&#xC6A9;&#xD574;&#xC57C;&#xD560;&#xC9C0; &#xC758;&#xBB38;&#xC774; &#xB4E4;&#xAC83;&#xC785;&#xB2C8;&#xB2E4;. <code>&#xC2E4;&#xC2DC;&#xAC04;</code> &#xAC8C;&#xC784; &#xB124;&#xD2B8;&#xC6CC;&#xD0B9;&#xC758; &#xACBD;&#xC6B0; <code>Request</code>, <code>Resonse</code> &#xD615;&#xD0DC;&#xAC00; &#xC544;&#xB2CC; &#xACBD;&#xC6B0;&#xAC00; &#xB9CE;&#xC73C;&#xBBC0;&#xB85C;, &#xC774;&#xB54C; &#xC0AC;&#xC6A9;&#xD558;&#xAE30; &#xC704;&#xD574; &#xC0AC;&#xC6A9;&#xD558;&#xB294; &#xC11C;&#xBE44;&#xC2A4;&#xC785;&#xB2C8;&#xB2E4;. &#xC608;&#xB97C;&#xB4E4;&#xC5B4;, &#xD50C;&#xB808;&#xC774;&#xC5B4;&#xAC00; &#xC11C;&#xBC84;&#xC5D0;&#xAC8C; &#xC6C0;&#xC9C1;&#xC784;&#xC744; &#xC694;&#xCCAD;&#xD588;&#xC744;&#xB54C; &#xC6C0;&#xC9C1;&#xC784; &#xC694;&#xCCAD;&#xC5D0; &#xB300;&#xD55C; &#xACB0;&#xACFC;&#xAC00; &#xC544;&#xB2CC;, &#xC0C1;&#xD638;&#xC791;&#xC6A9;&#xC774; &#xC77C;&#xC5B4;&#xB098;&#xB294; &#xC77C;&#xB828;&#xC758; &#xC0C1;&#xD0DC;&#xB97C; &#xD074;&#xB77C;&#xC774;&#xC5B8;&#xD2B8;&#xC5D0;&#xAC8C; &#xBCF4;&#xB0B4;&#xC8FC;&#xB294; &#xD615;&#xD0DC;&#xB4E4;&#xC5D0; &#xC0AC;&#xC6A9;&#xD558;&#xAE30; &#xC704;&#xD55C; &#xC11C;&#xBE44;&#xC2A4;&#xC785;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> dotnet <span class="token string">&quot;Example&quot;</span><span class="token punctuation">;</span>
+
+rtservice GameC2S <span class="token punctuation">{</span>
+  <span class="token function">Move</span><span class="token punctuation">(</span>actorId <span class="token punctuation">:</span><span class="token keyword">int</span><span class="token punctuation">,</span> x <span class="token punctuation">:</span><span class="token keyword">int</span><span class="token punctuation">,</span> y <span class="token punctuation">:</span><span class="token keyword">int</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+rtservice GameS2C <span class="token punctuation">{</span>
+  <span class="token function">MoveSync</span><span class="token punctuation">(</span>moveEvents <span class="token punctuation">:</span>MoveEvent<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</pre><h3 class="mume-header" id="%EC%83%81%EC%88%98%EC%A0%95%EC%9D%98">&#xC0C1;&#xC218;&#xC815;&#xC758;</h3>
+
+<p>&#xAE30;&#xC874; &#xC5B8;&#xC5B4;&#xB4E4;&#xC758; &#xC0C1;&#xC218;&#xC815;&#xC758;&#xC640; &#xC720;&#xC0AC;&#xD558;&#xBA70;, <code>.prom</code> &#xD30C;&#xC77C;&#xB0B4;&#xC5D0;&#xC11C; &#xC0AC;&#xC6A9;&#xC774; &#xAC00;&#xB2A5;&#xD558;&#xBA70; &#xB3D9;&#xC2DC;&#xC5D0; &#xCF54;&#xB4DC; &#xC0DD;&#xC131;&#xC2DC;&#xC5D0; &#xD574;&#xB2F9; &#xC815;&#xC758;&#xC640; &#xAC12;&#xB4E4;&#xC774; &#xCD9C;&#xB825;&#xB418;&#xC5B4;&#xC11C; &#xD504;&#xB85C;&#xADF8;&#xB798;&#xBA38;&#xAC00; &#xBC14;&#xB85C; &#xC0AC;&#xC6A9;&#xD560; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. &#xC774;&#xB97C; &#xD65C;&#xC6A9;&#xD558;&#xBA74; &#xD558;&#xB098;&#xC758; &#xD30C;&#xC77C;&#xC5D0; &#xACF5;&#xD1B5;&#xB41C; &#xC815;&#xC758;&#xB4E4;&#xC774; &#xB2F4;&#xAE30;&#xAC8C; &#xB418;&#xBBC0;&#xB85C; &#xAD00;&#xB9AC;&#xAC00; &#xC6A9;&#xC774;&#xD574;&#xC9C0;&#xB294; &#xD6A8;&#xACFC;&#xAC00; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token keyword">namespace</span> <span class="token punctuation">.</span> <span class="token string">&quot;Example&quot;</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> MAX_PATHLEN <span class="token punctuation">:</span><span class="token keyword">int</span> <span class="token operator">=</span> <span class="token number">512</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> DEFAULT_KEY <span class="token punctuation">:</span><span class="token keyword">string</span> <span class="token operator">=</span> <span class="token string">&quot;blabla&quot;</span><span class="token punctuation">;</span>
+</pre><h3 class="mume-header" id="%EB%AC%B8%EC%84%9C%ED%99%94">&#xBB38;&#xC11C;&#xD654;</h3>
+
+<p>&#xBB38;&#xC11C;&#xD654;&#xB294; <code>API</code> &#xC815;&#xC758;&#xC2DC;&#xC5D0; &#xB9E4;&#xC6B0; &#xC911;&#xC694;&#xD55C; &#xBD80;&#xBD84;&#xC785;&#xB2C8;&#xB2E4;. &#xB300;&#xBD80;&#xBD84;&#xC758; &#xACBD;&#xC6B0; &#xC791;&#xC131;&#xC790;&#xC640; &#xC0AC;&#xC6A9;&#xC790;&#xAC00; &#xB2E4;&#xB974;&#xAE30; &#xB54C;&#xBB38;&#xC785;&#xB2C8;&#xB2E4;. &#xD1B5;&#xC0C1;&#xC801;&#xC73C;&#xB85C; &#xC774; &#xBD80;&#xBD84;&#xC744; &#xC0C1;&#xC1C4;&#xD558;&#xAE30; &#xC704;&#xD574;&#xC11C;, &#xBCC4;&#xB3C4;&#xC758; <code>API</code> &#xC0AC;&#xC6A9;&#xBC95;&#xC744; &#xB2F4;&#xC740; &#xBB38;&#xC11C;&#xC791;&#xC5C5;&#xC744; &#xD558;&#xAC8C; &#xB429;&#xB2C8;&#xB2E4;. &#xC774; &#xC791;&#xC5C5;&#xC740; &#xC801;&#xC9C0; &#xC54A;&#xC740; &#xBD80;&#xB2F4;&#xC774;&#xBA70;, &#xAC1C;&#xBC1C;&#xC790;&#xB4E4;&#xC5D0;&#xAC8C;&#xB294; &#xB54C;&#xB85C;&#xB294; &#xACE0;&#xD1B5;&#xC77C; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. <code>PROM</code>&#xC5D0;&#xC11C;&#xB294; <code>thrift</code> &#xCC98;&#xB7FC; <code>javadoc</code> &#xC2A4;&#xD0C0;&#xC77C;&#xC758; &#xC8FC;&#xC11D;&#xC744; &#xB2EC;&#xC544;&#xC8FC;&#xBA74; &#xC790;&#xB3D9;&#xC73C;&#xB85C; &#xBB38;&#xC11C;&#xD654;&#xAC8C; &#xB418;&#xB3C4;&#xB85D; &#xC124;&#xACC4;&#xB418;&#xC5B4; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. &#xC774;&#xB97C; &#xC798; &#xD65C;&#xC6A9;&#xD558;&#xBA74;, &#xBCC4;&#xB3C4;&#xC758; <code>API</code> &#xBB38;&#xC11C;&#xC791;&#xC5C5;&#xC774; &#xC0DD;&#xB7B5; &#xB420;&#xC218;&#xB3C4; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;. &#xB610;&#xD55C;, <code>PROM</code>&#xC740; &#xC790;&#xCCB4;&#xC801;&#xC73C;&#xB85C; <code>markdown</code> &#xD0DC;&#xADF8;&#xB97C; &#xC0AC;&#xC6A9;&#xD574;, <code>.html</code> &#xD30C;&#xC77C;&#xB85C; &#xCD9C;&#xB825;&#xD558;&#xB294; &#xAE30;&#xB2A5;&#xC744; &#xC9C0;&#xC6D0;&#xD569;&#xB2C8;&#xB2E4;. (<code>markdown</code> &#xB80C;&#xB354;&#xB7EC;&#xB97C; &#xB0B4;&#xC7A5;&#xD558;&#xACE0; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.)</p>
+<p>&#xAD6C;&#xCCB4;&#xC801;&#xC778; &#xBB38;&#xC11C;&#xD654;&#xC758; &#xACB0;&#xACFC;&#xBB3C;&#xC740; &#xB2E4;&#xC74C;&#xACFC; &#xAC19;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+<ul>
+<li>html&#xB85C; &#xCD9C;&#xB825;</li>
+<li>json/xml &#xD615;&#xD0DC;&#xB85C; &#xC2A4;&#xD0A4;&#xB9C8; &#xCD9C;&#xB825;</li>
+</ul>
+<pre data-role="codeBlock" data-info="csharp" class="language-csharp"><span class="token comment">/** The greeter sevice definition. */</span>
+sservice Greeter <span class="token punctuation">{</span>
+  <span class="token comment">/** Sends a greeting */</span>
+  <span class="token function">SayHello</span><span class="token punctuation">(</span>HelloRequest<span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token punctuation">(</span>HelloReply<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">/** The request message containing the user&apos;s name. */</span>
+<span class="token keyword">struct</span> HelloRequest <span class="token punctuation">{</span>
+  <span class="token comment">/** The user&apos;s name */</span>
+  name <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">/** The response message containing the greetings. */</span>
+<span class="token keyword">struct</span> HelloReply <span class="token punctuation">{</span>
+  <span class="token comment">/** The greeting message. */</span>
+  message <span class="token punctuation">:</span><span class="token keyword">string</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</pre><hr>
+<h2>&#xC804;&#xCCB4; &#xBB38;&#xBC95;</h2>
+<h3 class="mume-header" id="module">MODULE</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] MODULE ::= HEADER* DEFINITION*
+</code></pre><h3 class="mume-header" id="header">HEADER</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] HEADER ::= IMPORT | NAMESPACE
+</code></pre><h3 class="mume-header" id="import">IMPORT</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] IMPORT ::= &apos;import&apos; &apos;.&apos;? LITERAL
+</code></pre><h3 class="mume-header" id="namespace">NAMESPACE</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] NAMESPACE ::= &apos;namespace&apos; NAMESPACE_LANG IDENTIFIER SEPARATOR?
+
+[] NAMESPACE_LANG ::= &apos;*&apos; | &apos;cpp&apos; | &apos;dotnet&apos; | &apos;py&apos; | &apos;go&apos;
+</code></pre><h3 class="mume-header" id="definition">DEFINITION</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] DEFINITION ::= CONST | TYPEDEF | ENUM | STRUCT | ONEOF | EXCEPTION | SERVICES
+
+[] SERVICES ::= REGULAR_SERVICE | SIMPLE_SERVICE | REALTIME_SERVICE
+</code></pre><h3 class="mume-header" id="const">CONST</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] CONST ::= &apos;const&apos; IDENTIFIER &apos;:&apos; FIELD_TYPE &apos;=&apos; CONST_VALUE SEPARATOR?
+</code></pre><h3 class="mume-header" id="typedef">TYPEDEF</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] TYPEDEF ::= &apos;typedef&apos; IDENTIFIFER &apos;:&apos; DEFINITION_TYPE SEPARATOR?
+</code></pre><h3 class="mume-header" id="enum">ENUM</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] ENUM ::= &apos;enum&apos; IDENTIFIER &apos;{&apos; (IDENTIFIER (&apos;=&apos; INT_CONSTANT)? SEPARATOR?)* &apos;}&apos;
+</code></pre><h3 class="mume-header" id="struct">STRUCT</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] STRUCT ::= &apos;struct&apos; IDENTIFIER &apos;{&apos; FIELD* &apos;}&apos;
+</code></pre><h3 class="mume-header" id="oneof">ONEOF</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] ONEOF ::= &apos;oneof&apos; IDENTIFIER &apos;{&apos; FIELD* &apos;}&apos;
+</code></pre><h3 class="mume-header" id="exception">EXCEPTION</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] EXCEPTION ::= &apos;exception&apos; EXCEPTION_ID? IDENTIFIER &apos;{&apos; FIELD* &apos;}&apos;
+
+[] EXCEPTION_ID ::= &apos;(&apos; INT_CONSTANT &apos;)&apos;
+</code></pre><h3 class="mume-header" id="simple-service">SIMPLE SERVICE</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] SIMPLE_SERVICE ::= &apos;sservice&apos; IDENTIFIER (&apos;extends&apos; IDENTIFIER)? &apos;{&apos; SIMPLE_FUNCTION* &apos;}&apos;
+</code></pre><h3 class="mume-header" id="regular-service">REGULAR SERVICE</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] REGULAR_SERVICE ::= &apos;rservice&apos; IDENTIFIER (&apos;extends&apos; IDENTIFIER)? &apos;{&apos; REGULAR_FUNCTION* &apos;}&apos;
+</code></pre><h3 class="mume-header" id="realtime-service">REALTIME SERVICE</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] REALTIME_SERVICE ::= &apos;rtservice&apos; IDENTIFIER (&apos;extends&apos; IDENTIFIER)? &apos;{&apos; SIMPLE_FUNCTION* &apos;}&apos;
+</code></pre><h3 class="mume-header" id="simple-function">SIMPLE FUNCTION</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] SIMPLE_FUNCTION ::= FUNCTION_ID? &apos;oneway&apos;? IDENTIFIER &apos;(&apos; SIMPLE_REQUEST? &apos;)&apos; SIMPLE_RESPONSE? THROWS? SEPARATOR?
+
+[] SIMPLE_REQUEST ::= IDENTIFIER | &apos;void&apos;
+
+[] SIMPLE_RETURNS ::= &apos;returns&apos; &apos;(&apos; SIMPLE_RESPONSE &apos;)&apos;
+
+[] SIMPLE_RESPONSE ::= IDENTIFIER | &apos;void&apos;
+</code></pre><h3 class="mume-header" id="regular-function">REGULAR FUNCTION</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] REGULAR_FUNCTION ::= FUNCTION_ID? &apos;oneway&apos;? IDENTIFIER &apos;(&apos; FIELD* &apos;)&apos; REGULAR_RETURNS? THROWS? SEPARATOR?
+
+[] REGULAR_RETURNS ::= &apos;returns&apos; &apos;(&apos; FIELD_TYPE &apos;)&apos;
+</code></pre><h3 class="mume-header" id="realtime-function">REALTIME FUNCTION</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] REALTIME_FUNCTION ::= FUNCTION_ID? IDENTIFIER &apos;(&apos; FIELD* &apos;)&apos; SEPARATOR?
+
+</code></pre><h3 class="mume-header" id="field">FIELD</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] FIELD ::= FIELD_ID? FIELD_SPEC? IDENTITIFER &apos;:&apos; FIELD_TYPE (&apos;=&apos; CONST_VALUE)? SEPARATOR?
+</code></pre><h3 class="mume-header" id="field-id">FIELD ID</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] FIELD_ID ::= &apos;@&apos; INT_CONSTANT
+</code></pre><h3 class="mume-header" id="field-specifier">FIELD SPECIFIER</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] FIELD_SPEC ::= &apos;required&apos; | &apos;optional&apos; | &apos;deprecated&apos;
+</code></pre><h3 class="mume-header" id="throws">THROWS</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] THROWS ::= &apos;throws&apos; &apos;(&apos; THROW_FIELD* &apos;)&apos;
+
+[] THROW_FIELD ::= FIELD_ID? IDENTIFIER SEPARATOR?
+</code></pre><h3 class="mume-header" id="function-id">FUNCTION ID</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] FUNCTION_ID ::= &apos;@&apos; INT_CONSTANT
+</code></pre><h3 class="mume-header" id="types">TYPES</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] FIELD_TYPE ::= IDENTIFIER | PRIMITIVE_TYPE | CONTAINER_TYPE
+
+[] DEFINITION_TYPE ::= PRIMITIVE_TYPE | CONTAINER_TYPE
+
+[] PRIMITIVE_TYPE ::= &apos;bool&apos;
+              | &apos;int8&apos; | &apos;int16&apos; | &apos;int32&apos; | &apos;int64&apos; | &apos;uint8&apos; | &apos;uint16&apos; | &apos;uint32&apos; | &apos;uint64&apos;
+              | &apos;fixed8&apos;| &apos;fixed16&apos;| &apos;fixed32&apos;| &apos;fixed64&apos; | &apos;sfixed8&apos;| &apos;sfixed16&apos;| &apos;sfixed32&apos;| &apos;sfixed64&apos;
+              | &apos;bool&apos; | &apos;float&apos; | &apos;double&apos; | &apos;float32&apos; | &apos;float64&apos;
+              | &apos;string&apos; | &apos;bytes&apos;
+              | &apos;datetime&apos; | &apos;datetimelite&apos; | &apos;timespan&apos;
+              | &apos;uuid&apos;
+              | &apos;int&apos; | &apos;uint&apos; | &apos;long&apos; | &apos;ulong&apos;
+              | &apos;byte&apos; | &apos;word&apos; | &apos;dword&apos; | &apos;qword&apos; | &apos;sbyte&apos; | &apos;sword&apos; | &apos;sdword&apos; | &apos;sqword&apos;
+
+
+[] CONTAINER_TYPE ::= MAP | SET | LIST
+
+[] MAP ::= &apos;map&apos; &apos;&lt;&apos; FIELD_TYPE &apos;&gt;&apos;
+
+[] SET ::= &apos;set&apos; &apos;&lt;&apos; FIELD_TYPE &apos;&gt;&apos;
+
+[] LIST ::= (&apos;list&apos; &apos;&lt;&apos; FIELD_TYPE &apos;&gt;&apos;) | (FIELD_TYPE &apos;[&apos; INT_CONSTANT? &apos;]&apos;)
+</code></pre><h3 class="mume-header" id="constant-values">CONSTANT VALUES</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] CONST_VALUE ::= INT_CONSTANT | DOUBLE_CONSTANT | LITERAL | IDENTIFIER | CONST_MAP
+
+[] INT_CONSTANT ::= INT_CONSTANT1 | INT_CONSTANT2
+
+[] INT_CONSTANT1 ::= (&apos;+&apos; | &apos;-&apos;)? DIGIT+
+
+[] INT_CONSTANT2 ::= (&apos;+&apos; | &apos;-&apos;)? DIGIT (&apos;_&apos; | DIGIT)*
+
+[] DOUBLE_CONSTANT ::= (&apos;+&apos; | &apos;-&apos;)? DIGIT* (&apos;.&apos; DIGIT+)? ( (&apos;E&apos; | &apos;e&apos;) INT_CONSTANT )?
+
+[] CONST_LIST ::= &apos;[&apos; (CONST_VALUE SEPARATOR?)* &apos;]&apos;
+
+[] CONST_MAP ::= &apos;{&apos; (CONST_VALUE &apos;:&apos; CONST_VALUE SEPARATOR?)* &apos;}&apos;
+</code></pre><h3 class="mume-header" id="annotations">ANNOTATIONS</h3>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] ANNOTATIONS ::= &apos;(&apos; ANNOTATION* &apos;)&apos;
+
+[] ANNOTATION ::= IDENTIFIER | (IDENTIFIER &apos;:&apos; (IDENTIFIER | LITERAL | INT_CONSTANT | DOUBLE_CONSTANT))
+</code></pre><h3 class="mume-header" id="basic-definitions">BASIC DEFINITIONS</h3>
+
+<h4 class="mume-header" id="literal">LITERAL</h4>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] LITERAL ::= SINGLE_QUOTED_LITERAL | VERBATIM_LITERAL
+
+[] SINGLE_QUOTED_LITERAL ::= (&apos;&quot;&apos; [^&quot;]* &apos;&quot;&apos;) | (&quot;&apos;&quot; [^&apos;]* &quot;&apos;&quot;)
+
+[] VERBATIM_LITERAL ::= (&apos;&quot;&quot;&quot;&apos; [.]* &apos;&quot;&quot;&quot;&apos;) | (&quot;&apos;&apos;&apos;&quot; [.]* &quot;&apos;&apos;&apos;&quot;)
+</code></pre><h4 class="mume-header" id="identifier">IDENTIFIER</h4>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] IDENTIFIER ::= ( LETTER | &apos;_&apos; ) ( LETTER | DIGIT | &apos;.&apos; | &apos;_&apos; )*
+</code></pre><h4 class="mume-header" id="separator">SEPARATOR</h4>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] SEPARATOR ::= &apos;,&apos; | &apos;;&apos;
+
+[] LIST_SEPARATOR ::= &apos;,&apos;
+</code></pre><h4 class="mume-header" id="letters-and-digits">LETTERS AND DIGITS</h4>
+
+<pre data-role="codeBlock" data-info class="language-"><code>[] LETTER ::= [&apos;A&apos;-&apos;Z&apos;] | [&apos;a&apos;-&apos;z&apos;]
+
+[] DIGIT ::= [&apos;0&apos;-&apos;9&apos;]
+</code></pre>
+      </div>
+      
+      
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    </body></html>

@@ -3,7 +3,7 @@
 간단한 인터페이스 정의 예는 아래와 같습니다.
 
 ```csharp
-namespace dotnet "Greeting";
+namespace dotnet Greeting;
 
 sservice Greeting {
   SayHello(HelloRequest)
@@ -26,7 +26,7 @@ struct HelloResponse {
 `Module`은 `.prom` 파일 자체를 `Module`이라고 칭합니다. `Module` 파일 안에는 각종 정의들이 담기게 됩니다. 또한, 다른 `.prom` 파일 즉, `Module`을 포함할 수 있습니다.
 
 ```csharp
-namespace dotnet "Example";
+namespace dotnet Example;
 
 import "Types";
 import "Errors";
@@ -42,7 +42,7 @@ import "Models";
 `struct`는 `protobuf`의 `message`와 같은 같은 성격을 가지는 타입입니다. `struct`는 여러개의 필드들로 구성될 수 있으며, 상속은 지원하지 않습니다. 각 필드 앞에는 `protobuf`와 같이 태그를 지정할 수 있으며, 생략도 가능합니다. 단, 생략했을 경우에는 중간에 필드아이디를 지정하거나 버젼업시에 필드 아이디 지정 없이 중간에 필드를 끼워넣으면 호환이 되지 않는 등의 주의 사항이 있습니다.
 
 ```csharp
-namespace dotnet "Example";
+namespace dotnet Example;
 
 // Without field tags
 struct Monster {
@@ -62,7 +62,7 @@ struct Item {
 `C언어`의 공용체(union)과 같은 속성을 가지고 있는 타입니다. `oneof`내에 정의된 필드들중 하나만 유효한 값을 가지며, 어떤값이 유효한지는 생성된 코드에서 `which` 접근자로 처리할 수 있습니다. `protobuf`의 `oneof`와 유사합니다. `protobuf`가 `message`내에 정의하는것과는 다르게 `struct`처럼 독립적으로 정의해야합니다.
 
 ```csharp
-namespace dotnet "Example";
+namespace dotnet Example;
 
 oneof SizeUnit  {
   pound :int32;
@@ -79,7 +79,7 @@ oneof SizeUnit  {
 기본적으로 코드 생성기는 예외를 사용하는 코드를 생성합니다. 자체 방침등에 따라서 예외 사용이 허용되는 않는 환경에서는 코드 생성시에 `--no-exceptions-handling` 옵션을 주어서 예외 관련 코드가 생성되지 않도록 해야합니다. 이때는 예외 대신 오류코드를 사용하게 되는데, 예외 정의시에 반듯이 예외정의 시작 부분에 오류코드를 명시해야합니다.
 
 ```csharp
-namespace dotnet "Example";
+namespace dotnet Example;
 
 exception NotFoundException {
   reason :string;
@@ -135,7 +135,7 @@ exception InvalidRequestException {
 `gRPC`등에서 지원하는 단순한 `Request`, `Response` 형태를 지원하는 서비스입니다. `Request`, `Response` 에 허용되는 타입은 `struct`, `void` 두 타입뿐입니다. 즉, 요청/응답이 있거나 없거나만 지정할 수 있습니다.
 
 ```csharp
-namespace dotnet "Example";
+namespace dotnet Example;
 
 sservice Greeting {
   SayHello(HelloRequest) returns (HelloReply);
@@ -157,7 +157,7 @@ struct HelloReply {
 본질적으로 위에서 얘기한 `Simple Service`와 동일합니다. 다만, `Request`, `Response`에 각각 한개의 `struct`가 와야하는 `Simple Service`와는 다르게 일반적인 `C언어` 함수정의 형태와 유사한 형태를 가집니다. `Simple Service`를 사용하지 않고, `Regular Service`를 사용하는 장점은 무엇일까요? `Simple Service`는 `Request`, `Response` `struct`를 정의해야하는 부담이 있는데 반해, `Regular Service`는 그런 부담이 없습니다. 그외에는 차이가 없으며, 실제 내부 구현도 동일합니다. 단지, `Request`, `Response` 구조체 정의를 안해도 된다만 다릅니다.
 
 ```csharp
-namespace dotnet "Example";
+namespace dotnet Example;
 
 rservice Greeting {
   SayHello(name :string) returns (string);
@@ -191,7 +191,7 @@ struct HelloReply {
 `Realtime Service`는 게임만을 위한 전용 기능이기에 웹서비스에 적합하지 않습니다.
 
 ```csharp
-namespace dotnet "Example";
+namespace dotnet Example;
 
 rtservice GameC2S {
   /** 서버에 이동하기를 요청합니다. */
@@ -226,7 +226,7 @@ enum AnimalType {
 기존 언어들의 상수정의와 유사하며, `.prom` 파일내에서 사용이 가능하며 동시에 코드 생성시에 해당 정의와 값들이 출력되어서 프로그래머가 바로 사용할 수 있습니다. 이를 활용하면 하나의 파일에 공통된 정의들이 담기게 되므로 관리가 용이해지는 효과가 있습니다.
 
 ```csharp
-namespace . "Example";
+namespace dotnet Example;
 
 const MAX_PATHLEN :int = 512;
 const DEFAULT_KEY :string = "blabla";

@@ -21,7 +21,7 @@ struct HelloResponse {
 
 <br>
 
-### Module 정의
+### Module
 
 `Module`은 `.prom` 파일 자체를 `Module`이라고 칭합니다. `Module` 파일 안에는 각종 정의들이 담기게 됩니다. 또한, 다른 `.prom` 파일 즉, `Module`을 포함할 수 있습니다.
 
@@ -37,7 +37,7 @@ import "Models";
   .
 ```
 
-### Struct 정의
+### Struct
 
 `struct`는 `protobuf`의 `message`와 같은 같은 성격을 가지는 타입입니다. `struct`는 여러개의 필드들로 구성될 수 있으며, 상속은 지원하지 않습니다. 각 필드 앞에는 `protobuf`와 같이 태그를 지정할 수 있으며, 생략도 가능합니다. 단, 생략했을 경우에는 중간에 필드아이디를 지정하거나 버젼업시에 필드 아이디 지정 없이 중간에 필드를 끼워넣으면 호환이 되지 않는 등의 주의 사항이 있습니다.
 
@@ -57,7 +57,7 @@ struct Item {
 }
 ```
 
-### Oneof 정의
+### Oneof
 
 `C언어`의 공용체(union)과 같은 속성을 가지고 있는 타입니다. `oneof`내에 정의된 필드들중 하나만 유효한 값을 가지며, 어떤값이 유효한지는 생성된 코드에서 `which` 접근자로 처리할 수 있습니다. `protobuf`의 `oneof`와 유사합니다. `protobuf`가 `message`내에 정의하는것과는 다르게 `struct`처럼 독립적으로 정의해야합니다.
 
@@ -72,7 +72,7 @@ oneof SizeUnit  {
 }
 ```
 
-### Exception 정의
+### Exception
 
 서비스 함수 구현코드에서 발생할 수 있는 예외 타입들입니다. `API` 사용 문서 작성시에 해당 `API`에서 발생하는 서비스 오류들을 전달해야하는데, 별도의 문서에 기입하는 방법보다는 `.prom` 파일내에 정의해두면 자동으로 `API` 사용관련 문서가 생성될때 발생 가능한 예외 또는 오류코드가 출력되므로, 별도의 `API` 도움말을 작성할 필요가 없습니다.
 
@@ -119,7 +119,7 @@ exception InvalidRequestException {
 }
 ```
 
-### Service 정의
+### Service
 
 여타 `IDL`과는 다르게 3가지의 서비스를 지원합니다. 다소 의아할수도 있는데, 제가 생각했던 모든 목적에 맞는 일반환된 서비스 형태를 구현하기 쉽지 않았고, 그결과 3가지의 서비스로 분화하기로 결정했습니다. 구체적으로 다음과 같은 서비스들을 지원합니다.
 
@@ -130,7 +130,7 @@ exception InvalidRequestException {
 상세한 내용은 아래의 내용을 참조하시길 바랍니다.
 
 
-#### Simple service 정의
+#### Simple Service
 
 `gRPC`등에서 지원하는 단순한 `Request`, `Response` 형태를 지원하는 서비스입니다. `Request`, `Response` 에 허용되는 타입은 `struct`, `void` 두 타입뿐입니다. 즉, 요청/응답이 있거나 없거나만 지정할 수 있습니다.
 
@@ -152,7 +152,7 @@ struct HelloReply {
 }
 ```
 
-#### Regular service 정의
+#### Regular Service
 
 본질적으로 위에서 얘기한 `Simple Service`와 동일합니다. 다만, `Request`, `Response`에 각각 한개의 `struct`가 와야하는 `Simple Service`와는 다르게 일반적인 `C언어` 함수정의 형태와 유사한 형태를 가집니다. `Simple Service`를 사용하지 않고, `Regular Service`를 사용하는 장점은 무엇일까요? `Simple Service`는 `Request`, `Response` `struct`를 정의해야하는 부담이 있는데 반해, `Regular Service`는 그런 부담이 없습니다. 그외에는 차이가 없으며, 실제 내부 구현도 동일합니다. 단지, `Request`, `Response` 구조체 정의를 안해도 된다만 다릅니다.
 
@@ -178,7 +178,7 @@ struct HelloReply {
 }
 ```
 
-#### Realtime service 정의
+#### Realtime Service
 
 위의 두개 서비스 형태와는 완전히 다른 종류의 서비스입니다. 위 두 서비스와의 차이점은 아래와 같습니다.
 
@@ -221,7 +221,7 @@ enum AnimalType {
 }
 ```
 
-### 상수정의
+### 상수
 
 기존 언어들의 상수정의와 유사하며, `.prom` 파일내에서 사용이 가능하며 동시에 코드 생성시에 해당 정의와 값들이 출력되어서 프로그래머가 바로 사용할 수 있습니다. 이를 활용하면 하나의 파일에 공통된 정의들이 담기게 되므로 관리가 용이해지는 효과가 있습니다.
 
@@ -257,7 +257,6 @@ enum ErrorCode {
 import "ErrorCodes.prom"
 import "Types.prom"
 ```
-
 
 ### Namespace
 
@@ -524,8 +523,6 @@ struct HelloReply {
 [] SET ::= 'set' '<' FIELD_TYPE '>'
 
 [] LIST ::= ('list' '<' FIELD_TYPE '>') | (FIELD_TYPE '[' INT_CONSTANT? ']')
-
-[] CPP_TYPE ::= 'cpp_type' LITERAL
 ```
 
 ### CONSTANT VALUES

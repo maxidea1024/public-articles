@@ -312,6 +312,57 @@ struct UserInfo {
 
 이 타입들은 역직렬화(deserailization)시에 `Lazy` 로드 됩니다. 이 말은 접근하는 순간에 실제로 데이터를 읽어서 컨테이너 객체를 생성한다는 것입니다. 이러한 처리가 필요한 이유는 컴테이너는 대부분 크기가 클수가 있습니다. 이때 아직 사용하지도 않은 요소들을 위해서 무조건 읽어들이고 객체를 생성하는 것보다는 필요할때(접근할때) 읽어들이고 생성하는게 효율적일 수 있기 때문입니다. 단, 이러한 처리를 위해서 부가 정보가 필요하게 되고 이를 네트워크 넘어로 전송해야 하므로 야간의 크기는 증가될 수 있습니다. 해당 기능은 옵션형태로 활성화/비활성화 할 수 있습니다.
 
+### Primitive Types
+
+`PROM` 자체적으로 지원하는 기본 타입들에는 다음과 같은 것들이 있습니다.
+
+|No | 타입 | 설명 |
+|---|---|---|
+| 1 | bool | Boolean type, true / false |
+| 2 | int8 | Signed 8bit integer (-128 ~ 127) |
+| 3 | int16 | Signed 16bit integer |
+| 4 | int32 | Signed 32bit integer |
+| 5 | int64 | Signed 64bit integer |
+| 6 | uint8 | Unsigned 8bit integer (0 ~ 255) |
+| 7 | uint16 | Unsigned 16bit integer |
+| 8 | uint32 | Unsigned 32bit integer |
+| 9 | uint64 | Unsigned 64bit integer |
+| 10 | sfixed8 | Signed 8bit integer (-128 ~ 127) |
+| 11 | sfixed16 | Signed 16bit integer |
+| 12 | sfixed32 | Signed 32bit integer |
+| 13 | sfixed64 | Signed 64bit integer |
+| 14 | fixed8 | Unsigned 8bit integer (0 ~ 255) |
+| 15 | fixed16 | Unsigned 16bit integer |
+| 16 | fixed32 | Unsigned 32bit integer |
+| 17 | fixed64 | Unsigned 64bit integer |
+| 18 | float | 32 bit float |
+| 19 | double | 64 bit double |
+| 20 | float32 | 32 bit float |
+| 21 | float64 | 64 bit float |
+| 22 | string | UTF8 encoded string |
+| 23 | bytes | Variable byte array |
+| 24 | datetime | 64 bit UTC timestamp |
+| 25 | datetimelite | 32 bit timestamp |
+| 26 | timespan | 64 bit timespan |
+| 27 | uuid | 128 bit UUID |
+
+##### 아래의 타입들은 호환을 위해서 존재하는 타입들입니다.
+
+|No | 타입 | 설명 |
+|---|---|---|
+| 1 | int | ... |
+| 2 | uint | ... |
+| 3 | long | ... |
+| 4 | ulong | ... |
+| 5 | byte | ... |
+| 6 | word | ... |
+| 7 | dword | ... |
+| 8 | qword | ... |
+| 9 | sbyte | ... |
+| 10 | sword | ... |
+| 11 | sdword | ... |
+| 12 | sqword | ... |
+
 ### Annotations
 
 일종의 `Meta` 정보로서 코드 생성시에 옵션 처리등을 할 수 있는 근거가 될 수 있습니다.

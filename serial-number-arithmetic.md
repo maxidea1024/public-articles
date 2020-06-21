@@ -1,6 +1,6 @@
 # Serial number arithmetic
 
-`sequence number` 대소 비교시에 `overflow` 문제를 피해가는 코드입니다.
+`sequence number` 대소 비교시에 `overflow` 문제를 피해가는 간단한 코드입니다.
 
 `unsigned` 타입의 카운터 변수가 최대치를 넘어서 `overflow`가 발생했을 경우, 대소 비교가 잘못되는 문제가 있습니다. 이러한 문제를 피해가는 간단한 코드입니다.
 

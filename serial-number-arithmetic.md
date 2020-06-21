@@ -20,7 +20,7 @@ public class SeqNumberHelper
     // return (x <= y)
     public static bool LessOrEqual(uint x, uint y)
     {
-        return x == y || (int)(y - x) > 0;
+        return x == y || Less(x, y);
     }
 
     // return (x > y)
@@ -43,7 +43,7 @@ class SeqNumberHelper {
 
   // return (x <= y)
   inline static bool LessOrEqual(uint32_t x, uint32_t y) {
-    return x == y || (int32_t)(y - x) > 0;
+    return x == y || Less(x, y);
   }
 
   // return (x > y)

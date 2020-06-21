@@ -28,6 +28,12 @@ public class SeqNumberHelper
     {
         return !LessOrEqual(x, y);
     }
+
+    // return (x >= y)
+    public static bool GreaterOrEqual(uint x, uint y)
+    {
+        return x == y || !Less(x, y);
+    }
 }
 ```
 
@@ -49,6 +55,11 @@ class SeqNumberHelper {
   // return (x > y)
   inline static bool Greater(uint32_t x, uint32_t y) {
     return !LessOrEqual(x, y);
+  }
+
+  // return (x >= y)
+  inline static bool GreaterOrEqual(uint32_t x, uint32_t y) {
+    return x == y || !Less(x, y);
   }
 };
 ```

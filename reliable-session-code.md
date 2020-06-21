@@ -23,7 +23,19 @@ public enum State
     Standby,
 
     // 세션키가 온전히 설정된 상태
+    // 세션키는 언제 받아오는지?
     Established,
+}
+
+public enum MessageType
+{
+    None,
+
+    Ack,
+
+    Standby,
+
+    Handshake,
 }
 
 void OnConnected()
@@ -39,12 +51,39 @@ void OnConnected()
         else
         {
             // flow를 넘어가게 하기 위해서 더미로 보냄.
-            SendEmptyMessage();
+            SendMessage(new StandbyMessage());
         }
     }
     else
     {
         OnStandby();
+    }
+}
+
+bool OnReceivedMessage(Message message)
+{
+    if (message.Seq.HasValue)
+    {
+        if (!OnSeqReceived(message.Seq))
+        {
+            // Wrong sequence received.
+            return false;
+        }
+    }
+
+    switch (message.Type)
+    {
+        case MessageType.Ack:
+            OnAckReceived(message.Ack);
+            break;
+
+        case MessageType.Standby:
+            OnStandby();
+            break;
+
+        default:
+            OnUseMessageReceived(message);
+            break;
     }
 }
 
@@ -94,7 +133,7 @@ void OnDelayedAckEvent(float deltaTime)
     }
 }
 
-void OnAckReceived(uint32 ack)
+void OnAckMessageReceived(uint32 ack)
 {
     if (!IsConnected)
     {
@@ -139,6 +178,13 @@ void OnAckReceived(uint32 ack)
             }
         }
     }
+}
+
+void OnStandby()
+{
+    _state = State.Standby;
+
+    Log.Debug("Standby");
 }
 
 uint GetNextSeq()

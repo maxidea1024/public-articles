@@ -163,7 +163,7 @@ void OnAckMessageReceived(uint32 ack)
 
                     foreach (Message msg in _sentQueue)
                     {
-                        if (msg.Seq == ack || SeqLess(msg.Seq, ack))
+                        if (SeqLessOrEqual(msg.Seq, ack))
                         {
                             SendMessage(msg);
                         }
@@ -196,5 +196,15 @@ static bool SeqLess(uint x, uint y)
 {
     // http://en.wikipedia.org/wiki/Serial_number_arithmetic
     return (int)(y - x) > 0;
+}
+
+static bool SeqLessOrEqual(uint x, uint y)
+{
+    if (x == y)
+    {
+        return true;
+    }
+
+    return SeqLess(x, y);
 }
 ```

@@ -6,6 +6,8 @@
 
 자세한 내용은 [참고문서](https://en.wikipedia.org/wiki/Serial_number_arithmetic)를 참고하세요.
 
+### C#
+
 ```csharp
 public class SeqNumberHelper
 {
@@ -27,4 +29,26 @@ public class SeqNumberHelper
         return !LessOrEqual(x, y);
     }
 }
+```
+
+### C++
+
+```cpp
+class SeqNumberHelper {
+ public:
+  // return (x < y)
+  inline static bool Less(uint32_t x, uint32_t y) {
+    return (int32_t)(y - x) > 0;
+  }
+
+  // return (x <= y)
+  inline static bool LessOrEqual(uint32_t x, uint32_t y) {
+    return x == y || (int32_t)(y - x) > 0;
+  }
+
+  // return (x > y)
+  inline static bool Greater(uint32_t x, uint32_t y) {
+    return !LessOrEqual(x, y);
+  }
+};
 ```

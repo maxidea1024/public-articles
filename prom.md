@@ -551,9 +551,9 @@ struct HelloReply {
 ### TYPES
 
 ```
-[] FIELD_TYPE ::= IDENTIFIER | PRIMITIVE_TYPE | CONTAINER_TYPE
+[] FIELD_TYPE ::= IDENTIFIER | PRIMITIVE_TYPE | COLLECTION_TYPE
 
-[] DEFINITION_TYPE ::= PRIMITIVE_TYPE | CONTAINER_TYPE
+[] DEFINITION_TYPE ::= PRIMITIVE_TYPE | COLLECTION_TYPE
 
 [] PRIMITIVE_TYPE ::= 'bool'
               | 'int8' | 'int16' | 'int32' | 'int64' | 'uint8' | 'uint16' | 'uint32' | 'uint64'
@@ -566,7 +566,7 @@ struct HelloReply {
               | 'byte' | 'word' | 'dword' | 'qword' | 'sbyte' | 'sword' | 'sdword' | 'sqword'
 
 
-[] CONTAINER_TYPE ::= MAP | SET | LIST
+[] COLLECTION_TYPE ::= MAP | SET | LIST
 
 [] MAP ::= 'map' '<' FIELD_TYPE '>'
 

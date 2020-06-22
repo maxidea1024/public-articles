@@ -1,5 +1,4 @@
 # public-articles
-Public Articles
 
 [정규 표현식의 이해](regex.md)
 [Reliable Session](reliable-session.md)

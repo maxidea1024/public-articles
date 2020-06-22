@@ -6,6 +6,6 @@
 
 - [Serial Number Arithmetic](serial-number-arithmetic.md)
 
-- [게임 엔진 Tick의 이해](tick.md)
+- [게임 루프(Game Loop)에 대한 이해](tick.md)
 
 - [PROM 소개](prom.md)

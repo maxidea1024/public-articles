@@ -5,9 +5,8 @@
 ```csharp
 namespace dotnet Greeting;
 
-sservice Greeting {
-  SayHello(HelloRequest)
-      returns (HelloResponse);
+service Greeting {
+  SayHello(HelloRequest) returns (HelloResponse);
 }
 
 struct HelloRequest {
@@ -28,9 +27,9 @@ struct HelloResponse {
 ```csharp
 namespace dotnet Example;
 
-import "Types";
-import "Errors";
-import "Models";
+import "Types.prom";
+import "Errors.prom";
+import "Models.prom";
 
   .
   .
@@ -76,7 +75,7 @@ oneof SizeUnit  {
 
 서비스 함수 구현코드에서 발생할 수 있는 예외 타입들입니다. `API` 사용 문서 작성시에 해당 `API`에서 발생하는 서비스 오류들을 전달해야하는데, 별도의 문서에 기입하는 방법보다는 `.prom` 파일내에 정의해두면 자동으로 `API` 사용관련 문서가 생성될때 발생 가능한 예외 또는 오류코드가 출력되므로, 별도의 `API` 도움말을 작성할 필요가 없습니다.
 
-기본적으로 코드 생성기는 예외를 사용하는 코드를 생성합니다. 자체 방침등에 따라서 예외 사용이 허용되는 않는 환경에서는 코드 생성시에 `--no-exceptions-handling` 옵션을 주어서 예외 관련 코드가 생성되지 않도록 해야합니다. 이때는 예외 대신 오류코드를 사용하게 되는데, 예외 정의시에 반듯이 예외정의 시작 부분에 오류코드를 명시해야합니다.
+기본적으로 코드 생성기는 예외를 사용하는 코드를 생성합니다. 자체 방침등에 따라서 예외 사용이 허용되는 않는 환경에서는 코드 생성시에 `--no-exception-handling` 옵션을 주어서 예외 관련 코드가 생성되지 않도록 해야합니다. 이때는 예외 대신 오류코드를 사용하게 되는데, 예외 정의시에 반듯이 예외 정의 시작 부분에 오류코드를 명시해야 합니다.
 
 ```csharp
 namespace dotnet Example;
@@ -86,7 +85,7 @@ exception NotFoundException {
 }
 
 // With error codes
-exception(404)  NotFoundException {
+exception(404) NotFoundException {
   reason :string;
 }
 ```
@@ -107,16 +106,13 @@ sservice Auth {
 }
 
 /** 해당 계정이 블럭되었을 경우에 발생 */
-exception AccountBlockedException {
-}
+exception AccountBlockedException {}
 
 /** 서버가 점검중일때 발생 */
-exception InMaintenanceException {
-}
+exception InMaintenanceException {}
 
 /** 잘못된 요청이 왔을때 발생 */
-exception InvalidRequestException {
-}
+exception InvalidRequestException {}
 ```
 
 ### Service
@@ -126,7 +122,7 @@ exception InvalidRequestException {
 | 종류 | 설명 |
 |---|---|
 | Simple Service | 제일 단순한 형태의 `Request`, `Response` 형태의 서비스 |
-| Regular Service | 제일 단순한 형태의 `Request`, `Response` 형태의 서비스(struct 정의 없이 일반 함수처럼 정의) |
+| Plain Service | 제일 단순한 형태의 `Request`, `Response` 형태의 서비스(struct 정의 없이 일반 함수처럼 정의) |
 | Realtime Service | 실시간 게임서버를 위한 서비스 |
 
 
@@ -140,7 +136,7 @@ exception InvalidRequestException {
 ```csharp
 namespace dotnet Example;
 
-sservice Greeting {
+service Greeting {
   SayHello(HelloRequest) returns (HelloReply);
 
   SayBye();
@@ -155,20 +151,20 @@ struct HelloReply {
 }
 ```
 
-#### Regular Service
+#### Plain Service
 
-본질적으로 위에서 얘기한 `Simple Service`와 동일합니다. 다만, `Request`, `Response`에 각각 한개의 `struct`가 와야하는 `Simple Service`와는 다르게 일반적인 `C언어` 함수정의 형태와 유사한 형태를 가집니다. `Simple Service`를 사용하지 않고, `Regular Service`를 사용하는 장점은 무엇일까요? `Simple Service`는 `Request`, `Response` `struct`를 정의해야하는 부담이 있는데 반해, `Regular Service`는 그런 부담이 없습니다. 그외에는 차이가 없으며, 실제 내부 구현도 동일합니다. 단지, `Request`, `Response` 구조체 정의를 안해도 된다만 다릅니다.
+본질적으로 위에서 얘기한 `Simple Service`와 동일합니다. 다만, `Request`, `Response`에 각각 한개의 `struct`가 와야하는 `Simple Service`와는 다르게 일반적인 `C언어` 함수정의 형태와 유사한 형태를 가집니다. `Simple Service`를 사용하지 않고, `Plain Service`를 사용하는 장점은 무엇일까요? `Simple Service`는 `Request`, `Response` `struct`를 정의해야하는 부담이 있는데 반해, `Plain Service`는 그런 부담이 없습니다. 그외에는 차이가 없으며, 실제 내부 구현도 동일합니다. 단지, `Request`, `Response` 구조체 정의를 안해도 된다만 다릅니다.
 
 ```csharp
 namespace dotnet Example;
 
-rservice Greeting {
+pservice Greeting {
   SayHello(name :string) returns (string);
 }
 
 // or
 
-rservice Greeting {
+pservice Greeting {
   SayHello(request :HelloRequest) returns (HelloReply);
 }
 
@@ -305,15 +301,15 @@ struct UserInfo {
 }
 ```
 
-### Containers
+### Collections
 
-`PROM`에서는 세가지의 컨테이너를 타입을 지원합니다.
+`PROM`에서는 세가지의 콜렉션 타입을 지원합니다.
 
   - Map
   - Set
   - List
 
-이 타입들은 역직렬화(deserailization)시에 `Lazy` 로드 됩니다. 이 말은 접근하는 순간에 실제로 데이터를 읽어서 컨테이너 객체를 생성한다는 것입니다. 이러한 처리가 필요한 이유는 컴테이너는 대부분 크기가 클수가 있습니다. 이때 아직 사용하지도 않은 요소들을 위해서 무조건 읽어들이고 객체를 생성하는 것보다는 필요할때(접근할때) 읽어들이고 생성하는게 효율적일 수 있기 때문입니다. 단, 이러한 처리를 위해서 부가 정보가 필요하게 되고 이를 네트워크 넘어로 전송해야 하므로 야간의 크기는 증가될 수 있습니다. 해당 기능은 옵션형태로 활성화/비활성화 할 수 있습니다.
+이 타입들은 역직렬화(deserailization)시에 `Lazy` 로드 됩니다. 이 말은 접근하는 순간에 실제로 데이터를 읽어서 콜렉션 객체를 생성한다는 것입니다. 이러한 처리가 필요한 이유는 콜렉션 객체의 크기를 예측할 수 없기 때문입니다. 이때 아직 사용하지도 않은 요소들을 위해서 무조건 읽어들이고 객체를 생성하는 것보다는 필요할 때(접근할 때) 읽어들이고 생성하는게 효율적일 수 있기 때문입니다. 단, 이러한 처리를 위해서 부가 정보가 필요하게 되고 이를 네트워크 넘어로 전송해야 하므로 야간의 크기는 증가될 수 있습니다. 해당 기능은 옵션 형태로 활성화 / 비활성화 할 수 있습니다.
 
 ### Primitive Types
 
@@ -376,7 +372,7 @@ struct UserInfo {
 
 ```csharp
 /** The greeter sevice definition. */
-sservice Greeter {
+service Greeter {
   /** Sends a greeting */
   SayHello(HelloRequest) return (HelloReply);
 }
@@ -434,7 +430,7 @@ struct HelloReply {
 ```
 [] DEFINITION ::= CONST | TYPEDEF | ENUM | STRUCT | ONEOF | EXCEPTION | SERVICES
 
-[] SERVICES ::= REGULAR_SERVICE | SIMPLE_SERVICE | REALTIME_SERVICE
+[] SERVICES ::= PLAIN_SERVICE | SIMPLE_SERVICE | REALTIME_SERVICE
 ```
 
 ### CONST
@@ -478,19 +474,19 @@ struct HelloReply {
 ### SIMPLE SERVICE
 
 ```
-[] SIMPLE_SERVICE ::= 'sservice' IDENTIFIER ('extends' IDENTIFIER)? '{' SIMPLE_FUNCTION* '}'
+[] SIMPLE_SERVICE ::= 'service' IDENTIFIER ('extends' IDENTIFIER)? '{' SIMPLE_FUNCTION* '}'
 ```
 
-### REGULAR SERVICE
+### PLAIN SERVICE
 
 ```
-[] REGULAR_SERVICE ::= 'rservice' IDENTIFIER ('extends' IDENTIFIER)? '{' REGULAR_FUNCTION* '}'
+[] PLAIN_SERVICE ::= 'pservice' IDENTIFIER ('extends' IDENTIFIER)? '{' PLAIN_FUNCTION* '}'
 ```
 
 ### REALTIME SERVICE
 
 ```
-[] REALTIME_SERVICE ::= 'rtservice' IDENTIFIER ('extends' IDENTIFIER)? '{' SIMPLE_FUNCTION* '}'
+[] REALTIME_SERVICE ::= 'rtservice' IDENTIFIER ('extends' IDENTIFIER)? '{' REALTIME_FUNCTION* '}'
 ```
 
 ### SIMPLE FUNCTION
@@ -505,12 +501,12 @@ struct HelloReply {
 [] SIMPLE_RESPONSE ::= IDENTIFIER | 'void'
 ```
 
-### REGULAR FUNCTION
+### PLAIN FUNCTION
 
 ```
-[] REGULAR_FUNCTION ::= FUNCTION_ID? 'oneway'? IDENTIFIER '(' FIELD* ')' REGULAR_RETURNS? THROWS? SEPARATOR?
+[] PLAIN_FUNCTION ::= FUNCTION_ID? 'oneway'? IDENTIFIER '(' FIELD* ')' PLAIN_RETURNS? THROWS? SEPARATOR?
 
-[] REGULAR_RETURNS ::= 'returns' '(' FIELD_TYPE ')'
+[] PLAIN_RETURNS ::= 'returns' '(' FIELD_TYPE ')'
 ```
 
 ### REALTIME FUNCTION

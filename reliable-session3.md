@@ -112,6 +112,7 @@ public class Message
     public uint? Seq;
     public uint? Ack;
     public Guid? SessionId;
+    public bool IsEncoded;
     public ArraySegment<byte> Body;
 }
 ```
@@ -122,6 +123,7 @@ public class Message
 |Seq|메시지 일련번호|
 |Ack|메시지 수신 응답 번호|
 |SessionId|Session ID|
+|IsEncoded|메시지 내용 인코딩 여부|
 |Body|메시지 페이로드. 유저 메시지 그자체|
 
 #### SessionState
@@ -132,7 +134,7 @@ public enum SessionState
     None = 0,
     Connecting = 1,
     Handshaking = 2,
-    Connected= 3,
+    Connected = 3,
     InitialWaitForAckForRecovery = 4,
     Standby = 5,
     Established = 6,
@@ -188,17 +190,19 @@ public class Session
 |PendingSendMessages|메시지 송신시 일차로 메세지들은 이 목록에 담기게 됩니다.|
 |SendingMessages|현재 IO에서 보내지고 있는 메시지 목록입니다. (PreferredSendMessage 혹은 PendingSendMessages 둘중에 하나입니다.)|
 
-간단하게 필요한 요소들을 정의해 보았습니다. 이제 하나씩 구현해보도록 하겠습니다.
+간단하게 필요한 요소들을 정의해 보았습니다. 이제 하나씩 구현해보도록 하겠습니다. 아래 구현 코드들은 실제로 동작하는 코드가 아니므로, 그냥 참고용으로만 보시면 되겠습니다.
+
+실제로 구현 코드를 작성한다고 해도 오류 처리나 소켓단의 송수신 관련 부분과 메시지 시리얼라이징만 구현해주면 되므로 어느정도 파악하는데는 문제가 없을거라고 생각합니다.
 
 ### 연결
 
-우선 TCP 연결을 하도록 하겠습니다.
+우선 TCP 연결을 하도록 하겠습니다. 그냥 뭐 별거 없습니다. TCP socket으로 연결하는 과정이라고 생각하면 됩니다.
 
 ```csharp
 session.Connect("211.223.100.22:50000");
 ```
 
-#### TCP 연결이 완료되었을때 호출되는 함수
+#### TCP 연결이 완료 되었을때
 
 ```csharp
 void Session.OnTcpConnected()
@@ -216,7 +220,22 @@ void Session.OnTcpConnected()
 }
 ```
 
-#### 메시지를 받았을때 호출되는 함수
+### TCP 연결이 끊어졌을때
+
+```csharp
+void Session.OnTcpDisconnected()
+{
+    // SessionId 값이 유효하다는 것은 끊어지기 이전에 세션이 성립되어 있다는 얘기이므로,
+    // 연결 복원을 위해서 자동으로 재연결을 시도합니다.
+
+    if (SessionId.HasValue)
+    {
+        Reconnect();
+    }
+}
+```
+
+#### 메시지를 받았을때
 
 ```csharp
 void Session.OnMessageReceived(Message message)
@@ -252,9 +271,6 @@ void Session.OnMessageReceived(Message message)
         case MessageType.Handshaking2:
             OnHandshaking2MessageReceived(message.DeserializeBody<Handshaking2Message>());
             break;
-        case MessageType.Established:
-            OnEstablishedMessageReceived(message.DeserializeBody<EstablishedMessage>());
-            break;
         case MessageType.Ping:
             OnPingMessageReceived(message.DeserializeBody<PingMessage>());
             break;
@@ -270,7 +286,7 @@ void Session.OnMessageReceived(Message message)
 #### 메시지 보내기
 
 ```csharp
-void Session.SendMessage(Message message, bool isPreferredMessage = false)
+void Session.SendMessage(Message message, bool isPreferredSend = false)
 {
     // 사용자 메시지가 아닌 경우에는 Seq를 부여하지 않습니다.
     // 즉, 사용자 메시지만 메시지 복원의 대상이 됩니다.
@@ -285,7 +301,7 @@ void Session.SendMessage(Message message, bool isPreferredMessage = false)
 
     // 우선적으로 보내야할 메시지가 아니면 미뤄뒀다가 세션이 성립되면
     // 일괄적으로 몰아서 보내도록 합니다.
-    if (!isPreferredMessage && State != State.Established)
+    if (!isPreferredSend && State != State.Established)
     {
         UnsentMessages.Add(message);
         return;
@@ -299,8 +315,11 @@ void Session.SendMessage(Message message, bool isPreferredMessage = false)
         SentMessages.Enqueue(message);
     }
 
-    // 네트워크 너머로 메시지를 전송합니다.
-    SendMessageToWire(message);
+    // 보낼 메시지 목록에 넣어줍니다.
+    PendingSendMessages.Enqueue(message);
+
+    // 보내기가 가능한 상태라면 바로 보냅니다.
+    SendPendingMessages();
 }
 ```
 
@@ -372,7 +391,7 @@ void Session.OnRecovery()
         else
         {
             // 재접속이 아닌 최초 접속이라면 다음 상태로 넘어가기 위해서 그냥 빈 메시지를 보내는데
-            // 이를 받은 서버는 SessionId를 보내주게 됩니다.
+            // 이를 받은 서버는 `EmptyMessage`에 SessionId 실어서 보내주게 됩니다.
             // 이 SessionId를 받게 되면 최종적으로 세션이 성립되고 정상적으로 유저 메시지들을
             // 주고 받을 수 있는 상태가 됩니다.
 
@@ -385,6 +404,14 @@ void Session.OnRecovery()
         OnStandby();
     }
 }
+
+// 서버는 `EmptyMessage`를 세션에 연결된 `SessionId`를 클라이언트에게 보내줍니다.
+void ServerSession.OnEmptyMessageReceived(EmptyMessage message)
+{
+    EmptyMessage message2 = new EmptyMessage();
+    message2.SessionId = this.SessionId;
+    SendMessage(message2);
+}
 ```
 
 #### 세션키를 받을 준비가 되었을때 호출되는 함수
@@ -395,6 +422,12 @@ void Session.OnStandby()
     // 준비 상태로 전환함.
     State = State.Standby;
 
+    if (!SessionId.HasValue)
+    {
+        // 서버에게 `EmptyMessage`를 보내서 `SessionId`를 발급해줄것을 요청합니다.
+        var message = new EmptyMessage();
+        SendMessagePreferred(message);
+    }
 }
 ```
 
@@ -440,7 +473,7 @@ void Session.SendAck(uint ack, bool preferredSend = false)
 }
 ```
 
-#### `Ack`를 받았을때의 처리
+#### `Ack`를 받았을때
 
 ```csharp
 void Session.OnAckReceived(uint ack)
@@ -449,13 +482,14 @@ void Session.OnAckReceived(uint ack)
     {
         // 연결되어 있는 상태가 아니면 어짜피 메시지를 전송할 수 없으므로,
         // 바로 리턴합니다.
+        return;
     }
 
     // 상대측에서 정상적으로 수신한 메시지들을 `SentMessage` 목록에서 제거 합니다.
     while (SentMessages.Count > 0)
     {
         var message = SentMessage.Peek();
-        if (message.Seq < ack) // overflow로 인한 대소 비교에 문제가 있습니다. 이 부분은 다른곳에서 다루겠습니다.
+        if (SeqNumberHelper.Less(message.Seq, ack)) // overflow 이슈를 피하기 위해서 별도의 헬퍼 함수를 사용하여 대소 구분을 해야합니다.
         {
             // 상대측에서 이미 수신한 메시지이므로, 제거해도 안전합니다.
             SentMessages.Dequeue();
@@ -484,7 +518,7 @@ void Session.OnAckReceived(uint ack)
 }
 ```
 
-#### `SessionId`를 받았을때의 처리
+#### `SessionId`를 받았을때
 
 ```csharp
 void Session.OnSessionIdReceived(Guid sessionId)
@@ -518,6 +552,7 @@ void Session.OnSessionIdReceived(Guid sessionId)
 ```csharp
 void Session.SendUnsentMessages()
 {
+    // 세션 성립전에 전송 요청된 메시지들을 일괄적으로 전송합니다.
     if (UnsentMessages.Count > 0)
     {
         foreach (var message in UnsentMessages)
@@ -527,6 +562,10 @@ void Session.SendUnsentMessages()
 
         UnsentMessages.Clear();
     }
+
+    // 네트워크 너머로 메시지들을 전송합니다. 이미 전송중인 메시지가 있다면, 전송이 모두 완료된 후에
+    // 콜백됩니다. 즉, 전송을 다 마친 후 자동으로 전송이 이어서 됩니다.
+    SendPendingMessagesToWire();
 }
 ```
 
@@ -546,6 +585,9 @@ void Session.Disconnect()
     LastSentAck = null;
     SentMessages.Clear();
     UnsentMessages.Clear();
+
+    // TCP 소켓을 닫아줍니다.
+    TcpSocket.Close();
 }
 ```
 
@@ -567,6 +609,9 @@ void Session.SendPendingMessagesToWire()
         return;
     }
 
+    // PreferredSendMessages에는 세션 성립전에도 전송되어야 하는 메시지들이
+    // 담겨져 있습니다. 이 목록에 있는 메시지들을 먼저 전송해야합니다.
+
     List<Message> tmp = SendingMessages;
 
     if (PreferredSendMessages.Count > 0)
@@ -587,16 +632,44 @@ void Session.SendPendingMessagesToWire()
 
     foreach (var message in SendingMessages)
     {
-        if (!message.Ready)
+        if (!message.IsEncoded)
         {
-            BuildMessage(message);
+            // 메시지 인코딩이 되어 있지 않을 경우에는 인코딩을 해주어야 네트워크로 전송가능한 형태가 됩니다.
+            EncodeMessage(message);
         }
         else
         {
-            RebuildMessage(message);
+            // 재접속 이후 암호화키가 변경되는데, 이미 인코딩이 된 메시지라면 암호화키 변경 이슈로 인해서
+            // 다시 인코딩해야 수신측에서 정상적인 메시지로 인식할 수 있습니다.
+            ReencodeMessage(message);
         }
     }
 
+    // 요청한 내용(SendingMessages)에 해당하는 메시지들을 네트워크 너머로 전송합니다.
     IssueWireSend();
+}
+```
+
+#### 메시지 인코딩
+
+```csharp
+// 메시지 내용을 인코딩 합니다.
+// - 대칭키로 암호화하거나 압축등의 과정을 거치고 최종적으로 바이트 또는 base64 형태의 텍스트로 인코딩 합니다.
+void Session.EncodeMessage(Message message)
+{
+    message.Encoded = true;
+
+    .
+    .
+    .
+}
+
+// 재접속 이후 암호화키가 변경되므로 재전송시에 변경된 암호화키로 다시 인코딩해야 수신측에서
+// 정상적인 메시지로 인식할 수 있습니다.
+void Session.ReencodeMessage(Message message)
+{
+    .
+    .
+    .
 }
 ```

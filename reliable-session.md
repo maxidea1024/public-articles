@@ -147,9 +147,9 @@ public enum SessionState
 |Connecting|연결중|
 |Handshaking|암호화키 교환|
 |Connected|연결됨(단순히 암호화된 메시지를 주고 받을 수 있는 상태로, 아직 유저 메시지를 보낼수는 없음)|
-|InitialWaitForAckForRecovery|재접속후 상대측의 ACK를 기다림|
+|InitialWaitForAckForRecovery|재접속 후 상대측의 메시지 복원처리를 위해서 `ACK`를 기다림|
 |Standby|연결완료|
-|Established|세션이 정상적으로 성립되었음|
+|Established|세션이 정상적으로 성립(Establishment) 되었음|
 
 
 #### Session
@@ -185,8 +185,8 @@ public class Session
 |LastRecvSeq|마지막으로 수신받은 메시지 번호입니다.|
 |NextSeq|다음 메시지 송신번호입니다.|
 |SentMessages|송신한 메시지 보관 목록으로 수신측에서 정상 수신했다고 알리기 전까지 보관을 위해서 사용됩니다.|
-|UnsentMessages|최종적으로 연결이 Establish된 이후에 송신할 수 있으므로, 메시지 유실을 방지하기 위해서 보관을 위한 목록입니다.|
-|PreferredSendMessages|세션 성립 이전에라도 전송이 되어야하는 메시지들입니다|
+|UnsentMessages|최종적으로 연결이 Establish된 이후에 송신할 수 있으므로, 메시지 유실을 방지하기 위한 메시지 보관 목록입니다.|
+|PreferredSendMessages|세션 성립 이전에라도 전송이 되어야하는 메시지들입니다.|
 |PendingSendMessages|메시지 송신시 일차로 메세지들은 이 목록에 담기게 됩니다.|
 |SendingMessages|현재 IO에서 보내지고 있는 메시지 목록입니다. (PreferredSendMessage 혹은 PendingSendMessages 둘중에 하나입니다.)|
 

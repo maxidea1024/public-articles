@@ -58,7 +58,7 @@
 
 이러한 상황에서 메시지 복원없이 재접속을 하게되면 메시지 유실이 발생하므로, 위의 상황이 해결되지 않는 문제는 여전합니다.
 
-![재연결](https://i.loli.net/2020/06/23/4a5wyBg9MceGXSf.png)
+![재연결 (1)](https://i.imgur.com/q6AMEoO.png)
 
 아예 홈으로 돌아가서 재접속을 하고 플레이어 정보 전체를 다시 받으면, `불멸의 검`은 장착이 되어 있겠지만, 플레이 흐름은 이어갈 수 없을 것이며, 마지막으로 몹에게 공격한 행위는 반영되지 않을 것입니다.
 
@@ -96,7 +96,7 @@ public enum MessageType
 ```
 
 | 이름 | 설명 |
-|--|--|
+|:--|:--|
 |None|정의되지 않은 메시지 타입|
 |Handshake|암호화된 통신을 하기 위해서 암호화키 교환용 메시지|
 |Greeting|암호화 통신 수립 후 최초로 보내지는 메시지|
@@ -113,6 +113,7 @@ public class Message
     public MessageType Type;
     public uint? Seq;
     public uint? Ack;
+    public Guid? SessionId;
     public ArraySegment<byte> Body;
 }
 ```
@@ -122,25 +123,54 @@ public class Message
 |Type|메시지 타입|
 |Seq|메시지 일련번호|
 |Ack|메시지 수신 응답 번호|
+|SessionId|Session ID|
 |Body|메시지 페이로드. 유저 메시지 그자체|
+
+#### SessionState
+
+```csharp
+public enum SessionState
+{
+    None = 0,
+    Connecting = 1,
+    Handshaking = 2,
+    Connected= 3,
+    WaitingForAck = 4,
+    Standby = 5,
+    Established = 6,
+}
+```
+
+|이름|설명|
+|--|--|
+|None|최초 상태(접속이 끊어진 상태)|
+|Connecting|연결중|
+|Handshaking|암호화키 교환|
+|Connected|연결됨(아직 유저 메시지를 보낼수는 없음)|
+|WaitingForAck|상대측의 ACK를 기다림|
+|Standby|연결완료|
+|Established|세션이 정상적으로 성립되었음|
+
 
 #### Session
 
 ```csharp
 public class Session
 {
+    public SessionState State;
     public Guid SessionId;
     public uint? LastSentAck;
     public uint? LastRecvSeq;
     public uint NextSeq;
     public List<Message> SentMessages;
     public List<Message> UnsentMessages;
-    public List<Queue> RecvMessages;
+    public List<Queue> ReceivedMessages;
 }
 ```
 
 |이름|설명|
-|--|--|
+|:--|:--|
+|State|현재 세션 상태|
 |SessionId|세션 구분을 위한 세션키(UUID)|
 |LastSentAck|마지막으로 보낸 메시지 수신 응답 번호|
 |LastRecvSeq|마지막으로 수신받은 메시지 번호|

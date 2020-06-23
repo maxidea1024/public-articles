@@ -462,12 +462,12 @@ bool Session.OnSeqReceived(uint seq)
 {
     if (LastRecvSeq.HasValue)
     {
-        // 이전에 받았던 Seq가 있다면, 새로받은 Seq는 이전에 받은 Seq + 1이 되어야할 것입니다.
+        // 이전에 받았던 `Seq`가 있다면, 새로 받은 `Seq`는 이전에 받은 `Seq + 1`이 되어야할 것입니다.
         // 그렇지 않다면, 해킹이나 프로그램 오류일 가능성이 높습니다.
 
         if (seq != (LastRecvSeq.Value + 1)) // overflow가 발생해도 단순 비교이므로 문제 없습니다.
         {
-            Disconnect(DisconnectReason.BadSeq); // Disconnect 사유로 잘못된 Seq 번호 때문임을 지정합니다.
+            Disconnect(DisconnectReason.BadSeq); // Disconnect 사유로 잘못된 `Seq` 번호 때문임을 지정합니다.
             return false;
         }
     }
@@ -487,10 +487,10 @@ bool Session.OnSeqReceived(uint seq)
 ```csharp
 void Session.SendAck(uint ack, bool preferredSend = false)
 {
-    // 마지막으로 송신한 Ack 번호를 기록해둡니다.
+    // 마지막으로 송신한 `Ack` 번호를 기록해둡니다.
     LastSentAck = ack;
 
-    // 빈 메시지에 Ack 필드만 설정해서 보내줍니다.
+    // 빈 메시지에 `Ack` 필드만 설정해서 보내줍니다.
     var message = new EmptyMessage();
     message.Ack = ack;
     SendMessage(message, preferredSend);
@@ -552,8 +552,8 @@ void Session.OnSessionIdReceived(Guid sessionId)
         return;
     }
 
-    // 세션 ID가 이전 값이랑 다를 경우에 NextSeq 변수를 임의 값으로 초기화합니다.
-    // 보안상 유리한 측면이 있어서 임의의 값으로 하는것일뿐 0이 아닌 아무런 값으로
+    // 세션 ID가 이전 값과 다를 경우에 `NextSeq` 변수를 임의 값으로 초기화합니다.
+    // 보안상 유리한 측면이 있어서 임의의 값으로 하는 것일뿐 0이 아닌 임의의 값으로
     // 설정해도 상관 없습니다.
     if (this.SessionId == null || this.SessionId.Value != sessionId)
     {
@@ -587,8 +587,9 @@ void Session.SendUnsentMessages()
         UnsentMessages.Clear();
     }
 
-    // 네트워크 너머로 메시지들을 전송합니다. 이미 전송중인 메시지가 있다면, 전송이 모두 완료된 후에
-    // 콜백됩니다. 즉, 전송을 다 마친 후 자동으로 전송이 이어서 됩니다.
+    // 네트워크 너머로 메시지들을 전송합니다.
+    // 이미 전송중인 메시지가 있다면, 전송이 모두 완료된 후에 콜백됩니다.
+    // 즉, 전송을 다 마친 후 자동으로 전송이 이어서 됩니다.
     SendPendingMessagesToWire();
 }
 ```
@@ -633,8 +634,10 @@ void Session.SendPendingMessagesToWire()
         return;
     }
 
-    // PreferredSendMessages에는 세션 성립전에도 전송되어야 하는 메시지들이
+    // `PreferredSendMessages`에는 세션 성립전에도 전송되어야 하는 메시지들이
     // 담겨져 있습니다. 이 목록에 있는 메시지들을 먼저 전송해야합니다.
+    // `PreferredSendMessages` 전송이 완료된 시점에서 이 함수가 콜백되므로
+    // `PendingSendMessages`도 자동으로 전송을 시작하게 됩니다.
 
     List<Message> tmp = SendingMessages;
 

@@ -124,7 +124,7 @@ public class Message
 |Ack|메시지 수신 응답 번호|
 |SessionId|Session ID|
 |IsEncoded|메시지 내용 인코딩 여부|
-|Body|메시지 페이로드. 인코딩 유저 메시지 데이터|
+|Body|메시지 페이로드. 인코딩된 유저 메시지 데이터|
 
 #### SessionState
 

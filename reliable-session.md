@@ -315,7 +315,7 @@ void Session.SendMessage(Message message, bool isPreferredSend = false)
     }
 
     // 보낼 메시지 목록에 넣어줍니다.
-    PendingSendMessages.Enqueue(message);
+    PendingSendMessages.Add(message);
 
     // 보내기가 가능한 상태라면 바로 보냅니다.
     SendPendingMessages();
@@ -521,7 +521,7 @@ void Session.OnAckReceived(uint ack)
     {
         foreach (var message in SentMessages)
         {
-            if (message.Seq == ack || SeqNumberHelper.Less(ack, message.Seq))
+            if (SeqNumberHelper.LessOrEqual(ack, message.Seq))
             {
                 SendMessage(message);
             }
@@ -688,3 +688,5 @@ void Session.ReencodeMessage(Message message)
     .
 }
 ```
+
+위 코드에서 사용된 `SeqNumberHelper` 클래스는 [여기](serial-number-arithmetic.md)를 참고하세요.

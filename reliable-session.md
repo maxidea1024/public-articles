@@ -413,7 +413,7 @@ void ServerSession.OnEmptyMessageReceived(EmptyMessage message)
 }
 ```
 
-#### 세션키를 받을 준비가 되었을때 호출되는 함수
+#### 세션키를 받을 준비가 되었을때
 
 ```csharp
 void Session.OnStandby()
@@ -435,7 +435,7 @@ void Session.OnStandby()
 }
 ```
 
-#### `Seq`를 받았을때의 처리
+#### `Seq`를 받았을때
 
 ```csharp
 bool Session.OnSeqReceived(uint seq)

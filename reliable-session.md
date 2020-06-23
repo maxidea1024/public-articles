@@ -326,7 +326,7 @@ void Session.SendMessage(Message message, bool isPreferredSend = false)
         return;
     }
 
-    // 사용자 메시지만 메시지 복원의 대상이 됩니다.
+    // 사용자 메시지만 복원의 대상이 됩니다.
     if (message.Type == MessageType.User)
     {
         // 차후 메시지 복원을 위해서 보관해둡니다.

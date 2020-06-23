@@ -427,6 +427,11 @@ void Session.OnStandby()
         var message = new EmptyMessage();
         SendMessagePreferred(message);
     }
+    else
+    {
+        // 세션이 성립된걸로 간주합니다.
+        State = State.Established;
+    }
 }
 ```
 

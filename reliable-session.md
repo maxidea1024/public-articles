@@ -734,3 +734,12 @@ void Session.ReencodeMessage(Message message)
 ```
 
 위 코드에서 사용된 `SeqNumberHelper` 클래스는 [여기](serial-number-arithmetic.md)를 참고하세요.
+
+
+
+# TODO
+
+- 서버에서 최초접속과 재연결 상황을 어떻게 구분지을것인지?
+  (클라->서버 메시지 전송시 `SessionId` 지정 여부로 결정해야하나?)
+
+- 재연결시 서버내의 세션 객체가 expired되었다면, 서버에서는 새 세션 객체를 할당해도 되겠지만, 인게임내에서 이렇게 처리하면, 상태의 문제가 생기게 되므로 홈화면으로 돌가아가게 만들 수 있는 힌트가 필요하다.

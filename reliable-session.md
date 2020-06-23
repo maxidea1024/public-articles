@@ -567,7 +567,8 @@ void Session.OnSessionIdReceived(Guid sessionId)
         NextSeq = (uint)rng.Next();
     }
 
-    // 상태를 세션이 정상적으로 유저 메시지를 주고 받을 수 있는 상태로 전환합니다.
+    // 세션이 성립되었습니다.
+    // 이제부터 유저 메시지를 바로바로 송수신할 수 있는 상태가 되었습니다.
     State = State.Established;
 
     // 전송 대기중인 메시지들을 일괄로 전송합니다.

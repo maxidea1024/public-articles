@@ -167,7 +167,7 @@ public class Session
     public uint NextSeq;
     public Queue<Message> SentMessages;
     public List<Message> UnsentMessages;
-    public List<Queue> ReceivedMessages;
+    public List<Message> ReceivedMessages;
     public List<Message> PreferredSendMessages;
     public List<Message> PendingSendMessages;
     public List<Message> SendingMessages;

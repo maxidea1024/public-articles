@@ -100,8 +100,8 @@ public enum MessageType
 |:--|:--|
 |None|정의되지 않은 메시지 타입|
 |Handshake|암호화된 통신을 하기 위해서 암호화키 교환용 메시지|
-|Greeting|암호화 통신 수립 후 최초로 보내지는 메시지|
-|Greeting2|공개키로 암호화된 대칭키를 보내는 메시지|
+|Handshaking2|상대방의 공개키로 암호화된 대칭키를 보내는 메시지|
+
 |Eastablished|실제 연결이 성립되었을때 보내지는 메시지
 |Ack|메시지 수신 응답 메시지|
 |Ping|연결 유지 및 RTT측정을 위한 Ping 메시지|

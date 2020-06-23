@@ -327,10 +327,10 @@ void Session.OnMessageReceived(Message message)
 
 #### 메시지 보내기
 
-이 함수는 기본적으로 세션이 성립되기 전에는 메시지 송신을 하지 않고, 대기 목록에 담아두고 세션이 성립되는 시점에서 일괄적으로 전송합니다. 만약, 세션이 성립되기 전에 메시지를 보내야할 경우에는 `isPreferredSend` 플래그를 `true`로 설정하거나 `SendMessagePreferred` 함수를 사용해야합니다.
+이 함수는 기본적으로 세션이 성립되기 전에는 메시지 송신을 하지 않고, 대기 목록에 담아두고 세션이 성립되는 시점에서 일괄적으로 전송합니다. 만약, 세션이 성립되기 전에 메시지를 보내야할 경우에는 `preferredSend` 플래그를 `true`로 설정하거나 `SendMessagePreferred` 함수를 사용해야합니다.
 
 ```csharp
-void Session.SendMessage(Message message, bool isPreferredSend = false)
+void Session.SendMessage(Message message, bool preferredSend = false)
 {
     // 사용자 메시지가 아닌 경우에는 `Seq`를 부여하지 않습니다.
     if (message.Type == MessageType.UserMessage)
@@ -344,7 +344,7 @@ void Session.SendMessage(Message message, bool isPreferredSend = false)
 
     // 우선적으로 보낼 메시지가 아니면 미뤄뒀다가 세션이 성립되면
     // 일괄적으로 몰아서 보내도록 합니다.
-    if (!isPreferredSend && State != State.Established)
+    if (!preferredSend && State != State.Established)
     {
         UnsentMessages.Add(message);
         return;

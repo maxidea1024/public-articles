@@ -64,3 +64,87 @@
 
 이러한 문제를 해결하기 위해서는 메시지 유실이 발생하지 않도록 네트워크 엔진에서 처리하는게 바람직할것입니다.
 
+## 메시지 유실 방지 구현 방법
+
+위에서 본대로 갑작스런 연결끊김으로 인해서 메시지의 유실이 발생하게 됩니다. 요행으로 끊기기 전후로 아무런 메시지도 전송하지 않았다면, 문제가 없겠지만 게임처럼 수시로 다수의 메시지가 오고가는 환경에서는 필연적으로 메시지 유실이 발생할것이고 이로인해서 클라이언트, 서버가 생각하는 상태의 불일치로 인해서 게임의 상태는 급속도로 엉망이 될것입니다.
+
+자, 이 문제를 어떻게 해결해야할지에 대해서 이제 본격적으로 알아보도록 하겠습니다.
+
+아이디어는 간단합니다. 송신측에서 보낸 메시지를 수신측에서 수신했다고 알려주기 전까지는 버리지 않고, 보관했다가 재접속시에 상대측이 미쳐 수신하지 못했던 메시지를 모두 보내주면 됩니다.
+
+자 여기서 상대측이 수신했는지 여부를 어떻게 알수 있을지에 대한 의문이 들것입니다. 쉽게 난 500번 메시지까지 받았으니 501번 메시지부터 보낼거 있으면 보내주도록 처리하면 됩니다.
+
+메시지를 보낼따마다 메시지에 번호를 부여하고 이 메시지를 받은 상대측은 `받은 메시지 번호 + 1`를 응답신호(ACK)로 보내주면 됩니다. 응답신호를 받은 송신자는 보관하고 있던 메시지들중에서 응답번호다 작은 번호의 메시지들을 제거해주는 형태로 처리하면 됩니다.
+
+## 구현
+
+설명을 위해서 다음과 같이 간단히 몇가지를 정의하도록 하겠습니다.
+
+#### MessageType
+
+```csharp
+public enum MessageType
+{
+    None = 0,
+    Handshake = 1,
+    Greeting = 2,
+    Established = 3,
+    Ack = 4,
+    Ping = 5,
+    User = 6,
+}
+```
+
+| 이름 | 설명 |
+|--|--|
+|None|정의되지 않은 메시지 타입|
+|Handshake|암호화된 통신을 하기 위해서 암호화키 교환용 메시지|
+|Greeting|암호화 통신 수립 후 최초로 보내지는 메시지|
+|Eastablished|실제 연결이 성립되었을때 보내지는 메시지
+|Ack|메시지 수신 응답 메시지|
+|Ping|연결 유지 및 RTT측정을 위한 Ping 메시지|
+|User|실제 주고받는 유저 메시지|
+
+#### Message
+
+```csharp
+public class Message
+{
+    public MessageType Type;
+    public uint? Seq;
+    public uint? Ack;
+    public ArraySegment<byte> Body;
+}
+```
+|이름|설명|
+|--|--|
+|Type|메시지 타입|
+|Seq|메시지 일련번호|
+|Ack|메시지 수신 응답 번호|
+|Body|메시지 페이로드. 유저 메시지 그자체|
+
+#### Session
+
+```csharp
+public class Session
+{
+    public Guid SessionId;
+    public uint? LastSentAck;
+    public uint? LastRecvSeq;
+    public uint NextSeq;
+    public List<Message> SentMessages;
+    public List<Message> UnsentMessages;
+    public List<Queue> RecvMessages;
+}
+```
+
+|이름|설명|
+|--|--|
+|SessionId|세션 구분을 위한 세션키(UUID)|
+|LastSentAck|마지막으로 보낸 메시지 수신 응답 번호|
+|LastRecvSeq|마지막으로 수신받은 메시지 번호|
+|NextSeq|다음 메시지 송신번호|
+|SentMessages|송신한 메시지 보관 목록. 수신측에서 정상 수신했다고 알리기 전까지 보관을 위해서 사용됨|
+|UnsentMessages|최종적으로 연결이 Establish된 이후에 송신할 수 있으므로, 메시지 유실을 방지하기 위해서 보관을 위한 목록|
+
+자 간단하게 필요한 요소들을 정의해 보았습니다. 이제 하나씩 구현해보도록 하겠습니다.

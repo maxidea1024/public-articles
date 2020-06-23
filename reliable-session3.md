@@ -87,11 +87,12 @@ public enum MessageType
 {
     None = 0,
     Handshake = 1,
-    Greeting = 2,
-    Established = 3,
-    Ack = 4,
-    Ping = 5,
-    User = 6,
+    Handshale2 = 2,
+    Greeting = 3,
+    Established = 4,
+    Ack = 5,
+    Ping = 6,
+    User = 7,
 }
 ```
 
@@ -100,6 +101,7 @@ public enum MessageType
 |None|정의되지 않은 메시지 타입|
 |Handshake|암호화된 통신을 하기 위해서 암호화키 교환용 메시지|
 |Greeting|암호화 통신 수립 후 최초로 보내지는 메시지|
+|Greeting2|공개키로 암호화된 대칭키를 보내는 메시지|
 |Eastablished|실제 연결이 성립되었을때 보내지는 메시지
 |Ack|메시지 수신 응답 메시지|
 |Ping|연결 유지 및 RTT측정을 위한 Ping 메시지|
@@ -158,6 +160,9 @@ public enum SessionState
 public class Session
 {
     public SessionState State;
+    public byte[] PublicKey;
+    public byte[] PrivateKey;
+    public byte[] EncryptionKey;
     public Guid SessionId;
     public uint? LastSentAck;
     public uint? LastRecvSeq;
@@ -171,6 +176,9 @@ public class Session
 |이름|설명|
 |:--|:--|
 |State|현재 세션 상태|
+|PublicKey|대칭키 교환을 위해서 사용되는 공개키|
+|PrivateKey|대칭키 교환을 위해서 사용되는 비밀키|
+|EncryptionKey|암호화를 위해서 사용되는 대칭키|
 |SessionId|세션 구분을 위한 세션키(UUID)|
 |LastSentAck|마지막으로 보낸 메시지 수신 응답 번호|
 |LastRecvSeq|마지막으로 수신받은 메시지 번호|
@@ -179,3 +187,77 @@ public class Session
 |UnsentMessages|최종적으로 연결이 Establish된 이후에 송신할 수 있으므로, 메시지 유실을 방지하기 위해서 보관을 위한 목록|
 
 자 간단하게 필요한 요소들을 정의해 보았습니다. 이제 하나씩 구현해보도록 하겠습니다.
+
+
+### 연결
+
+우선 TCP 연결을 하도록 하겠습니다.
+
+```csharp
+session.Connect("211.223.100.22:50000");
+```
+
+#### TCP 연결이 완료되었을때 호출되는 함수
+
+```csharp
+void Session.OnTcpConnected()
+{
+    // 대칭키 교환을 위해서 사용되는 공개키/비밀키를 생성합니다.
+    GeneratePublicAndPrivateKey(out PublicKey, out PrivateKey);
+
+    // 암호화키(공개키)를 보냅니다.
+    var handshaking = new HandshakingMessage();
+    handshaking.PublicKey = PublicKey;
+    SendMessage(handshaking);
+
+    // 암호화 키를 교환하기 위한 상태로 변경합니다.
+    State = State.Handshaking;
+}
+```
+
+#### Handshaking 메시지를 받았을때 호출되는 함수
+
+```csharp
+void Session.OnHandshakingMessageReceived(HandshakingMessage message)
+{
+    // 받은 암호화키(공개키)를 가지고 생성된 대칭키를 암호화하여 보내줍니다.
+    var secret = GenerateEncryptionKey();
+    
+    // 상대방의 공개키로 암호화/복호화에 사용되는 대칭키를 암호화하여 전송합니다.
+    var handshaking2 = new Handshaking2Message();
+    handshaking2.EncryptionKey = EncryptByPublicKey(secret, message.PublicKey);
+    SendMessage(handshaking2);
+
+    // 암호화 키를 교환했으므로, 연결된 상태로 전환합니다.
+    State = State.Connected;
+}
+```
+
+#### Handshaking2 메시지를 받았을때 호출되는 함수
+
+```csharp
+void Session.OnHandshaking2MessageReceived(HandshakingMessage2 message)
+{
+    // 받은 대칭키를 수신측의 비밀키로 복호화합니다.
+    var encryptionKey = DecryptByPrivateKey(message.EncryptionKey);
+
+    // 복호화된 대칭키를 보관해둡니다.
+    EncryptionKey = message.EncryptionKey;
+
+    // Greeting 메시지를 보냅니다.
+    var greeting = new GreetingMessage();
+    SendMessage(greeting);
+
+    // 키교환이 완료 되었으므로, Greeting 상태로 전환합니다.
+    State = State.Greeting;
+}
+```
+
+#### Greeting 메시지를 받았을때 호출되는 함수
+
+```csharp
+void Session.OnGreetingMessageReceived(GreetingMessage message)
+{
+    
+}
+```

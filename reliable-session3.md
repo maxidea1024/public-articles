@@ -58,7 +58,7 @@
 
 이러한 상황에서 메시지 복원없이 재접속을 하게되면 메시지 유실이 발생하므로, 위의 상황이 해결되지 않는 문제는 여전합니다.
 
-![재연결 (1)](https://i.imgur.com/q6AMEoO.png)
+![재연결](https://i.imgur.com/q6AMEoO.png)
 
 아예 홈으로 돌아가서 재접속을 하고 플레이어 정보 전체를 다시 받으면, `불멸의 검`은 장착이 되어 있겠지만, 플레이 흐름은 이어갈 수 없을 것이며, 마지막으로 몹에게 공격한 행위는 반영되지 않을 것입니다.
 
@@ -70,11 +70,11 @@
 
 자, 이 문제를 어떻게 해결해야할지에 대해서 이제 본격적으로 알아보도록 하겠습니다.
 
-아이디어는 간단합니다. 송신측에서 보낸 메시지를 수신측에서 수신했다고 알려주기 전까지는 버리지 않고, 보관했다가 재접속시에 상대측이 미쳐 수신하지 못했던 메시지를 모두 보내주면 됩니다.
+아이디어는 간단합니다. 송신측에서 보낸 메시지를 수신측에서 수신했다고 알려주기 전까지는 버리지 않고, 보관했다가 연결유지를 위한 재접속시에 상대측이 미쳐 수신하지 못했던 메시지를 모두 보내주면 됩니다.
 
-자 여기서 상대측이 수신했는지 여부를 어떻게 알수 있을지에 대한 의문이 들것입니다. 쉽게 난 500번 메시지까지 받았으니 501번 메시지부터 보낼거 있으면 보내주도록 처리하면 됩니다.
+자 여기서 상대측이 수신했는지 여부를 어떻게 알수 있을지에 대한 의문이 들것입니다. 쉽게 난 `500번 메시지까`지 받았으니 `501번 메시지부`터 보낼거 있으면 보내주도록 처리하면 됩니다.
 
-메시지를 보낼따마다 메시지에 번호를 부여하고 이 메시지를 받은 상대측은 `받은 메시지 번호 + 1`를 응답신호(ACK)로 보내주면 됩니다. 응답신호를 받은 송신자는 보관하고 있던 메시지들중에서 응답번호다 작은 번호의 메시지들을 제거해주는 형태로 처리하면 됩니다.
+메시지를 보낼때마다 메시지에 번호를 부여하고 이 메시지를 받은 상대측은 `받은 메시지 번호 + 1`를 `응답신호(ACK)`로 보내주면 됩니다. 응답신호를 받은 송신자는 보관하고 있던 메시지들중에서 응답번호다 작은 번호의 메시지들을 제거해주는 형태로 처리하면 됩니다.
 
 ## 구현
 
@@ -86,9 +86,9 @@
 public enum MessageType
 {
     None = 0,
-    Handshake = 1,
-    Handshale2 = 2,
-    Greeting = 3,
+    Empty = 1,
+    Handshake = 2,
+    Handshake2 = 3,
     Established = 4,
     Ack = 5,
     Ping = 6,
@@ -99,12 +99,12 @@ public enum MessageType
 | 이름 | 설명 |
 |:--|:--|
 |None|정의되지 않은 메시지 타입|
+|Empty|비어있는 메시지입니다. 단순히 `Ack`를 담아서 보내거나 흐름 전환을 위해서 사용되는 메시지|
 |Handshake|암호화된 통신을 하기 위해서 암호화키 교환용 메시지|
 |Handshaking2|상대방의 공개키로 암호화된 대칭키를 보내는 메시지|
-
-|Eastablished|실제 연결이 성립되었을때 보내지는 메시지
+|Established|실제 연결이 성립되었을때 보내지는 메시지
 |Ack|메시지 수신 응답 메시지|
-|Ping|연결 유지 및 RTT측정을 위한 Ping 메시지|
+|Ping|연결 유지 및 `Round Trip Time` 측정을 위한 Ping 메시지|
 |User|실제 주고받는 유저 메시지|
 
 #### Message
@@ -167,7 +167,7 @@ public class Session
     public uint? LastSentAck;
     public uint? LastRecvSeq;
     public uint NextSeq;
-    public List<Message> SentMessages;
+    public Queue<Message> SentMessages;
     public List<Message> UnsentMessages;
     public List<Queue> ReceivedMessages;
 }
@@ -208,10 +208,103 @@ void Session.OnTcpConnected()
     // 암호화키(공개키)를 보냅니다.
     var handshaking = new HandshakingMessage();
     handshaking.PublicKey = PublicKey;
-    SendMessage(handshaking);
+    SendMessagePreferred(handshaking);
 
     // 암호화 키를 교환하기 위한 상태로 변경합니다.
     State = State.Handshaking;
+}
+```
+
+#### 메시지를 받았을때 호출되는 함수
+
+```csharp
+void Session.OnMessageReceived(Message message)
+{
+    if (message.Type == MessageType.Empty)
+    {
+        // `Seq` 필드가 지정 되어 있을 경우
+        if (message.Seq.HasValue)
+        {
+            OnSeqReceived(message.Seq.Value);
+        }
+
+        // `Ack` 필드가 지정되어 있을 경우
+        if (message.Ack.HasValue)
+        {
+            OnAckReceived(message.Ack.Value);
+        }
+
+        // `SessionId` 필드가 지정되어 있을 경우
+        if (message.SessionId.HasValue)
+        {
+            OnSessionIdReceived(message.SessionId.Value);
+        }
+
+        return;
+    }
+
+    switch (message.Type)
+    {
+        case MessageType.Handshaking:
+            OnHandshakingMessageReceived(message.DeserializeBody<HandshakingMessage>());
+            break;
+        case MessageType.Handshaking2:
+            OnHandshaking2MessageReceived(message.DeserializeBody<Handshaking2Message>());
+            break;
+        case MessageType.Greeting:
+            OnGreetingMessageReceived(message.DeserializeBody<GreetingMessage>());
+            break;
+        case MessageType.Established:
+            OnEstablishedMessageReceived(message.DeserializeBody<EstablishedMessage>());
+            break;
+        case MessageType.Ack:
+            OnEstablishedMessageReceived(message.DeserializeBody<EstablishedMessage>());
+            break;
+    }
+}
+```
+
+#### 메시지 보내기
+
+```csharp
+void Session.SendMessage(Message message, bool isPreferredMessage = false)
+{
+    // 사용자 메시지가 아닌 경우에는 Seq를 부여하지 않습니다.
+    // 즉, 사용자 메시지만 메시지 복원의 대상이 됩니다.
+    if (message.Type == MessageType.User)
+    {
+        // Seq가 지정되지 않은 경우에만 Seq를 지정합니다.
+        if (!message.Seq.HasValue)
+        {
+            message.Seq = NextSeq;
+        }
+    }
+
+    // 우선적으로 보내야할 메시지가 아니면 미뤄뒀다가 세션이 성립되면
+    // 일괄적으로 몰아서 보내도록 합니다.
+    if (!isPreferredMessage && State != State.Established)
+    {
+        UnsentMessages.Add(message);
+        return;
+    }
+
+    // 사용자 메시지가 아닌 경우에는 Seq를 부여하지 않습니다.
+    // 즉, 사용자 메시지만 메시지 복원의 대상이 됩니다.
+    if (message.Type == MessageType.User)
+    {
+        // 차후 메시지 복원을 위해서 보관해둡니다. Ack를 받은 후에야 안전하게 제거될 수 있습니다.
+        SentMessages.Enqueue(message);
+    }
+
+    // 네트워크 너머로 메시지를 전송합니다.
+    SendMessageToWire(message);
+}
+```
+
+```csharp
+void Session.SendMessagePreferred(Message message)
+{
+    SendMessage(message, true); // preferred
 }
 ```
 
@@ -226,7 +319,7 @@ void Session.OnHandshakingMessageReceived(HandshakingMessage message)
     // 상대방의 공개키로 암호화/복호화에 사용되는 대칭키를 암호화하여 전송합니다.
     var handshaking2 = new Handshaking2Message();
     handshaking2.EncryptionKey = EncryptByPublicKey(secret, message.PublicKey);
-    SendMessage(handshaking2);
+    SendMessagePreferred(handshaking2);
 
     // 암호화 키를 교환했으므로, 연결된 상태로 전환합니다.
     State = State.Connected;
@@ -246,18 +339,96 @@ void Session.OnHandshaking2MessageReceived(HandshakingMessage2 message)
 
     // Greeting 메시지를 보냅니다.
     var greeting = new GreetingMessage();
-    SendMessage(greeting);
+    SendMessagePreferred(greeting);
 
     // 키교환이 완료 되었으므로, Greeting 상태로 전환합니다.
     State = State.Greeting;
 }
 ```
 
-#### Greeting 메시지를 받았을때 호출되는 함수
+#### `Seq`를 받았을때의 처리
 
 ```csharp
-void Session.OnGreetingMessageReceived(GreetingMessage message)
+void Session.OnSeqReceived(uint seq)
 {
-    
+    // 마지막으로 수신한 메시지 번호를 기록해둡니다.
+    LastRecvSeq = seq;
+
+    // 송신자측에서 메시지 정상 수신 여부를 알수 있도록 응답을 보내줍니다.
+    // 통상적으로 받은 메시지 번호 + 1을 해서 보냅니다.
+    // (TCP 의 ACK와 동일함)
+    SendAck(LastRecvSeq + 1);
+}
+```
+
+```csharp
+void Session.SendAck(uint ack)
+{
+    // 마지막으로 송신한 Ack 번호를 기록해둡니다.
+    LastSentAck = ack;
+
+    // 빈 메시지에 Ack 필드만 설정해서 보내줍니다.
+    var message = new EmptyMessage();
+    message.Ack = ack;
+    SendMessage(message);
+}
+```
+
+#### `Ack`를 받았을때의 처리
+
+```csharp
+void Session.OnAckReceived(uint ack)
+{
+    // 상대측에서 정상적으로 수신한 메시지들을 `SentMessage` 목록에서 제거 합니다.
+    while (SentMessages.Count > 0)
+    {
+        var message = SentMessage.Peek();
+        if (message.Seq < ack) // overflow로 인한 대소 비교에 문제가 있습니다. 이 부분은 다른곳에서 다루겠습니다.
+        {
+            // 상대측에서 이미 수신한 메시지이므로, 제거해도 안전합니다.
+            SentMessages.Dequeue();
+        }
+        else
+        {
+            // 이메시지 이후로는 상대측에서 아직 수신확인이 안되었으므로 조금더 보관해야합니다.
+            break;
+        }
+    }
+}
+```
+
+#### `SessionId`를 받았을때의 처리
+
+```csharp
+void Session.OnSessionIdReceived(Guid sessionId)
+{
+    if (State == State.Standby)
+    {
+        // 수신한 SessionId를 기록해둡니다.
+        SessionId = sessionId;
+
+        // 상태를 세션이 정상적으로 유저 메시지를 주고 받을 수 있는 상태로 전환합니다.
+        State = State.Established;
+
+        // 전송 대기중인 메시지들을 일괄로 전송합니다.
+        SendUnsentMessages();
+    }
+}
+```
+
+#### 연결 성립전에 전송 요청된 메시지 일괄 전송
+
+```csharp
+void Session.SendUnsentMessages()
+{
+    if (UnsentMessages.Count > 0)
+    {
+        foreach (var message in UnsentMessages)
+        {
+            SendMessage(message);
+        }
+
+        UnsentMessages.Clear();
+    }
 }
 ```

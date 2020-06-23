@@ -188,7 +188,7 @@ public class Session
 |LastRecvSeq|마지막으로 수신받은 메시지 번호입니다.|
 |NextSeq|다음에 보내는 메시지 번호입니다.|
 |SentMessages|송신한 메시지 보관 목록으로 수신측에서 정상 수신했다고 알리기 전까지 보관을 위해서 사용됩니다.|
-|UnsentMessages|최종적으로 연결이 Establish된 이후에 송신할 수 있으므로, 메시지 유실을 방지하기 위한 메시지 보관 목록입니다.|
+|UnsentMessages|최종적으로 연결이 성립된 이후에 송신할 수 있으므로, 메시지 유실을 방지하기 위한 메시지 보관 목록입니다.|
 |PreferredSendMessages|세션 성립 이전에라도 전송이 되어야하는 메시지들입니다.|
 |PendingSendMessages|메시지 송신시 일차로 메세지들은 이 목록에 담기게 됩니다.|
 |SendingMessages|현재 IO에서 보내지고 있는 메시지 목록입니다. (PreferredSendMessage 혹은 PendingSendMessages 둘중에 하나입니다.)|

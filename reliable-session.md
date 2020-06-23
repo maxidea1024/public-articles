@@ -210,7 +210,7 @@ void Session.OnTcpConnected()
     // 대칭키 교환을 위해서 사용되는 공개키 / 비밀키를 생성합니다.
     GeneratePublicAndPrivateKey(out PublicKey, out PrivateKey);
 
-    // 암호화키(공개키)를 보냅니다.
+    // 공개키를 상대방에게 보냅니다.
     var handshaking = new HandshakingMessage();
     handshaking.PublicKey = PublicKey;
     SendMessagePreferred(handshaking);

@@ -278,7 +278,7 @@ void Session.OnMessageReceived(Message message)
             OnUserMessageReceived(message);
             break;
         default:
-            throw new NotSupportedException($"Invalid message type: {message.Type});
+            throw new NotSupportedException($"Invalid message received. type: {message.Type});
     }
 }
 ```

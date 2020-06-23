@@ -299,7 +299,7 @@ void Session.SendMessage(Message message, bool isPreferredSend = false)
         }
     }
 
-    // 우선적으로 보내야할 메시지가 아니면 미뤄뒀다가 세션이 성립되면
+    // 우선적으로 보낼 메시지가 아니면 미뤄뒀다가 세션이 성립되면
     // 일괄적으로 몰아서 보내도록 합니다.
     if (!isPreferredSend && State != State.Established)
     {
@@ -311,7 +311,8 @@ void Session.SendMessage(Message message, bool isPreferredSend = false)
     // 즉, 사용자 메시지만 메시지 복원의 대상이 됩니다.
     if (message.Type == MessageType.User)
     {
-        // 차후 메시지 복원을 위해서 보관해둡니다. Ack를 받은 후에야 안전하게 제거될 수 있습니다.
+        // 차후 메시지 복원을 위해서 보관해둡니다.
+        // Ack를 받은 후에야 안전하게 제거될 수 있습니다.
         SentMessages.Enqueue(message);
     }
 
@@ -340,7 +341,7 @@ void Session.OnHandshakingMessageReceived(HandshakingMessage message)
     // 받은 암호화키(공개키)를 가지고 생성된 대칭키를 암호화하여 보내줍니다.
     var secret = GenerateEncryptionKey();
     
-    // 상대방의 공개키로 암호화/복호화에 사용되는 대칭키를 암호화하여 전송합니다.
+    // 상대방의 공개키로 암호화 / 복호화에 사용되는 대칭키를 암호화하여 전송합니다.
     var handshaking2 = new Handshaking2Message();
     handshaking2.EncryptionKey = EncryptByPublicKey(secret, message.PublicKey);
     SendMessagePreferred(handshaking2);
@@ -365,7 +366,7 @@ void Session.OnHandshaking2MessageReceived(HandshakingMessage2 message)
     var greeting = new GreetingMessage();
     SendMessagePreferred(greeting);
 
-    // 
+    // 메시지 복원 시작
     OnRecovery();   
 }
 ```
@@ -438,7 +439,7 @@ bool Session.OnSeqReceived(uint seq)
 {
     if (LastRecvSeq.HasValue)
     {
-        // 이전에 받았던 Seq가 있다면, 새로받은 Seq는 이전에 받은 Seq + 1이 되어야할것입니다.
+        // 이전에 받았던 Seq가 있다면, 새로받은 Seq는 이전에 받은 Seq + 1이 되어야할 것입니다.
         // 그렇지 않다면, 해킹이나 프로그램 오류일 가능성이 높습니다.
 
         if (seq != (LastRecvSeq.Value + 1)) // overflow가 발생해도 단순 비교이므로 문제 없습니다.

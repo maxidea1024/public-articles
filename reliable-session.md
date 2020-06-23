@@ -288,8 +288,7 @@ void Session.OnMessageReceived(Message message)
 ```csharp
 void Session.SendMessage(Message message, bool isPreferredSend = false)
 {
-    // 사용자 메시지가 아닌 경우에는 Seq를 부여하지 않습니다.
-    // 즉, 사용자 메시지만 복원의 대상이 됩니다.
+    // 사용자 메시지가 아닌 경우에는 `Seq`를 부여하지 않습니다.
     if (message.Type == MessageType.User)
     {
         // Seq가 지정되지 않은 경우에만 Seq를 지정합니다.
@@ -307,8 +306,7 @@ void Session.SendMessage(Message message, bool isPreferredSend = false)
         return;
     }
 
-    // 사용자 메시지가 아닌 경우에는 Seq를 부여하지 않습니다.
-    // 즉, 사용자 메시지만 메시지 복원의 대상이 됩니다.
+    // 사용자 메시지만 메시지 복원의 대상이 됩니다.
     if (message.Type == MessageType.User)
     {
         // 차후 메시지 복원을 위해서 보관해둡니다.

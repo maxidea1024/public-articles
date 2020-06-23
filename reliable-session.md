@@ -117,6 +117,7 @@ public class Message
     public uint? Ack;
     public Guid? SessionId;
     public bool IsEncoded;
+
     public ArraySegment<byte> Body;
 }
 ```
@@ -200,12 +201,18 @@ public class Session
 ### 구현 코드에 앞선 몇가지 고려사항
 
 - 각 상태별로 `timeout`를 해주어야합니다.
+
   상대측에서 응답을 주지 않는 일은 허다하기 때문입니다. 무한정 기다리다 보면 사용하지 않는 쓰레기 객체가 서버에 쌓이기 때문에 심각한 문제를 야기할 수 있습니다.
 
 - `ACK`를 매 메시지 수신 할때마다 보내야하나?
+
   아닙니다. 가끔 보내줘도 아무런 문제가 없습니다. 다만, 보냈으나 아직 응답을 받지 못한 메시지 목록이 비대해지는 문제가 발생할 수 있겠지만, 적당한 주기로 응답을 주는 형태로 구현한다면 네트워크 동작도 줄이고 원하는 결과를 얻을 수 있을것입니다.
 
 - 재연결시에 `IP`가 수시로 바뀔수 있으므로 `IP`를 세션을 구분짓기 위한 키로 사용하면 안됩니다.
+
+- 연결이 끊어진 상태에서 서버내의 세션 객체의 언제까지 보존해야 하는가에 대한 의문이 있습니다.
+
+  보존기간을 지정하지 않았을 경우에는 사용되지도 않는 쓰레기 세션 객체들이 잔존하게 되는 문제가 발생할 것입니다. 일정 시간동안 재연결이 이루어지지 않는다면, 세션 객체를 서버에서 제거해주는 처리가 필요할것입니다.
 
 ### 연결
 
@@ -258,27 +265,22 @@ void Session.OnTcpDisconnected()
 ```csharp
 void Session.OnMessageReceived(Message message)
 {
-    if (message.Type == MessageType.Empty)
+    // `Seq` 필드가 지정 되어 있을 경우
+    if (message.Seq.HasValue)
     {
-        // `Seq` 필드가 지정 되어 있을 경우
-        if (message.Seq.HasValue)
-        {
-            OnSeqReceived(message.Seq.Value);
-        }
+        OnSeqReceived(message.Seq.Value);
+    }
 
-        // `Ack` 필드가 지정되어 있을 경우
-        if (message.Ack.HasValue)
-        {
-            OnAckReceived(message.Ack.Value);
-        }
+    // `Ack` 필드가 지정되어 있을 경우
+    if (message.Ack.HasValue)
+    {
+        OnAckReceived(message.Ack.Value);
+    }
 
-        // `SessionId` 필드가 지정되어 있을 경우
-        if (message.SessionId.HasValue)
-        {
-            OnSessionIdReceived(message.SessionId.Value);
-        }
-
-        return;
+    // `SessionId` 필드가 지정되어 있을 경우
+    if (message.SessionId.HasValue)
+    {
+        OnSessionIdReceived(message.SessionId.Value);
     }
 
     switch (message.Type)
@@ -692,7 +694,7 @@ void Session.SendPendingMessagesToWire()
 // - 대칭키로 암호화하거나 압축등의 과정을 거치고 최종적으로 바이트 또는 base64 형태의 텍스트로 인코딩 합니다.
 void Session.EncodeMessage(Message message)
 {
-    message.Encoded = true;
+    message.IsEncoded = true;
 
     .
     .

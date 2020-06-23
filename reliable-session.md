@@ -217,7 +217,8 @@ session.Connect("211.223.100.22:50000");
 ```csharp
 void Session.OnTcpConnected()
 {
-    // 대칭키 교환을 위해서 사용되는 공개키 / 비밀키를 생성합니다.
+    // 메시지 암호화에 사용되는 대칭키 교환을 위해서
+    // 사용되는 공개키 / 비밀키를 생성합니다.
     GeneratePublicAndPrivateKey(out PublicKey, out PrivateKey);
 
     // 공개키를 상대방에게 보냅니다.
@@ -235,12 +236,16 @@ void Session.OnTcpConnected()
 ```csharp
 void Session.OnTcpDisconnected()
 {
-    // `SessionId` 값이 유효하다는 것은 끊어지기 이전에 세션이 성립되어 있다는 얘기이므로,
-    // 연결 복원을 위해서 자동으로 재연결을 시도합니다.
+    // `SessionId` 값이 유효하다는 것은 끊어지기 이전에 세션이 성립되어
+    // 있다는 얘기이므로, 연결 복원을 위해 자동으로 재연결을 시도합니다.
 
     if (SessionId.HasValue)
     {
         Reconnect();
+    }
+    else
+    {
+        // 일반적인 접속 끊김 처리는 여기서 해주면 됩니다.
     }
 }
 ```
@@ -288,12 +293,14 @@ void Session.OnMessageReceived(Message message)
             OnUserMessageReceived(message);
             break;
         default:
-            throw new NotSupportedException($"Invalid message received. type: {message.Type});
+            throw new NotSupportedException($"Invalid message received. type: {message.Type}");
     }
 }
 ```
 
 #### 메시지 보내기
+
+이 함수는 기본적으로 세션이 성립되기 전에는 메시지 송신을 하지 않고, 대기 목록에 담아두고 세션이 성립되는 시점에서 일괄적으로 전송합니다. 만약, 세션이 성립되기 전에 메시지를 보내야할 경우에는 `isPreferredSend` 플래그를 `true`로 설정하거나 `SendMessagePreferred` 함수를 사용해야합니다.
 
 ```csharp
 void Session.SendMessage(Message message, bool isPreferredSend = false)
@@ -332,7 +339,7 @@ void Session.SendMessage(Message message, bool isPreferredSend = false)
 }
 ```
 
-#### 세션 성립전에라도 우선적으로 메시지 보내기
+#### 세션 성립전에라도 메시지 보내기
 
 ```csharp
 void Session.SendMessagePreferred(Message message)

@@ -225,7 +225,7 @@ void Session.OnTcpConnected()
 ```csharp
 void Session.OnTcpDisconnected()
 {
-    // SessionId 값이 유효하다는 것은 끊어지기 이전에 세션이 성립되어 있다는 얘기이므로,
+    // `SessionId` 값이 유효하다는 것은 끊어지기 이전에 세션이 성립되어 있다는 얘기이므로,
     // 연결 복원을 위해서 자동으로 재연결을 시도합니다.
 
     if (SessionId.HasValue)
@@ -289,7 +289,7 @@ void Session.OnMessageReceived(Message message)
 void Session.SendMessage(Message message, bool isPreferredSend = false)
 {
     // 사용자 메시지가 아닌 경우에는 Seq를 부여하지 않습니다.
-    // 즉, 사용자 메시지만 메시지 복원의 대상이 됩니다.
+    // 즉, 사용자 메시지만 복원의 대상이 됩니다.
     if (message.Type == MessageType.User)
     {
         // Seq가 지정되지 않은 경우에만 Seq를 지정합니다.

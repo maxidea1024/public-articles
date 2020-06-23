@@ -116,6 +116,7 @@ public class Message
     public ArraySegment<byte> Body;
 }
 ```
+
 |이름|설명|
 |--|--|
 |Type|메시지 타입|

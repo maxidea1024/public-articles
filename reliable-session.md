@@ -333,6 +333,8 @@ void Session.SendMessagePreferred(Message message)
 
 #### `NextSeq` 생성하기
 
+순차적으로 단조 증가하는 값을 생성합니다.
+
 ```csharp
 uint Session.GenerateNextSeq()
 {

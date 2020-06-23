@@ -183,7 +183,7 @@ public class Session
 |SessionId|세션 구분을 위한 세션키(UUID)입니다.|
 |LastSentAck|마지막으로 보낸 메시지 수신 응답 번호입니다.|
 |LastRecvSeq|마지막으로 수신받은 메시지 번호입니다.|
-|NextSeq|다음 메시지 송신번호입니다.|
+|NextSeq|다음에 보내는 메시지 번호입니다.|
 |SentMessages|송신한 메시지 보관 목록으로 수신측에서 정상 수신했다고 알리기 전까지 보관을 위해서 사용됩니다.|
 |UnsentMessages|최종적으로 연결이 Establish된 이후에 송신할 수 있으므로, 메시지 유실을 방지하기 위한 메시지 보관 목록입니다.|
 |PreferredSendMessages|세션 성립 이전에라도 전송이 되어야하는 메시지들입니다.|

@@ -388,10 +388,6 @@ void Session.OnHandshaking2MessageReceived(HandshakingMessage2 message)
     // 복호화된 대칭키를 보관해둡니다.
     EncryptionKey = message.EncryptionKey;
 
-    // Greeting 메시지를 보냅니다.
-    var greeting = new GreetingMessage();
-    SendMessagePreferred(greeting);
-
     // 메시지 복원 시작
     OnRecovery();   
 }

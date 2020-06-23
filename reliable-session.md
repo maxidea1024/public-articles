@@ -294,7 +294,7 @@ void Session.SendMessage(Message message, bool isPreferredSend = false)
         // Seq가 지정되지 않은 경우에만 Seq를 지정합니다.
         if (!message.Seq.HasValue)
         {
-            message.Seq = NextSeq;
+            message.Seq = GenerateNextSeq();
         }
     }
 
@@ -328,6 +328,15 @@ void Session.SendMessage(Message message, bool isPreferredSend = false)
 void Session.SendMessagePreferred(Message message)
 {
     SendMessage(message, true); // preferred
+}
+```
+
+#### `NextSeq` 생성하기
+
+```csharp
+uint Session.GenerateNextSeq()
+{
+    return NextSeq++;
 }
 ```
 

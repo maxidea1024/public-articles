@@ -94,7 +94,7 @@ public enum MessageType
     Handshake = 2,
     Handshake2 = 3,
     Ping = 4,
-    User = 5,
+    UserMessage = 5,
 }
 ```
 
@@ -105,7 +105,7 @@ public enum MessageType
 |Handshake|암호화된 통신을 하기 위해서 암호화키 교환용 메시지입니다.|
 |Handshaking2|상대방의 공개키로 암호화된 대칭키를 보내는 메시지입니다.|
 |Ping|연결 유지 및 `Round Trip Time` 측정을 위한 Ping 메시지입니다.|
-|User|실제 주고받는 유저 메시지입니다.|
+|UserMessage|일반적인 위의 메시들외에는 모두 유저 메시지입니다.|
 
 #### Message
 
@@ -292,7 +292,7 @@ void Session.OnMessageReceived(Message message)
         case MessageType.Ping:
             OnPingMessageReceived(message.DeserializeBody<PingMessage>());
             break;
-        case MessageType.User:
+        case MessageType.UserMessage:
             OnUserMessageReceived(message);
             break;
         default:
@@ -309,7 +309,7 @@ void Session.OnMessageReceived(Message message)
 void Session.SendMessage(Message message, bool isPreferredSend = false)
 {
     // 사용자 메시지가 아닌 경우에는 `Seq`를 부여하지 않습니다.
-    if (message.Type == MessageType.User)
+    if (message.Type == MessageType.UserMessage)
     {
         // Seq가 지정되지 않은 경우에만 Seq를 지정합니다.
         if (!message.Seq.HasValue)
@@ -327,7 +327,7 @@ void Session.SendMessage(Message message, bool isPreferredSend = false)
     }
 
     // 사용자 메시지만 복원의 대상이 됩니다.
-    if (message.Type == MessageType.User)
+    if (message.Type == MessageType.UserMessage)
     {
         // 차후 메시지 복원을 위해서 보관해둡니다.
         // Ack를 받은 후에야 안전하게 제거될 수 있습니다.

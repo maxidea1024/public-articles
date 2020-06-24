@@ -675,7 +675,7 @@ void Session.SendPendingMessagesToWire()
 {
     // 연결이 끊어졌거나, 비동기로 이미 보내고 있는 중일 경우에는 전송을 할 수 없습니다.
     // 전송이 완료되면 이 함수가 콜백 되므로 연이어서 송신 처리가 이루어지게 됩니다.
-    if (!IsSendable)
+    if (!IsConnected || HasPendingIOs)
     {
         return;
     }

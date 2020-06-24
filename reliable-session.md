@@ -236,9 +236,13 @@ public class Session
 
   보존기간을 지정하지 않았을 경우에는 사용되지도 않는 쓰레기 세션 객체들이 잔존하게 되는 문제가 발생할 것입니다. 일정 시간동안 재연결이 이루어지지 않는다면, 세션 객체를 서버에서 제거해주는 처리가 필요할것입니다.
 
+### Sequence Number Overflow
+
+`Sequence Number` 대소 비교시에 `Overflow` 발생시 안전하게 처리하는 방법은 [링크](serial-number-arithmetic.md)를 참고하시면 됩니다.
+
 ### 연결
 
-우선 TCP 연결을 하도록 하겠습니다. 그냥 뭐 별거 없습니다. TCP socket으로 연결하는 과정이라고 생각하면 됩니다.
+우선 `TCP` 연결을 하도록 하겠습니다. 그냥 뭐 별거 없습니다. `TCP socket`으로 연결하는 과정이라고 생각하면 됩니다.
 
 ```csharp
 session.Connect("211.223.100.22:50000");
@@ -786,5 +790,3 @@ bool Session.ReencodeMessage(Message message)
     return true;
 }
 ```
-
-위 코드에서 사용된 `SeqNumberHelper` 클래스는 [여기](serial-number-arithmetic.md)를 참고하세요.

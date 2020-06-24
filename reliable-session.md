@@ -400,7 +400,7 @@ uint Session.GenerateNextSeq()
 }
 ```
 
-#### Handshaking 메시지를 받았을때 호출되는 함수
+#### Handshake 메시지를 받았을때 호출되는 함수
 
 ```csharp
 void Session.OnHandshakeMessageReceived(HandshakeMessage message)
@@ -418,7 +418,7 @@ void Session.OnHandshakeMessageReceived(HandshakeMessage message)
 }
 ```
 
-#### Handshaking2 메시지를 받았을때 호출되는 함수
+#### Handshake2 메시지를 받았을때 호출되는 함수
 
 ```csharp
 void Session.OnHandshake2MessageReceived(HandshakeMessage2 message)
@@ -430,14 +430,14 @@ void Session.OnHandshake2MessageReceived(HandshakeMessage2 message)
     EncryptionKey = message.EncryptionKey;
 
     // 메시지 복원 시작
-    OnRecovery();   
+    ConditionalRecoverMessages();   
 }
 ```
 
 #### Handshaking 완료후에 호출되는 함수
 
 ```csharp
-void Session.OnRecovery()
+void Session.ConditionalRecoverMessages()
 {
     if (SessionId.IsValid)
     {

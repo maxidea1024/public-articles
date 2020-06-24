@@ -505,8 +505,15 @@ bool Session.OnSeqReceived(uint seq)
         // 이전에 받았던 `Seq`가 있다면, 새로 받은 `Seq`는 이전에 받은 `Seq + 1`이 되어야할 것입니다.
         // 그렇지 않다면, 해킹이나 프로그램 오류일 가능성이 높습니다.
 
+        if (!SeqNumberHelper.Less(LastRecvSeq.Value, seq))
+        {
+            // Log.Warning($"Last sequence number is {LastRecvSeq.Value} but {seq} received. Skipping messages.");
+            return false;
+        }
+
         if (seq != (LastRecvSeq.Value + 1)) // overflow가 발생해도 단순 비교이므로 문제 없습니다.
         {
+            // Log.Warning($"Received wrong sequence number {seq}. {LastRecvSeq.Value+1} expected.");
             Disconnect(DisconnectReason.BadSeq); // Disconnect 사유로 잘못된 `Seq` 번호 때문임을 지정합니다.
             return false;
         }
@@ -723,32 +730,61 @@ void Session.SendPendingMessagesToWire()
 ```csharp
 // 메시지 내용을 인코딩 합니다.
 // - 대칭키로 암호화하거나 압축등의 과정을 거치고 최종적으로 바이트 또는 base64 형태의 텍스트로 인코딩 합니다.
-void Session.EncodeMessage(Message message)
+bool Session.EncodeMessage(Message message)
 {
-    message.IsEncoded = true;
+    if (SessionId.HasValue)
+    {
+        // 한번만 보내는것은 옵션으로 처리할수도 있을듯...
+        // `SendSessionIdOnlyOnce`, `SessionIdHasBeenSent` 두개의 변수로 처리하면 될듯함.
+        message.SessionId = SessionId.Value;
+    }
+
+    if (!message.Ack.HasValue && message.Type == MessageType.Empty)
+    {
+        if (message.Type == MessageType.UserMessage)
+        {
+            message.Seq = GetNextSeq();
+
+            if (LastSentAck.HasValue && LastRecvSeq.HasValue)
+            {
+                if (SeqNumberHelper.Less(LastSentAck.Value, LastRecvSeq.Value + 1))
+                {
+                    LastSentAck = LastRecvSeq + 1;
+                }
+            }
+
+            SentMessages.Add(message);
+        }
+    }
+
+
+    // 1. Serialize message to bytes or json string
+    // 2. Compression(optional)
+    // 3. Encryption(optional)
 
     .
     .
     .
+
+    message.IsEncoded = true;
+
+    return true;
 }
 
 // 재접속 이후 암호화키가 변경되므로 재전송시에 변경된 암호화키로 다시 인코딩해야 수신측에서
 // 정상적인 메시지로 인식할 수 있습니다.
-void Session.ReencodeMessage(Message message)
+bool Session.ReencodeMessage(Message message)
 {
+    // 1. Serialize message to bytes or json string
+    // 2. Compression(optional)
+    // 3. Encryption(optional)
+
     .
     .
     .
+
+    return true;
 }
 ```
 
 위 코드에서 사용된 `SeqNumberHelper` 클래스는 [여기](serial-number-arithmetic.md)를 참고하세요.
-
-
-
-# TODO
-
-- 서버에서 최초접속과 재연결 상황을 어떻게 구분지을것인지?
-  (클라->서버 메시지 전송시 `SessionId` 지정 여부로 결정해야하나?)
-
-- 재연결시 서버내의 세션 객체가 expired되었다면, 서버에서는 새 세션 객체를 할당해도 되겠지만, 인게임내에서 이렇게 처리하면, 상태의 문제가 생기게 되므로 홈화면으로 돌가아가게 만들 수 있는 힌트가 필요하다.

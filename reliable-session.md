@@ -78,14 +78,14 @@
 
 자 여기서 상대측이 수신했는지 여부를 어떻게 알수 있을지에 대한 의문이 들것입니다. 쉽게 난 `500번 메시지`까지 받았으니 `501번 메시지`부터 보낼거 있으면 보내주도록 처리하면 됩니다.
 
-메시지를 보낼때 마다 메시지에 번호를 부여하고 이 메시지를 받은 상대측은 `받은 메시지 번호 + 1`를 `응답신호(ACK)`로 보내주면 됩니다. 응답신호를 받은 송신자는 보관하고 있던 메시지들중에서 응답번호다 작은 번호의 메시지들을 제거해주는 형태로 처리하면 됩니다.
+메시지를 보낼때 마다 메시지에 번호를 부여하고 이 메시지를 받은 상대측은 `받은 메시지 번호 + 1`를 `응답신호(ACK)`로 보내주면 됩니다. 응답신호를 받은 송신자는 보관하고 있던 메시지들 중에서 응답번호 보다 작은 번호의 메시지들을 제거해주는 형태로 처리하면 됩니다.
 
-핵심이 되는 코드를 간단하게 의사코드로 표현해 보면 아래와 같습니다.
+핵심이 되는 코드를 간단하게 코드로 표현해 보면 아래와 같습니다.
 
 ```csharp
 void OnAckReceived(uint ack)
 {
-    while (SentMessages.Count > 0)
+    while (SentMessages.Count > 0) // 보관중인 보낸 메시지(수신 확인전)가 있는 동안 루프
     {
         var msg = SentMessages.Peek();
         if (msg.Seq < ack) // 보관중인 메시지 번호가 ack보다 작으면 상대측에서 수신한것이므로, 제거
@@ -122,9 +122,9 @@ public enum MessageType
 | 이름 | 설명 |
 |:--|:--|
 |None|정의되지 않은 메시지입니다.|
-|Empty|비어있는 메시지입니다. 단순히 `Ack`를 담아서 보내거나 흐름 전환을 위해서 사용되는 메시지입니다|
+|Empty|비어있는 메시지입니다. 단순히 `Ack`를 담아서 보내거나 흐름 전환을 위해서 사용되는 메시지입니다.|
 |Handshake|암호화된 통신을 하기 위해서 암호화키 교환용 메시지입니다.|
-|Handshaking2|상대방의 공개키로 암호화된 대칭키를 보내는 메시지입니다.|
+|Handshake2|상대방의 공개키로 암호화된 대칭키를 보내는 메시지입니다.|
 |Ping|연결 유지 및 `Round Trip Time` 측정을 위한 Ping 메시지입니다.|
 |UserMessage|일반적인 위의 메시들외에는 모두 유저 메시지입니다.|
 
@@ -254,7 +254,7 @@ void Session.OnTcpConnected()
     GeneratePublicAndPrivateKey(out PublicKey, out PrivateKey);
 
     // 공개키를 상대방에게 보냅니다.
-    var handshaking = new HandshakingMessage();
+    var handshaking = new HandshakeMessage();
     handshaking.PublicKey = PublicKey;
     SendMessagePreferred(handshaking);
 
@@ -308,10 +308,10 @@ void Session.OnMessageReceived(Message message)
     switch (message.Type)
     {
         case MessageType.Handshaking:
-            OnHandshakingMessageReceived(message.DeserializeBody<HandshakingMessage>());
+            OnHandshakeMessageReceived(message.DeserializeBody<HandshakeMessage>());
             break;
         case MessageType.Handshaking2:
-            OnHandshaking2MessageReceived(message.DeserializeBody<Handshaking2Message>());
+            OnHandshake2MessageReceived(message.DeserializeBody<Handshake2Message>());
             break;
         case MessageType.Ping:
             OnPingMessageReceived(message.DeserializeBody<PingMessage>());
@@ -389,13 +389,13 @@ uint Session.GenerateNextSeq()
 #### Handshaking 메시지를 받았을때 호출되는 함수
 
 ```csharp
-void Session.OnHandshakingMessageReceived(HandshakingMessage message)
+void Session.OnHandshakeMessageReceived(HandshakeMessage message)
 {
     // 받은 암호화키(공개키)를 가지고 생성된 대칭키를 암호화하여 보내줍니다.
     var secret = GenerateEncryptionKey();
     
     // 상대방의 공개키로 암호화 / 복호화에 사용되는 대칭키를 암호화하여 전송합니다.
-    var handshaking2 = new Handshaking2Message();
+    var handshaking2 = new Handshake2Message();
     handshaking2.EncryptionKey = EncryptByPublicKey(secret, message.PublicKey);
     SendMessagePreferred(handshaking2);
 
@@ -407,7 +407,7 @@ void Session.OnHandshakingMessageReceived(HandshakingMessage message)
 #### Handshaking2 메시지를 받았을때 호출되는 함수
 
 ```csharp
-void Session.OnHandshaking2MessageReceived(HandshakingMessage2 message)
+void Session.OnHandshake2MessageReceived(HandshakeMessage2 message)
 {
     // 받은 대칭키를 수신측의 비밀키로 복호화합니다.
     var encryptionKey = DecryptByPrivateKey(message.EncryptionKey);

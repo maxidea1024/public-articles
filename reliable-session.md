@@ -311,10 +311,10 @@ void Session.OnMessageReceived(Message message)
 
     switch (message.Type)
     {
-        case MessageType.Handshaking:
+        case MessageType.Handshake:
             OnHandshakeMessageReceived(message.DeserializeBody<HandshakeMessage>());
             break;
-        case MessageType.Handshaking2:
+        case MessageType.Handshake2:
             OnHandshake2MessageReceived(message.DeserializeBody<Handshake2Message>());
             break;
         case MessageType.Ping:

@@ -340,6 +340,15 @@ void Session.SendMessage(Message message, bool preferredSend = false)
         {
             message.Seq = GenerateNextSeq();
         }
+
+        if (LastSentAck.HasValue && LastRecvSeq.HasValue)
+        {
+            if (SeqNumberHelper.Less(LastSentAck.Value, LastRecvSeq.Value + 1))
+            {
+                LastSentAck = LastRecvSeq + 1;
+                message.Ack = LastSentAck;
+            }
+        }
     }
 
     // 우선적으로 보낼 메시지가 아니면 미뤄뒀다가 세션이 성립되면

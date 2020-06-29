@@ -91,7 +91,7 @@ exception(404) NotFoundException {
 ```
 
 ```csharp
-sservice Auth {
+service Auth {
   /** 로그인을 요청합니다. */
   Login(LoginRequest)
       returns (LoginResponse)

@@ -35,3 +35,10 @@ namespace DapperNET.Workaround
 
 시스템 초기화시에 아래와 같이 호출해주면 그다음부터 Dapper.NET이 `BINARY(16)` <-> `System.Guid`간의
 상호 변환이 자동으로 이루어집니다.
+
+```csharp
+void InitApp()
+{
+    BinaryGuidTypeHandler.Register();
+}
+```

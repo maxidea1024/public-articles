@@ -10,24 +10,42 @@ using Dapper;
 
 namespace DapperNET.Workaround
 {
-    public class BinaryGuidTypeHandler : SqlMapper.TypeHandler<Guid>
+    public static class BinaryGuidTypeHandlers
     {
-        public override Guid Parse(object value)
-        {
-            return new Guid((byte[])value);
-        }
-
-        public override void SetValue(IDbDataParameter parameter, Guid value)
-        {
-            parameter.Value = value.ToByteArray();
-        }
-
         public static void Register()
         {
             SqlMapper.RemoveTypeMap(typeof(Guid));
             SqlMapper.RemoveTypeMap(typeof(Guid?));
 
             SqlMapper.AddTypeHandler(new BinaryGuidTypeHandler());
+            SqlMapper.AddTypeHandler(new NullableBinaryGuidTypeHandler());
+        }
+
+
+        public class BinaryGuidTypeHandler : SqlMapper.TypeHandler<Guid>
+        {
+            public override Guid Parse(object value)
+            {
+                return new Guid((byte[])value);
+            }
+
+            public override void SetValue(IDbDataParameter parameter, Guid value)
+            {
+                parameter.Value = value.ToByteArray();
+            }
+        }
+
+        public class NullableBinaryGuidTypeHandler : SqlMapper.TypeHandler<Guid?>
+        {
+            public override Guid? Parse(object value)
+            {
+                return object != null ? new Guid((byte[])value) : null;
+            }
+
+            public override void SetValue(IDbDataParameter parameter, Guid? value)
+            {
+                parameter.Value = value != null ? value.ToByteArray() : null;
+            }
         }
     }
 }
@@ -39,6 +57,6 @@ namespace DapperNET.Workaround
 ```csharp
 void InitApp()
 {
-    BinaryGuidTypeHandler.Register();
+    BinaryGuidTypeHandlers.Register();
 }
 ```

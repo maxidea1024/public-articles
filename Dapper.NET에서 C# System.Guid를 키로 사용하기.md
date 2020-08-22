@@ -8,7 +8,7 @@ using System;
 using System.Data;
 using Dapper;
 
-namespace TodosHttpServer.Models
+namespace DapperNET.Workaround
 {
     public class BinaryGuidTypeHandler : SqlMapper.TypeHandler<Guid>
     {

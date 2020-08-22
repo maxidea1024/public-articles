@@ -1,4 +1,4 @@
-### Dapper.NET에서 C# System.Guid를 키로 사용하기
+### Dapper.NET에서 `BINARY(16)`과 함께 C# System.Guid를 키로 사용하기
 
 ```csharp
 // custom type handling

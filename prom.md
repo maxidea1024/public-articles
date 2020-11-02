@@ -560,7 +560,7 @@ struct HelloReply {
               | 'fixed8'| 'fixed16'| 'fixed32'| 'fixed64' | 'sfixed8'| 'sfixed16'| 'sfixed32'| 'sfixed64'
               | 'bool' | 'float' | 'double' | 'float32' | 'float64'
               | 'string' | 'bytes'
-              | 'datetime' | 'datetimelite' | 'timespan'
+              | 'datetime' | 'timespan'
               | 'uuid'
               | 'int' | 'uint' | 'long' | 'ulong'
               | 'byte' | 'word' | 'dword' | 'qword' | 'sbyte' | 'sword' | 'sdword' | 'sqword'

@@ -12,6 +12,16 @@ namespace G.Util
             keyChain = new XXTea[(int) KeyIndex.Max];
         }
 
+        public KeyChain Clone()
+        {
+            var result = new KeyChain();
+            for (int i = 0; i < (int) KeyIndex.Max; i++)
+            {
+                result.keyChain[i] = keyChain[i];
+            }
+            return result;
+        }
+        
         public XXTea Get(KeyIndex index)
         {
             if (index >= KeyIndex.Max || index < 0)

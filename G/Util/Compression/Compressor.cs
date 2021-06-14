@@ -8,6 +8,11 @@ namespace G.Util.Compression
 {
     public class Compressor
     {
+        /// <summary>
+        /// Compression threshold.
+        ///
+        /// If the length of the data to be compressed is less than this value, compression is not performed.
+        /// </summary>
         public static int GetCompressionThreshold(CompressionType compressionType)
         {
             var compressor = GetCompressor(compressionType);
@@ -39,6 +44,25 @@ namespace G.Util.Compression
         {
             var compressor = GetCompressor(compressionType);
             return compressor.Decompress(src, expectedLength);
+        }
+
+
+        /// <summary>
+        /// Compress the data with ArrayPool<byte>.
+        /// </summary>
+        public static ArraySegment<byte> CompressWithArrayPool(CompressionType compressionType, ArraySegment<byte> src)
+        {
+            var compressor = GetCompressor(compressionType);
+            return compressor.CompressWithArrayPool(src);
+        }
+
+        /// <summary>
+        /// Decompress the compressed data with ArrayPool<byte>.
+        /// </summary>
+        public static ArraySegment<byte> DecompressWithArrayPool(CompressionType compressionType, ArraySegment<byte> src, int expectedLength)
+        {
+            var compressor = GetCompressor(compressionType);
+            return compressor.DecompressWithArrayPool(src, expectedLength);
         }
 
 

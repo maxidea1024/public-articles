@@ -1,4 +1,10 @@
-﻿using System;
+﻿//todo 전체적인 락 체계는 확인하도록 하자.
+//최소한의 핑 메시지도 여기서 처리하자.
+//핑 메시지를 보낼때 ack도 같이 보내주어서 상대측에서 메시지가 쌓이지 않도록 해줌.
+//그럼에도 불구하고 송신 메시지가 너무 많이 쌓이게 되면 연결을 강제로 끊어줌.
+//todo 통계 데이터를 관리하도록 하자.
+
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -7,7 +13,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using G.Util;
 using System.Collections.Generic;
+using System.Linq;
 using G.Network.Messaging;
+using G.Util.Compression;
 using MessagePack;
 using PlayTogether;
 using PlayTogetherSocket;
@@ -15,130 +23,413 @@ using Renci.SshNet.Messages;
 
 namespace G.Network
 {
-	public abstract class TcpSocket
-	{
-		private static NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
+    public abstract class TcpSocket
+    {
+        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-		public static int BufferSize { get; private set; } = 32768;
+        private static long _instanceIdSeed = 0;
+        public long InstanceId { get; private set; }
 
-		private static long id = 0;
-		public long Id;
+        public long userUID;
 
-		//-----------------------------------
-		public long userUID;
-		public bool isBufferFull = false;
-		public bool isSending = false;
-		public DateTime lastSendTime = DateTime.MinValue;
-		List<(PlayTogetherSocket.ProtocolId, int, DateTime)> packetSizeList = new List<(PlayTogetherSocket.ProtocolId, int, DateTime)>();
-		//-----------------------------------
+        public long LastRecvTime => Transport.LastRecvTime;
+        public long LastSendTime => Transport.LastSendTime;
+
+        //todo 보통 외부에서 설정해서 쓰곤하니까 관계를 잘 정비할 필요가 있겠다.
+        public KeyChain KeyChain { get; private set; } = new KeyChain();
+
+        public IPAddress Host;
+        public int Port;
+        public IPEndPoint EndPoint;
+
+		public IPEndPoint RemoteEndPoint { get; private set; }
+
+        public bool IsConnected => Transport.IsConnected || IsSuspended;
+        public bool IsSuspended => SuspendedTime > 0;
+        public bool IsSocketConnected => Transport.IsConnected;
+
+        internal TcpTransport Transport;
+
+        #region Reliable Session
+
+        internal uint? LastRecvSeq;
+        internal uint? LastSentAck;
+        internal uint NextMessageSeq;
+
+        //public long SessionId { get; internal set; }
+        public long SessionId;
+
+        internal readonly Queue<OutgoingMessage> _sent = new Queue<OutgoingMessage>();
+        internal float DelayedSendAckInterval = 0f;//2.5f; //todo 옵션에서 가져올 수 있도록 하자.
+
+        public long SuspendedTime { get; set; }
+        //protected TaskTimer DelayedSendAckTimer;
+
+        //protected SemaphoreSlim _semaphoreConn = new SemaphoreSlim(1, 1);
 
         // These can be accessed by TcpServer
 		internal TcpServer Server;
 
-		public CancellationTokenSource Cancellation { get; protected set; }
+        private int _wasDisconnectCalled;
 
-		//public LinearBufferStream RecvStream { get; private set; } = new LinearBufferStream(BufferSize);
-		//public LinearBufferStream SendStream { get; private set; } = new LinearBufferStream(BufferSize);
-        public ByteStreamQueue RecvStream { get; private set; } = new ByteStreamQueue(BufferSize);
-        public ByteStreamQueue SendStream { get; private set; } = new ByteStreamQueue(BufferSize);
+		//todo 상태 관리로 처리하는게 바람직해보임!
+        private bool _waitForInitialAck = false;
 
-		public Socket Socket { get; private set; }
+        // 보내기 작업 관련한 락
+        internal object _sendingLock = new object();
 
-		protected KeyChain keyChain = new KeyChain();
-		public KeyChain KeyChain => keyChain;
+        //유실이 발생하지 않으려면 여기에 보관했다가 처리해야함.
+        internal object _messagesLock = new object();
+        internal Queue<IncomingMessage> _messages = new Queue<IncomingMessage>();
+        //todo 여기에 따로두지 말고, 전송 계층내에서 이중시키는게 좋지 않을까?
 
-		public IPAddress Host { get; protected set; }
-		public int Port { get; protected set; }
-		public IPEndPoint EndPoint { get; protected set; }
-
-		protected SemaphoreSlim semaphoreConn = new SemaphoreSlim(1, 1);
-		protected object sendLock = new object();
-
-		public bool AutoProcess { get; set; }
-
-		public bool IsConnected
-		{
-			get
-			{
-				try { return Socket.Connected; }
-				catch (Exception) { return false; }
-			}
-		}
-
-
-        #region Reliable Session
-        private uint? LastRecvSeq;
-        private uint? LastSentAck;
-        private uint NextMessageSeq;
-        private ulong SessionId = 0;
-
-        private List<BaseProtocol> UnsentMessagesRaw = new List<BaseProtocol>(); // 기존거 호환목적
-        private List<OutgoingMessage> UnsentMessages = new List<OutgoingMessage>();
-        private List<OutgoingMessage> FirstSendMessages = new List<OutgoingMessage>();
-        private Queue<OutgoingMessage> SentMessages = new Queue<OutgoingMessage>();
-        private float DelayedSendAckInterval = 2.5f;
-
-        public bool UseReliableSession = false;
-
-        public DateTime SuspendedTime { get; set; }
-        protected TaskTimer DelayedSendAckTimer;
-        #endregion
-
-
-        #region Reliable Session
-
-        //todo 어디선가 호출해줘야하는데...
-        //DelayedSendAckTimer = new TaskTimer(() => OnDelayedSendAck(), DelayedSendAckInterval, DelayedSendAckInterval);
-
-        private void OnAckReceived(uint ack)
+        protected TcpSocket()
         {
-            while (SentMessages.Count > 0)
+            InstanceId = Interlocked.Increment(ref _instanceIdSeed);
+
+            ResetReliableSession();
+        }
+
+        protected TcpSocket(string host, int port) : this()
+        {
+            SetHostPort(host, port);
+        }
+
+        protected TcpSocket(IPAddress host, int port) : this()
+        {
+            SetHostPort(host, port);
+        }
+
+        public void DisableReconnecting()
+        {
+            if (Transport != null)
             {
-                var message = SentMessages.Peek();
+                Transport.DisableReconnecting = true;
+            }
+        }
 
-                if (SeqNumberHelper32.Less(message.Seq.Value, ack))
-                {
-                    SentMessages.Dequeue();
+        public void EnableReconnecting()
+        {
+            if (Transport != null)
+            {
+                Transport.DisableReconnecting = false;
+            }
+        }
 
-                    // Return to pool.
-                    message.Return();
-                }
-                else
+        private void SetHostPort(string host, int port)
+        {
+            if (IPAddress.TryParse(host, out var ipAddress))
+            {
+                SetHostPort(ipAddress, port);
+            }
+            else
+            {
+                SetHostPort(Dns.GetHostAddresses(host)[0], port);
+            }
+        }
+
+        private void SetHostPort(IPAddress host, int port)
+        {
+            Host = host;
+            Port = port;
+            EndPoint = new IPEndPoint(host, port);
+        }
+
+        public void SetKey(KeyIndex keyIndex)
+        {
+            KeyChain.Set(keyIndex);
+        }
+
+        public void SetKey(KeyIndex keyIndex, uint[] key)
+        {
+            KeyChain.Set(keyIndex, key);
+        }
+
+        public void SetKey(KeyIndex keyIndex, string base62Key)
+        {
+            KeyChain.Set(keyIndex, base62Key);
+        }
+
+        internal async Task InitializeForFirstAsync()
+        {
+            await InitializeCommonAsync();
+
+            ResetReliableSession();
+
+            lock (_messagesLock)
+            {
+                while (_messages.Count > 0)
                 {
-                    break;
+                    _messages.Dequeue().Return();
                 }
             }
         }
 
-        private bool OnSeqReceived(uint seq)
+        internal async Task InitializeForReconnectAsync()
         {
-            if (LastRecvSeq.HasValue)
-            {
-                if (!SeqNumberHelper32.Less(LastRecvSeq.Value, seq))
-                {
-                    // Log.Warning($"Last sequence number is {LastRecvSeq.Value} but {seq} received. Skipping messages.");
-                    return false;
-                }
+            await InitializeCommonAsync();
+        }
 
-                if (seq != LastRecvSeq.Value + 1)
+        internal async Task InitializeCommonAsync()
+        {
+            //Server = null;
+
+            userUID = 0;
+
+            SuspendedTime = 0;
+            _wasDisconnectCalled = 0;
+            _waitForInitialAck = false;
+
+            RemoteEndPoint = (IPEndPoint)Transport._socket.RemoteEndPoint;
+        }
+
+        internal void OnAuthenticated()
+        {
+            SendInitialAck();
+
+            Transport.SendAllUnsentMessages();
+        }
+
+        protected virtual async Task<bool> ConnectAsync()
+        {
+            Transport = new TcpTransport();
+            Transport.Owner = this;
+
+            return await Transport.ConnectAsync(Host, Port);
+        }
+
+        public virtual async Task<bool> ConnectAsync(string host, int port)
+        {
+            SetHostPort(host, port);
+            return await ConnectAsync();
+        }
+
+        public virtual async Task<bool> ConnectAsync(IPAddress host, int port)
+        {
+            SetHostPort(host, port);
+            return await ConnectAsync();
+        }
+
+        public async Task<bool> DisconnectAsync(DisconnectReason disconnectReason)
+        {
+            bool shouldHardClose =
+                    disconnectReason == DisconnectReason.ByLocal ||
+                    disconnectReason == DisconnectReason.Replace ||
+                    disconnectReason == DisconnectReason.GlobalSessionExpired;
+
+            if (shouldHardClose)
+            {
+                ReturnMessagesToPool();
+
+                // 이미 콜백했으면 재콜백 금지.
+                var wasDisconnectCalled = _wasDisconnectCalled;
+
+                if (wasDisconnectCalled != 0 ||
+                    Interlocked.CompareExchange(ref _wasDisconnectCalled, 1, wasDisconnectCalled) != wasDisconnectCalled)
                 {
-	                //todo
-                    //Disconnect();
-                    return false;
+                    return true;
                 }
             }
 
-            LastRecvSeq = seq;
-
-            if (DelayedSendAckInterval <= 0f)
-            {
-                SendAck(LastRecvSeq.Value + 1);
-            }
+            await Transport.DisconnectAsync(disconnectReason);
 
             return true;
         }
 
-        private void SendAck(uint ack, bool firstSending = false)
+        public virtual async Task OnConnectAsync()
+        {
+            // Do nothing by default
+        }
+
+        public virtual async Task OnConnectErrorAsync(int error)
+        {
+            // Do nothing by default
+        }
+
+        public virtual async Task OnDisconnectAsync(DisconnectReason disconnectReason)
+        {
+            bool shouldHardClose =
+                    disconnectReason == DisconnectReason.ByLocal ||
+                    disconnectReason == DisconnectReason.Replace ||
+                    disconnectReason == DisconnectReason.GlobalSessionExpired;
+
+            if (shouldHardClose)
+            {
+                //@fixme
+                // 수신된 메시지도 버린다.
+                // 하지만 처리가 누락이 될 수 있으므로, 모두 처리한다음에 소진하도록 하는게 안전하다.
+                lock (_messagesLock)
+                {
+                    while (_messages.Count > 0)
+                    {
+                        _messages.Dequeue().Return();
+                    }
+                }
+
+                ReturnMessagesToPool();
+
+                SuspendedTime = 0;
+            }
+        }
+
+        //@fixme
+        // 보낼때 이미 메시지 타입을 알수 있을텐데.
+        // 그걸 넣을 수 있도록하고, 이름을 각가 핸들러에서 resolve할 수 있도록 하자.
+        public virtual async Task<bool> OnProcessAsync(ReadOnlyMemory<byte> memory)
+        {
+            // Do nothing by default
+            return true;
+        }
+
+
+        #region Statistics
+        public int __close;
+
+        public int __sends1;
+        public int __recvs1;
+        public int __sends0;
+        public int __recvs0;
+
+        public int __sendc1;
+        public int __recvc1;
+        public int __sendc0;
+        public int __recvc0;
+
+        public int __sends;
+        public int __recvs;
+        public int __sendc;
+        public int __recvc;
+
+        public void UpdateStat()
+        {
+            int sends = __sends1;
+            int recvs = __recvs1;
+
+            __sends = sends - __sends0;
+            __recvs = recvs - __recvs0;
+
+            __sends0 = sends;
+            __recvs0 = recvs;
+
+            int sendc = __sendc1;
+            int recvc = __recvc1;
+
+            __sendc = sendc - __sendc0;
+            __recvc = recvc - __recvc0;
+
+            __sendc0 = sendc;
+            __recvc0 = recvc;
+        }
+        #endregion
+
+
+        internal void OnAckReceived(uint ack)
+        {
+            _logger.Debug($"[!] Ack Received: {ack}");
+
+            lock (_sendingLock)
+            {
+                if (_sent.Count > 0)
+                {
+                    _logger.Debug($"Purge SentMessages: {_sent.Count}");
+
+                    // Among the messages sent to the other party in storage,
+                    // the messages normally received by the other party are removed.
+                    while (_sent.Count > 0)
+                    {
+                        var m = _sent.Peek();
+
+                        if (SeqNumberHelper32.Less(m.Seq.Value, ack))
+                        {
+                            _logger.Debug($"...Purge sent message: Message={m.MessageType}:{m.Body}, Seq={m.Seq.Value}");
+
+                            // Dequeue and return into pool.
+                            _sent.Dequeue().Return();
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                //todo 상태로 처리하도록 하자.
+
+				// In the reconnection situation, immediately after authentication,
+                // it should be in a state of waiting for the other party's ack.
+                if (_waitForInitialAck)
+                {
+                    //_logger.Debug($"...WaitForInitialAck: Ack={ack}");
+
+                    //todo 상태를 전환하도록 하자.
+                    _waitForInitialAck = false;
+
+                    if (_sent.Count > 0)
+                    {
+                        //_logger.Debug($"InitialAck: Ack={ack}, SentQueue={_sent.Count}");
+
+                        foreach (var m in _sent)
+                        {
+                            if (SeqNumberHelper32.LessOrEqual(ack, m.Seq.Value))
+                            {
+                                // Resend a message that has already been sent but has not been received by the other party
+                                _logger.Debug($"...Resend a message: Message={m.MessageType}:{m.Body}, Seq={m.Seq.Value}");
+
+                                Transport.SendMessage(m);
+                            }
+                            else
+                            {
+                                //_logger.Error($"...Wrong sequence number: {m.Seq.Value}");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        internal bool OnSeqReceived(uint seq)
+        {
+            _logger.Debug($"[!] Seq Received: {seq}");
+
+            lock (_sendingLock)
+            {
+                if (LastRecvSeq.HasValue)
+                {
+                    // 원하는 메시지 번호보다 미래의 메시지가 도착했음.
+                    // 버그일까?
+                    if (!SeqNumberHelper32.Less(LastRecvSeq.Value, seq))
+                    {
+                        _logger.Warn($"...Last sequence number is {LastRecvSeq.Value} but {seq} received. Skipping messages.");
+                        return false;
+                    }
+
+                    // If the message sequence number is incorrect, disconnect the connection.
+                    // (preventing packet replay attacks)
+                    if (seq != LastRecvSeq.Value + 1)
+                    {
+                        _logger.Error($"...Received wrong sequence number {seq}. {LastRecvSeq.Value + 1} expected. but {seq} is received.");
+
+                        // Will be disconnected.
+                        return false;
+                    }
+                }
+
+                // Store last received message sequence number.
+                LastRecvSeq = seq;
+
+                // 일정주기마다 Ack를 보내는 경우가 아니라면 Seq를 받을때마다, 매번 Ack를 보내도록 한다.
+                if (DelayedSendAckInterval <= 0f)
+                {
+                    SendAck(LastRecvSeq.Value + 1);
+                }
+
+                return true;
+            }
+        }
+
+        //todo 타이머에 의해서 보내줘야, 상대측에서 재전송을 위해서 보낸 메시지를 다량으로 쌓아놓지 않고 비울 수 있다.
+
+        private void SendAck(uint ack, bool sendingFirst = false)
         {
             // 연결이 안되어 있는 상태에서는 어짜피 보내지 못함.
             if (!IsConnected)
@@ -152,19 +443,22 @@ namespace G.Network
                 return;
             }
 
-            if (LastSentAck == null)
-            {
-                var message = OutgoingMessage.Rent();
-                message.MessageType = MessageType.None;
-                message.Ack = ack;
-                Send(message);
+            _logger.Debug($"SendAck({ack})");
 
-                LastSentAck = ack;
-            }
+            var message = OutgoingMessage.Rent();
+            message.MessageType = MessageType.None;
+            message.Ack = ack;
+            Transport.SendMessage(message, sendingFirst);
+
+            LastSentAck = ack;
         }
 
+        //todo 서버에서 메시지를 보내기만 할 경우, 이걸 가끔식 해줘야 메시지가 안쌓이게 됨.
+
         // 타이머에서 일정 간격마다 호출되어야함.
-        void OnDelayedSendAck()
+        // 다른 메시지에 묻어가므로, 주기적으로 호출하지 않아도 문제는 없을듯 싶으나,
+        // 주기적으로 보내는 메시지가 하나도 없는 경우에는 필요할 수 있음.
+        private void OnDelayedSendAck()
         {
             // 아직 메시지를 한번도 받지 않았다면, ack를 보낼수가 없음.
             if (LastRecvSeq == null)
@@ -172,166 +466,138 @@ namespace G.Network
                 return;
             }
 
-            // 최근에 보낸 ack가 없거나, 받은 seq보다 작을 경우에 ack 전송
-            if (LastSentAck == null || SeqNumberHelper32.Less(LastSentAck.Value, LastRecvSeq.Value + 1))
+            // Send ack if there is no recently sent ack or less than received seq.
+            if (LastSentAck == null ||
+				SeqNumberHelper32.Less(LastSentAck.Value, LastRecvSeq.Value + 1))
             {
                 SendAck(LastRecvSeq.Value + 1);
             }
         }
 
-        //todo
-        /*
-        void UpdateDelayedSendAckTimer()
+        // 재접속일 경우에는 단순히 Transport만 교체해줌.
+        // 어짜피 Transport는 새로 생성한거라 꼬일 염려없음.
+        internal async Task ReplaceTransportAsync(TcpTransport transport)
         {
-            if (DelayedSendAckInterval <= 0f)
+            // 락이슈가 있을듯 하다.
+            // Receive 스레드뿐만 아니라 Send 스레드에서도 Owner를 액세스할 수 있으므로 대비를 해야함.
+            if (Transport != null)
             {
-                return;
+                Transport.Owner = null;
+                await Transport.DisconnectAsync(DisconnectReason.Replace, true); // Do not call callback
+
+                // 내부 펜딩 메시지 옮겨주기.
+                Transport.MigratePendingMessages(transport);
             }
 
-            DelayedSendAckTimer += Time.unscaledTime;
-            if (DelayedSendAckTimer >= DelayedSendAckInterval)
-            {
-                DelayedSendAckTimer -= DelayedSendAckInterval;
+            Transport = transport;
+            Transport.Owner = this;
+            Transport.DisableReconnecting = false;
 
-                OnDelayedSendAck();
-            }
+            //await InitializeAsync(Transport._socket, true);
+            await InitializeForReconnectAsync();
+
+            // Transport에서 암호화키 가져오기.
+            KeyChain = Transport.KeyChain.Clone();
+
+            //추가로 해야할 작업들이 있을까?
+            //await OnTransportResumedAsync();
+
+            //todo 상태를 바꿔주는 형태로 처리하자.
+
+            var message = OutgoingMessage.Rent();
+            message.MessageType = MessageType.HandshakeRes;
+            //message.KeyIndex = KeyIndex.Common;
+            message.SessionId = this.SessionId;
+            message.RemoteEncryptionKeyIndex = KeyIndex.Remote; //with remote key
+
+            //_logger.Debug($"message.SessionId={message.SessionId}");
+
+            //요청만 하고 실제 보내기는 별도로 처리하는게 바람직함.
+            Transport.SendMessage(message);
+
+            _waitForInitialAck = true;
         }
-        */
 
-        public void ResetReliableSession()
+        // 최초 접속일 경우에도 딱히 추가로 처리할 작업이 없음.
+        internal async Task AssignNewTransportAsync(TcpTransport transport)
+        {
+            // 락이슈가 있을듯 하다.
+            // Receive 스레드뿐만 아니라 Send 스레드에서도 Owner를 액세스할 수 있으므로 대비를 해야함.
+            Transport = transport;
+            Transport.Owner = this;
+            Transport.DisableReconnecting = false;
+
+            await InitializeForFirstAsync();
+
+            // Transport에서 암호화키 가져오기.
+            KeyChain = Transport.KeyChain.Clone();
+
+            //await OnTransportAttachedAsync();
+
+            var message = OutgoingMessage.Rent();
+            message.MessageType = MessageType.HandshakeRes;
+
+            //message.KeyIndex = KeyIndex.Common;
+            message.SessionId = this.SessionId;
+            message.RemoteEncryptionKeyIndex = KeyIndex.Remote; //with remote key
+
+            //요청만 하고 실제 보내기는 별도로 처리하는게 바람직함.
+            Transport.SendMessage(message);
+
+            await OnConnectAsync();
+        }
+
+        private void ResetReliableSession()
         {
             var rnd = new System.Random();
 
-            SessionId = 0;
-            LastRecvSeq = null;
-            LastSentAck = null;
-            NextMessageSeq = (uint)rnd.Next() + (uint)rnd.Next();
-
-            //SentMessages.Clear();
-            //UnsentMessages.Clear();
-            //FirstSendMessages.Clear();
-
-            foreach (var message in SentMessages)
+            lock (_sendingLock)
             {
-                message.Return();
-            }
-            SentMessages.Clear();
+                //SessionId = 0;
 
-            foreach (var message in UnsentMessages)
-            {
-                message.Return();
-            }
-            SentMessages.Clear();
+                LastRecvSeq = null;
+                LastSentAck = null;
+                NextMessageSeq = (uint)rnd.Next() + (uint)rnd.Next();
 
-            foreach (var message in FirstSendMessages)
-            {
-                message.Return();
+                //todo 이건 닫히는 시점에서 설정하는게 맞을듯 싶다.
+                SuspendedTime = 0;
+
+                _waitForInitialAck = false;
             }
-            SentMessages.Clear();
+
+            ReturnMessagesToPool();
         }
 
-        private void EncodeMessage(OutgoingMessage message)
+        internal uint GetNextMessageSeq()
         {
-            // seq가 부여되어야하는 경우와 아닌 경우 구분.
-            bool needSeq = true;
+            return NextMessageSeq++;
+        }
 
-            if (message.Body == null)
-            {
-                needSeq = false;
+        internal void ResetSessionId()
+        {
+            Interlocked.Exchange(ref SessionId, 0);
+        }
 
-                // common으로 해야할까?
-                message.KeyIndex = KeyIndex.None;
-            }
-            else
+        private void ReturnMessagesToPool()
+        {
+            // Return _sent to pool.
+            lock (_sendingLock)
             {
-                var protocolId = message.Body.RawProtocolId;
-                switch ((ProtocolId)protocolId)
+                while (_sent.Count > 0)
                 {
-                    case ProtocolId.AliveQ:
-                    case ProtocolId.AliveA:
-                    //case ProtocolId.SyncUserQ:
-                    //case ProtocolId.ActionUserQ:
-                    //case ProtocolId.SyncJumpQ:
-                    //case ProtocolId.ChatToAllQ:
-                        needSeq = false;
-                        break;
-                }
-
-                message.KeyIndex = ResolveKeyIndex(message.Body);
-            }
-
-            if (needSeq)
-            {
-                message.Seq = NextMessageSeq++;
-
-                // 메시지를 보낼때 ack를 실어서 보낼 조건이 된다면 첨부하도록 함.
-                if (LastRecvSeq.HasValue &&
-                    (!LastSentAck.HasValue || SeqNumberHelper32.Less(LastSentAck.Value, LastRecvSeq.Value + 1)))
-                {
-                    uint ack = LastRecvSeq.Value + 1;
-                    message.Ack = ack;
-                    LastSentAck = ack;  // 메시지에 실어서 갈것이므로 보낸것으로 간주함.
-                }
-
-                SentMessages.Enqueue(message);
-            }
-
-            message.Build(SerializeProtocol, KeyChain);
-        }
-
-        private void ReencodeMessage(OutgoingMessage message)
-        {
-            message.Rebuild(KeyChain);
-        }
-
-        public void Send(OutgoingMessage message)
-        {
-            if (message.IsEncoded)
-                ReencodeMessage(message);
-            else
-                EncodeMessage(message);
-
-            SendToWire(message);
-
-            if (!message.Seq.HasValue)
-                message.Return();
-        }
-
-        public void SendPacket(BaseProtocol protocol)
-        {
-            //todo 단순 커넥트가 아닌 인증이 안되었으면 보류 시키는 로직으로 처리해야함.
-            if (!IsConnected)
-            {
-                switch ((ProtocolId)protocol.RawProtocolId)
-                {
-                    case ProtocolId.AliveQ:
-                    case ProtocolId.AliveA:
-                    //case ProtocolId.SyncUserQ:
-                    //case ProtocolId.SyncJumpQ:
-                        return;
-
-                    default:
-                    {
-                        var message = OutgoingMessage.Rent();
-                        message.MessageType = MessageType.User;
-                        message.Body = protocol;
-                        UnsentMessages.Add(message);
-                        return;
-                    }
+                    _sent.Dequeue().Return();
                 }
             }
+        }
 
-            {
-                var message = OutgoingMessage.Rent();
-                message.MessageType = MessageType.User;
-                message.Body = protocol;
-                Send(message);
-            }
+        public void SendPacket(BaseProtocol protocol, uint uniqueKey = 0, CompressionType compressionType = CompressionType.None)
+        {
+            Transport.SendPacket(protocol, uniqueKey, compressionType);
         }
 
         protected virtual KeyIndex ResolveKeyIndex(BaseProtocol protocol)
         {
-	        return KeyIndex.None;
+            return KeyIndex.None;
         }
 
         protected virtual Type GetBaseProtocolType()
@@ -339,81 +605,26 @@ namespace G.Network
             return typeof(object);
         }
 
-        protected virtual void SerializeProtocol(Stream stream, object protocol)
+        public virtual void SerializeProtocol(Stream stream, object protocol)
         {
             MessagePackSerializer.Serialize(stream, protocol);
         }
 
+        // Requests the other party to resend a message that the receiver did not receive by sending an ack at random.
         private void SendInitialAck()
         {
-            if (LastRecvSeq.HasValue)
+            lock (_sendingLock)
             {
-                SendAck(LastRecvSeq.Value + 1);
-            }
-        }
-
-        //todo 기존 로직일 경우에는 다르게 보내야함.
-        private void SendAllUnsentMessages()
-        {
-            if (UnsentMessages.Count > 0)
-            {
-                foreach (var message in UnsentMessages)
+                if (LastRecvSeq.HasValue)
                 {
-                    Send(message);
-                }
+                    _logger.Debug($"Send initial ack: Ack={LastRecvSeq.Value + 1}");
 
-                UnsentMessages.Clear();
+                    SendAck(LastRecvSeq.Value + 1, true);
+                }
             }
         }
 
-        private void SendToWire(OutgoingMessage message)
-        {
-            if (!IsConnected)
-            {
-                return;
-            }
-
-            SendToWire(message.PackedHeader, message.PackedBody);
-        }
-
-        //todo 최종적으로 issue가 완료된 시점에서 message를 return해주면 복사를 줄일 수 있을듯..
-		private void SendToWire(ArraySegment<byte> header, ArraySegment<byte> body)
-		{
-			var socket = Socket;
-
-			var socketId = Id;
-			if (socketId == 0) return;
-
-            if (header.Count == 0 && body.Count == 0)
-            {
-                return;
-            }
-
-            try
-            {
-                lock (sendLock)
-                {
-                    var shouldBeginSend = (SendStream.Count == 0);
-
-                    SendStream.Enqueue(header);
-                    SendStream.Enqueue(body);
-
-                    if (!shouldBeginSend)
-                    {
-                        return;
-                    }
-                }
-
-                Task.Run(async () => await RunToSendAsync(socket, socketId));
-            }
-            catch (Exception e)
-            {
-				log.Debug(e);
-				Task.Run(async () => await DisconnectAsync(socketId));
-            }
-		}
-
-        private KeyIndex ResolveKeyIndex(ProtocolId protocolId)
+        internal KeyIndex ResolveKeyIndex(ProtocolId protocolId)
         {
             KeyIndex keyIndex = KeyIndex.Remote;
             switch (protocolId)
@@ -429,7 +640,7 @@ namespace G.Network
 
                 case ProtocolId.AuthQ:
                 case ProtocolId.ReconnectQ:
-	                keyIndex = KeyIndex.Common;
+                    keyIndex = KeyIndex.Common;
                     break;
 
                 case ProtocolId.OnlineQ:
@@ -459,427 +670,5 @@ namespace G.Network
         }
 
         #endregion
-
-
-		public TcpSocket()
-	    {
-			AutoProcess = true;
-
-			__close = 0;
-			__sends = 0;
-			__recvs = 0;
-
-            ResetReliableSession();
-		}
-
-		public TcpSocket(string host, int port) : this()
-		{
-			SetHostPort(host, port);
-		}
-
-		public TcpSocket(IPAddress host, int port) : this()
-		{
-			SetHostPort(host, port);
-		}
-
-		protected void SetHostPort(string host, int port)
-		{
-			IPAddress ipAddress;
-			if (IPAddress.TryParse(host, out ipAddress))
-				SetHostPort(ipAddress, port);
-			else
-				SetHostPort(Dns.GetHostAddresses(host)[0], port);
-		}
-
-		protected void SetHostPort(IPAddress host, int port)
-		{
-			Host = host;
-			Port = port;
-			EndPoint = new IPEndPoint(host, port);
-		}
-
-		public void SetKey(KeyIndex keyIndex)
-		{
-			KeyChain.Set(keyIndex);
-		}
-
-		public void SetKey(KeyIndex keyIndex, uint[] key)
-		{
-			KeyChain.Set(keyIndex, key);
-		}
-
-		public void SetKey(KeyIndex keyIndex, string base62Key)
-		{
-			KeyChain.Set(keyIndex, base62Key);
-		}
-
-		internal virtual async Task InitializeAsync(Socket socket)
-		{
-			try
-			{
-				Id = Interlocked.Increment(ref id);
-
-				//----------------------------
-				userUID = 0;
-				isBufferFull = false;
-				isSending = false;
-				lastSendTime = DateTime.MinValue;
-				packetSizeList.Clear();
-				//----------------------------
-
-				Cancellation = new CancellationTokenSource();
-
-				Socket = socket;
-				socket.NoDelay = true;
-				socket.LingerState = new LingerOption(true, 0);
-
-				keyChain.Reset();
-				keyChain.Set(KeyIndex.Remote);
-
-				RecvStream.Clear();
-				SendStream.Clear();
-
-				try { await OnConnectAsync(Id); } catch (Exception ex2) { log.Error(ex2); }
-
-				_ = Task.Run(async () => await RunToReceiveAsync(socket, Id));
-			}
-			catch (Exception)
-			{
-				try { await OnConnectErrorAsync(-1); } catch (Exception ex2) { log.Error(ex2); }
-				throw;
-			}
-		}
-
-		public virtual async Task<bool> ConnectAsync()
-		{
-			try
-			{
-				await DisconnectAsync(Id);
-
-				await semaphoreConn.WaitAsync();
-
-				var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-				await socket.ConnectAsync(Host, Port);
-
-				await InitializeAsync(socket);
-
-                var message = OutgoingMessage.Rent();
-                message.MessageType = MessageType.HandshakeReq;
-                message.SessionId = 0;
-                Send(message);
-
-				return true;
-			}
-			catch (Exception ex)
-			{
-				// log.Error(ex);
-				// if 0 == Id, then no Release..
-				// connect 요청 할때 에러가 발생한 경우..
-
-				if (0 == Id && 0 == semaphoreConn.CurrentCount)
-				{
-					semaphoreConn.Release();
-					log.Debug("tried semaphoreConn.Release.. Count[ {0} ]", semaphoreConn.CurrentCount);
-				}
-
-				log.Error(ex);
-
-				try { await OnConnectErrorAsync(-1); } catch (Exception ex2) { log.Error(ex2); }
-				await DisconnectAsync(Id);
-
-				return false;
-			}
-		}
-
-		public virtual async Task<bool> ConnectAsync(string host, int port)
-		{
-			SetHostPort(host, port);
-			return await ConnectAsync();
-		}
-
-		public virtual async Task<bool> ConnectAsync(IPAddress host, int port)
-		{
-			SetHostPort(host, port);
-			return await ConnectAsync();
-	    }
-
-#pragma warning disable CS1998
-		public async Task<bool> DisconnectAsync()
-		{
-			return await DisconnectAsync(Id);
-		}
-
-		public async Task<bool> DisconnectAsync(long socketId)
-		{
-			if (socketId == 0) return false;
-
-			var oldSocketId = Interlocked.CompareExchange(ref Id, 0, socketId);
-			if (oldSocketId != socketId) return false;
-
-			var socket = Socket;
-
-			try { Cancellation?.Cancel(); } catch { }
-			try { socket?.Shutdown(SocketShutdown.Both); } catch { }
-			try { socket?.Close(); } catch { }
-
-			try { await OnDisconnectAsync(socketId); }
-			catch (Exception ex) { log.Error(ex); }
-
-			semaphoreConn.Release();
-
-            ResetReliableSession();
-
-			return true;
-		}
-#pragma warning restore CS1998
-
-		public int __close;
-
-		public int __sends1;
-		public int __recvs1;
-		public int __sends0;
-		public int __recvs0;
-
-		public int __sendc1;
-		public int __recvc1;
-		public int __sendc0;
-		public int __recvc0;
-
-		public int __sends;
-		public int __recvs;
-		public int __sendc;
-		public int __recvc;
-
-		public void UpdateStat()
-		{
-			int sends = __sends1;
-			int recvs = __recvs1;
-
-			__sends = sends - __sends0;
-			__recvs = recvs - __recvs0;
-
-			__sends0 = sends;
-			__recvs0 = recvs;
-
-			int sendc = __sendc1;
-			int recvc = __recvc1;
-
-			__sendc = sendc - __sendc0;
-			__recvc = recvc - __recvc0;
-
-			__sendc0 = sendc;
-			__recvc0 = recvc;
-		}
-
-		protected async Task RunToSendAsync(Socket socket, long socketId)
-		{
-			var stream = SendStream;
-
-			try
-			{
-				while (socketId != 0 && socketId == Id && !Cancellation.IsCancellationRequested)
-				{
-                    var readableMemory = stream.ReadableMemory;
-					var sentBytes = await socket.SendAsync(readableMemory, SocketFlags.None, Cancellation.Token);
-					if (sentBytes <= 0)
-                    {
-                        throw new SocketException();
-                    }
-
-					lock (sendLock)
-					{
-                        stream.DequeueNoCopy(sentBytes);
-                        if (stream.IsEmpty)
-                        {
-                            break;
-                        }
-					}
-				}
-			}
-			catch (SocketException ex)
-			{
-				log.Debug($"RunToSendAsync. SocketException. userUID: {this.userUID}, id: {this.Id}, socketId: {socketId}, SocketErrorCode: {ex.SocketErrorCode}");
-				await DisconnectAsync(socketId);
-			}
-			catch (OperationCanceledException)
-			{
-				log.Debug($"RunToSendAsync. OperationCanceledException. userUID: {this.userUID}, id: {this.Id}, socketId: {socketId}");
-				await DisconnectAsync(socketId);
-			}
-			catch (Exception ex)
-			{
-				log.Debug($"RunToSendAsync. Exception. userUID: {this.userUID}, id: {this.Id}, socketId: {socketId},  ex: {ex}");
-				await DisconnectAsync(socketId);
-			}
-		}
-
-		protected async Task RunToReceiveAsync(Socket socket, long socketId)
-		{
-			var stream = RecvStream;
-
-			try
-			{
-				while (socketId == Id && !Cancellation.IsCancellationRequested)
-				{
-                    var writableMemory = stream.WritableMemory;
-					int readBytes = await socket.ReceiveAsync(writableMemory, SocketFlags.None, Cancellation.Token);
-					if (readBytes <= 0)
-                    {
-                        throw new SocketException();
-                    }
-
-                    stream.EnqueueNoCopy(readBytes);
-
-					if (AutoProcess)
-                        await ProcessAsync(socketId);
-
-					if (socketId != Id)
-                        log.Error($"RunToReceiveAsync. socketId != Id. userUID: {this.userUID}, id: {this.Id}, socketId: {socketId}");
-
-					if (Cancellation.IsCancellationRequested)
-                        log.Error($"RunToReceiveAsync. Cancellation.IsCancellationRequested true. userUID: {this.userUID}, id: {this.Id}, socketId: {socketId}");
-				}
-			}
-			catch (SocketException ex)
-			{
-				//if (SocketError.Success != ex.SocketErrorCode)
-				log.Debug($"RunToReceiveAsync. SocketException. userUID: {this.userUID}, id: {this.Id}, socketId: {socketId}, SocketErrorCode: {ex.SocketErrorCode}");
-				await DisconnectAsync(socketId);
-			}
-			catch (OperationCanceledException)
-			{
-				log.Debug($"RunToReceiveAsync. OperationCanceledException. userUID: {this.userUID}, id: {this.Id}, socketId: {socketId}");
-				await DisconnectAsync(socketId);
-			}
-			catch (Exception ex)
-			{
-				//if (willLog) log.Error(ex);
-				log.Debug($"RunToReceiveAsync. Exception. userUID: {this.userUID}, id: {this.Id}, socketId: {socketId},  ex: {ex}");
-				await DisconnectAsync(socketId);
-			}
-		}
-
-		public async Task ProcessAsync(long socketId)
-		{
-			var needToDisconnect = false;
-			var stream = RecvStream;
-
-            IncomingMessage incomingMessage = null;
-
-			try
-			{
-				while (socketId == Id && !Cancellation.IsCancellationRequested)
-				{
-                    if (!IncomingMessage.TryDequeue(stream, KeyChain, out incomingMessage))
-                    {
-                        break;
-                    }
-
-                    if (incomingMessage.MessageType == MessageType.HandshakeReq)
-                    {
-                        var message = OutgoingMessage.Rent();
-                        message.MessageType = MessageType.HandshakeRes;
-
-                        if (incomingMessage.SessionId != 0)
-                        {
-                            // 재연결 요청
-
-                            // 의도적으로 끊었을때만 Disconnect()에서 호출하도록 하는게 좋을듯..
-                            ResetReliableSession();
-
-                            //todo context를 찾아서 재연결 해줘야함!
-                            //만약 컨텍스트를 못찾으면 오류 반환.
-                        }
-                        else
-                        {
-                            // 처음 연결
-                            this.SessionId = Server.SessionIdGenerator.Next();
-                        }
-
-                        message.SessionId = this.SessionId;
-                        message.RemoteEncryptionKeyIndex = KeyIndex.Remote; //with remote key
-                        Send(message);
-
-                        //todo 이건 재연결시에만 의미가 있는거 아닌가?
-                        SendInitialAck();
-
-                        SendAllUnsentMessages();
-
-                        return;
-                    }
-
-                    // Seq?
-                    if (incomingMessage.Seq.HasValue)
-                    {
-                        if (!OnSeqReceived(incomingMessage.Seq.Value))
-                        {
-                            needToDisconnect = true;
-                            return;
-                        }
-                    }
-
-                    // Ack?
-                    if (incomingMessage.Ack.HasValue)
-                    {
-                        OnAckReceived(incomingMessage.Ack.Value);
-                    }
-
-                    // Body?
-                    if (incomingMessage.Body.Length > 0)
-                    {
-                        if (await OnProcessAsync(incomingMessage.Body) == false)
-                        {
-                            needToDisconnect = true;
-                            return;
-                        }
-                    }
-
-                    incomingMessage.Return();
-                    incomingMessage = null;
-				}
-			}
-			catch (InvalidProtocolException)
-			{
-				log.Debug("Invalid Protocol");
-				needToDisconnect = true;
-			}
-			catch (Exception ex)
-			{
-				log.Error(ex);
-				needToDisconnect = true;
-			}
-			finally
-			{
-				if (incomingMessage != null)
-                {
-                    incomingMessage.Return();
-                    incomingMessage = null;
-                }
-
-				if (needToDisconnect)
-				{
-					await DisconnectAsync(socketId);
-				}
-			}
-		}
-
-#pragma warning disable CS1998
-		protected virtual async Task OnConnectAsync(long socketId)
-	    {
-		}
-
-		protected virtual async Task OnConnectErrorAsync(int error)
-		{
-		}
-
-		protected virtual async Task OnDisconnectAsync(long socketId)
-	    {
-		}
-
-		protected virtual async Task<bool> OnProcessAsync(ReadOnlyMemory<byte> memory)
-		{
-			return true;
-	    }
-#pragma warning restore CS1998
-	}
+    }
 }

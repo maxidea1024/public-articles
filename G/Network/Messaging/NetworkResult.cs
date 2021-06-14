@@ -12,5 +12,7 @@ namespace G.Network.Messaging
         // 파괴되었을 경우에 해당.
         ContextNotFound = 33,
         ContextExpired = 34,
+
+        GlobalSessionExpired = 44,
     }
 }

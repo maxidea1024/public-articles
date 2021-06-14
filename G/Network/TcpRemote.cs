@@ -11,33 +11,40 @@ namespace G.Network
     {
 		private static NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
 
-		private static readonly TimeSpan waitingTime = TimeSpan.FromSeconds(10);
-
-		public IPEndPoint RemoteEndPoint { get; private set; }
+		private static readonly int WaitTime = 10_000;
 
 		public TimeBomb TimeBomb { get; set; }
 		public TaskTimer AliveTimer { get; set; }
 
-		public DateTime UsableTime { get; set; }
+		public long UsableTime { get; set; }
 
-		internal override async Task InitializeAsync(Socket socket)
-		{
-			await semaphoreConn.WaitAsync();
+		//internal override async Task InitializeAsync(Socket socket, bool reconnecting)
+		//{
+		//	//await _semaphoreConn.WaitAsync();
+        //
+		//	RemoteEndPoint = (IPEndPoint)socket.RemoteEndPoint;
+        //
+		//	await base.InitializeAsync(socket, reconnecting);
+		//}
 
-			RemoteEndPoint = (IPEndPoint)socket.RemoteEndPoint;
-
-			await base.InitializeAsync(socket);
-		}
-
-		protected override async Task OnDisconnectAsync(long remoteId)
+		public override async Task OnDisconnectAsync(DisconnectReason disconnectReason)
         {
-			try { TimeBomb?.Stop(); } catch { }
-			try { AliveTimer?.Stop(); } catch { }
-			UsableTime = DateTime.UtcNow + waitingTime;
+            try
+            {
+                try { TimeBomb?.Stop(); } catch { }
+                try { AliveTimer?.Stop(); } catch { } //todo 이거 사용라나? 재접속상태에서 다시 활성화해야하나?
+                UsableTime = SystemClock.Milliseconds + WaitTime;
 
-			await Server.CheckInAsync(remoteId, userUID);
-
-			await base.OnDisconnectAsync(remoteId);
+                await Server.CheckInAsync(SessionId, disconnectReason);
+            }
+            catch (Exception e)
+            {
+                log.Error(e);
+            }
+            finally
+            {
+                await base.OnDisconnectAsync(disconnectReason);
+            }
         }
     }
 }

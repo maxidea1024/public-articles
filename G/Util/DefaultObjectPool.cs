@@ -61,6 +61,9 @@ namespace G.Util
         // Wait time for next reuse
         private long _waitRecycleTime;
 
+        public long TotalRentCount;
+        public long TotalReturnCount;
+        
         /// <summary>
         /// Initializes a new instance of <c>DefaultObjectPool</c> with given shared capacity and thread local capacity.
         /// Thread local capacity should be significantly smaller than the shared capacity as we don't guarantee immediately
@@ -166,6 +169,8 @@ namespace G.Util
 
         private T RentInternal()
         {
+            Interlocked.Increment(ref TotalRentCount);
+
             var localData = _threadLocalData.Value;
 
             if (localData.Queue.Count > 0)
@@ -218,6 +223,8 @@ namespace G.Util
         public void Return(T recycleable)
         {
             PreValidations.CheckNotNull(recycleable);
+
+            Interlocked.Increment(ref TotalReturnCount);
 
             if (_waitRecycleTime > 0)
             {

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Buffers;
 
 namespace G.Util.Compression
 {
@@ -20,6 +21,12 @@ namespace G.Util.Compression
 
         public ArraySegment<byte> Compress(ArraySegment<byte> src)
         {
+            if (src.Array == null || src.Count == 0)
+            {
+                // Empty
+                return new ArraySegment<byte>();
+            }
+
             using (var output = new MemoryStream())
             {
                 Stream compressor = new GZipStream(output, CompressionLevel.Optimal, leaveOpen: true);
@@ -33,14 +40,20 @@ namespace G.Util.Compression
                     return new ArraySegment<byte>();
                 }
 
-                return new ArraySegment<byte>(output.ToArray());
+                //return output.ToArray();
+                return new ArraySegment<byte>(output.GetBuffer(), 0, (int) output.Position);
             }
         }
 
         public ArraySegment<byte> Decompress(ArraySegment<byte> src, int expectedLength)
         {
-            byte[] decompressed = new byte[expectedLength];
+            if (src.Array == null || src.Count == 0 || expectedLength <= 0)
+            {
+                // Empty
+                return new ArraySegment<byte>();
+            }
 
+            byte[] decompressed = new byte[expectedLength];
             using (var input = new MemoryStream(src.Array, src.Offset, src.Count))
             {
                 Stream decompressor = new GZipStream(input, CompressionMode.Decompress, leaveOpen: true);
@@ -54,47 +67,78 @@ namespace G.Util.Compression
                 return new ArraySegment<byte>(decompressed, 0, decompressedLength);
             }
         }
-        
-        
-        
-        //todo
-        /*
-        public Memory<byte> Compress(ReadOnlyMemory<byte> src)
+
+        public ArraySegment<byte> CompressWithArrayPool(ArraySegment<byte> src)
         {
-            using (var output = new MemoryStream())
+            if (src.Array == null || src.Count == 0)
             {
-                Stream compressor = new GZipStream(output, CompressionLevel.Optimal, leaveOpen: true);
-                compressor.Write(src.Array, src.Offset, src.Count);
-                compressor.Flush();
+                // Empty
+                return new ArraySegment<byte>();
+            }
 
-                // If the compressed size is larger than the original, it is considered uncompressed.
-                if (output.Length > src.Count)
+            byte[] compressed = ArrayPool<byte>.Shared.Rent(GetMaximumOutputLength(src.Count));
+            try
+            {
+                using (var output = new MemoryStream(compressed))
                 {
-                    // Give up
-                    return new ArraySegment<byte>();
-                }
+                    Stream compressor = new GZipStream(output, CompressionLevel.Optimal, leaveOpen: true);
+                    compressor.Write(src.Array, src.Offset, src.Count);
+                    compressor.Flush();
 
-                return new ArraySegment<byte>(output.ToArray());
+                    // If the compressed size is larger than the original, it is considered uncompressed.
+                    if (output.Length > src.Count)
+                    {
+                        // Give up
+                        return new ArraySegment<byte>();
+                    }
+
+                    var ret = new ArraySegment<byte>(output.GetBuffer(), 0, (int) output.Position);
+                    compressed = null; // Take ownership
+                    return ret;
+                }
+            }
+            finally
+            {
+                if (compressed != null)
+                {
+                    ArrayPool<byte>.Shared.Return(compressed);
+                }
             }
         }
 
-        public Memory<byte> Decompress(ReadOnlyMemory<byte> src, int expectedLength)
+        public ArraySegment<byte> DecompressWithArrayPool(ArraySegment<byte> src, int expectedLength)
         {
-            byte[] decompressed = new byte[expectedLength];
-
-            using (var input = new MemoryStream(src.Array, src.Offset, src.Count))
+            if (src.Array == null || src.Count == 0 || expectedLength <= 0)
             {
-                Stream decompressor = new GZipStream(input, CompressionMode.Decompress, leaveOpen: true);
-                int decompressedLength = decompressor.Read(decompressed, 0, expectedLength);
-                if (decompressedLength != expectedLength)
-                {
-                    // Failure
-                    return new ArraySegment<byte>();
-                }
+                // Empty
+                return new ArraySegment<byte>();
+            }
 
-                return new ArraySegment<byte>(decompressed, 0, decompressedLength);
+            byte[] decompressed = ArrayPool<byte>.Shared.Rent(expectedLength);
+            try
+            {
+                using (var input = new MemoryStream(src.Array, src.Offset, src.Count))
+                {
+                    Stream decompressor = new GZipStream(input, CompressionMode.Decompress, leaveOpen: true);
+                    int decompressedLength = decompressor.Read(decompressed, 0, expectedLength);
+                    if (decompressedLength != expectedLength)
+                    {
+                        // Failure
+                        return new ArraySegment<byte>();
+                    }
+
+                    var ret = new ArraySegment<byte>(decompressed, 0, decompressedLength);
+                    decompressed = null; // Take ownership
+                    return ret;
+                }
+            }
+            finally
+            {
+                if (decompressed != null)
+                {
+                    ArrayPool<byte>.Shared.Return(decompressed);
+                }
             }
         }
-        */
     }
 }

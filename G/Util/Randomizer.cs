@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace G.Util
 {
@@ -8,7 +9,8 @@ namespace G.Util
     {
 		private static readonly char[] characters;
 
-		private Random random;
+		private readonly ThreadLocal<Random> _threadLocalRandom = new ThreadLocal<Random>(()=> new Random());
+		private Random random => _threadLocalRandom.Value;
 
 		static Randomizer()
 		{
@@ -17,11 +19,6 @@ namespace G.Util
 			for (char ch = 'a'; ch <= 'z'; ch++) sb.Append(ch);
 			for (char ch = '0'; ch <= '9'; ch++) sb.Append(ch);
 			characters = sb.ToString().ToCharArray();
-		}
-
-		public Randomizer()
-		{
-			random = new Random();
 		}
 
 		public int Next() { return random.Next(); }

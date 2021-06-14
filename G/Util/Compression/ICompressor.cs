@@ -15,10 +15,12 @@ namespace G.Util.Compression
         int CompressionThreshold { get; }
 
         /// <summary>
-        /// Maximum compression length possible based on the given data length
+        /// Maximum compression length possible based on the given data length.
         /// </summary>
         int GetMaximumOutputLength(int length);
 
+
+        #region Without pooling
         /// <summary>
         /// Compress the data.
         /// </summary>
@@ -28,11 +30,19 @@ namespace G.Util.Compression
         /// Decompress the compressed data.
         /// </summary>
         ArraySegment<byte> Decompress(ArraySegment<byte> src, int expectedLength);
+        #endregion
 
-        //todo
-        /*
-        Memory<byte> Compress(ReadOnlyMemory<byte> src);
-        Memory<byte> Decompress(ReadOnlyMemory<byte> src, int expectedLength);
-        */
+
+        #region With pooling
+        /// <summary>
+        /// Compress the data with ArrayPool<byte>.
+        /// </summary>
+        ArraySegment<byte> CompressWithArrayPool(ArraySegment<byte> src);
+
+        /// <summary>
+        /// Decompress the compressed data ArrayPool<byte>.
+        /// </summary>
+        ArraySegment<byte> DecompressWithArrayPool(ArraySegment<byte> src, int expectedLength);
+        #endregion
     }
 }

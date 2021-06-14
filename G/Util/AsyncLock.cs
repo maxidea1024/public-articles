@@ -170,6 +170,20 @@ namespace G.Util
             }
         }
 
+        //@for compatilbities
+        public Task<IDisposable> LockAsync(bool needToLock/*not used*/)
+        {
+            if (_defaultTimeout.HasValue)
+            {
+                var cts = new CancellationTokenSource(_defaultTimeout.Value);
+                return LockAsync(cts.Token);
+            }
+            else
+            {
+                return LockAsync(CancellationToken.None);
+            }
+        }
+
         // Make sure InnerLock.LockAsync() does not use await, because an async function triggers a snapshot of
         // the AsyncLocal value.
         public Task<IDisposable> LockAsync(CancellationToken ct)

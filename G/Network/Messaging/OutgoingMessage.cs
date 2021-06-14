@@ -1,6 +1,10 @@
-﻿using System;
+﻿//todo 최소한의 정보만 Message에 유지하고 나머지는 필요한 상황에서만 다루는 걸로 변경하자.
+//     즉, 하나의 메시지 타입으로 퉁치는것 보다는 나눠서 처리하는게 간단할듯 싶다.
+
+using System;
 using System.Buffers;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using G.Util;
@@ -12,7 +16,7 @@ namespace G.Network.Messaging
     /// <summary>
     /// Message object for sending.
     /// </summary>
-    public class OutgoingMessage : HoldingCounter, IRecycleable<OutgoingMessage>
+    public class OutgoingMessage : IRecycleable<OutgoingMessage>
     {
         private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -41,7 +45,9 @@ namespace G.Network.Messaging
         public uint? Ack { get; set; }
 
         /// <summary>Session ID to identify session</summary>
-        public ulong SessionId { get; set; }
+        public long SessionId { get; set; }
+
+        public long UserSuid { get; set; }
 
         /// <summary>Compression type</summary>
         public CompressionType CompressionType { get; set; }
@@ -52,7 +58,14 @@ namespace G.Network.Messaging
         /// <summary>Encoded (transmittable over the network) body</summary>
         public ArraySegment<byte> PackedBody { get; set; }
 
-        // internal message header buffer
+        // UniqueKey(NonSerialized)
+        public uint UniqueKey { get; set; }
+
+        // Mutable header and body.
+        internal ArraySegment<byte> SendableHeader { get; set; }
+        internal ArraySegment<byte> SendableBody { get; set; }
+
+        // Internal message header buffer
         private readonly byte[] _headerBuffer = new byte[MessageConstants.HeaderBufferLength];
         private CompressionType _appliedCompressionType = CompressionType.None;
         private int _uncompressedBodyLength = 0;
@@ -60,12 +73,17 @@ namespace G.Network.Messaging
 
 
         #region Pooling
+        public static long TotalRentCount => _messagePool.TotalRentCount;
+        public static long TotalReturnCount => _messagePool.TotalReturnCount;
 
-        private const int PoolSizePerCpu = 1024;
+        private const int PoolSizePerCpu = 8192;
         private static readonly  DefaultObjectPool<OutgoingMessage> _messagePool =
             new DefaultObjectPool<OutgoingMessage>(() => new OutgoingMessage(), Environment.ProcessorCount * PoolSizePerCpu, PoolSizePerCpu);
 
         private Action<OutgoingMessage> _returnToPoolAction;
+
+        public static object DebugListLock = new object();
+        public static List<OutgoingMessage> DebugList = new List<OutgoingMessage>();
 
         public void SetReturnToPoolAction(Action<OutgoingMessage> returnToPoolAction)
         {
@@ -74,16 +92,23 @@ namespace G.Network.Messaging
 
         public static OutgoingMessage Rent()
         {
-            var rented = _messagePool.Rent();
-            rented.IncreaseHoldingCount();
+           var rented = _messagePool.Rent();
+
+            // For debugging
+           lock (DebugListLock)
+           {
+                DebugList.Add(rented);
+            }
+
             return rented;
         }
 
         public void Return()
         {
-            if (DecreaseHoldingCount() > 0)
+            // For debugging
+            lock (DebugListLock)
             {
-                return;
+                DebugList.Remove(this);
             }
 
             if (_returnToPoolAction != null)
@@ -118,17 +143,24 @@ namespace G.Network.Messaging
             Seq = null;
             Ack = null;
             SessionId = 0;
+            UserSuid = 0;
             CompressionType = CompressionType.None;
             Body = null;
             PackedHeader = ArraySegment<byte>.Empty;
             PackedBody = ArraySegment<byte>.Empty;
             _appliedCompressionType = CompressionType.None;
             _uncompressedBodyLength = 0;
+
+            UniqueKey = 0;
+
+            SendableHeader = ArraySegment<byte>.Empty;
+            SendableBody = ArraySegment<byte>.Empty;
         }
 
         #endregion
 
-        public void Build(Action<Stream, object> bodySerializer, KeyChain keyChain)
+        //@todo bodySerializer없이 구동 가능하도록 해야함.
+        internal void Build(Action<Stream, object> bodySerializer, KeyChain keyChain)
         {
             //todo 일단은 무조건 되게 하기 위해서 금지
             KeyIndex = KeyIndex.None;
@@ -145,6 +177,7 @@ namespace G.Network.Messaging
                 using (var stream = new MemoryStream())
                 {
                     bodySerializer(stream, Body);
+
                     PackedBody = new ArraySegment<byte>(stream.GetBuffer(), 0, (int)stream.Position);
                 }
 
@@ -170,6 +203,8 @@ namespace G.Network.Messaging
 
                             // Replace body to compressed.
                             PackedBody = compressed;
+							//todo 압축 버퍼를 풀링했을 경우 풀에 반납해줘야하므로...
+							//_pooledCompressedBuffer = compressed.Array;
                         }
                     }
                 }
@@ -200,12 +235,13 @@ namespace G.Network.Messaging
             // Build header
             BuildHeader(keyChain);
 
-            //_logger.Debug($"Header={PackedHeader.Count}, Body={PackedBody.Count}");
+            SendableHeader = PackedHeader;
+            SendableBody = PackedBody;
 
             IsEncoded = true;
         }
 
-        public void Rebuild(KeyChain keyChain)
+        internal void Rebuild(KeyChain keyChain)
         {
             if (!IsEncoded)
             {
@@ -228,6 +264,10 @@ namespace G.Network.Messaging
 
                 // Replace body to compressed.
                 PackedBody = compressed;
+
+				//todo 압축 버퍼를 풀링했을 경우 풀에 반납해줘야하므로...
+				//기존에 압축했던 버퍼는 풀에 반납해야함!
+				//_pooledCompressedBuffer = compressed.Array;
             }
 
             // Reencryption
@@ -251,17 +291,17 @@ namespace G.Network.Messaging
 
             // No need to rebuild the header.
             //BuildHeader(keyChain);
+
+            SendableHeader = PackedHeader;
+            SendableBody = PackedBody;
         }
 
         private void BuildHeader(KeyChain keyChain)
         {
-            var span = _headerBuffer.AsSpan();
-
-            var headerLength = MessageConstants.InitialHeaderLength;
-
             byte flags = 0;
 
-            span = span.Slice(headerLength);
+            var headerLength = MessageConstants.InitialHeaderLength;
+            var span = _headerBuffer.AsSpan().Slice(headerLength);
 
             // Seq?
             if (Seq.HasValue)
@@ -288,13 +328,24 @@ namespace G.Network.Messaging
             {
                 flags |= MessageConstants.HasSessionIdMask;
 
-                BinaryPrimitives.WriteUInt64LittleEndian(span, SessionId);
+                BinaryPrimitives.WriteInt64LittleEndian(span, SessionId);
+                span = span.Slice(8);
+                headerLength += 8;
+            }
+
+            // UserSuid?
+            if (UserSuid != 0)
+            {
+                flags |= MessageConstants.HasUserSuidMask;
+
+                BinaryPrimitives.WriteInt64LittleEndian(span, UserSuid);
                 span = span.Slice(8);
                 headerLength += 8;
             }
 
             // RemoteKey?
-            if (RemoteEncryptionKeyIndex != KeyIndex.None && RemoteEncryptionKeyIndex != KeyIndex.Common)
+            if (RemoteEncryptionKeyIndex != KeyIndex.None &&
+                RemoteEncryptionKeyIndex != KeyIndex.Common)
             {
                 var remoteEncryptionKey = keyChain.GetKey(RemoteEncryptionKeyIndex);
                 if (remoteEncryptionKey != null)
@@ -344,7 +395,6 @@ namespace G.Network.Messaging
                 headerLength += 4;
             }
 
-
             // Finalize
 
             if (headerLength > MessageConstants.HeaderBufferLength)
@@ -371,6 +421,7 @@ namespace G.Network.Messaging
 
         public override string ToString()
         {
+            //todo Stringify로 처리하는게 좋을듯..
             return JsonSerializer.Serialize(this);
         }
     }

@@ -14,7 +14,7 @@ namespace G.Network.Messaging
         public const int InitialHeaderLength = 5;
 
         /// <summary>Maximum message length (including header + body)</summary>
-        public const int MaxMessageLength = 32767;
+        public const int MaxMessageLength = 65535-16;//32767;
 
         /// <summary>The default buffer length to use when pulling packets out of the stream</summary>
         public const int DefaultDequeueMessageBufferLength = 1024;
@@ -45,5 +45,7 @@ namespace G.Network.Messaging
 
         /// <summary>Flag indicating whether to compress the message</summary>
         public const byte HasCompressionMask = 0x02;
+
+        public const byte HasUserSuidMask = 0x01;
     }
 }

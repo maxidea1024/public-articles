@@ -9,6 +9,9 @@ namespace G.Network.Messaging
         HandshakeReq = 1,
         HandshakeRes = 2,
 
+        ShutdownTcp = 3,
+        ShutdownTcpAck = 4,
+
         User = 100,
     }
 }

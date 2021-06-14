@@ -13,6 +13,7 @@ namespace G.Network.Messaging
     {
         private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
+
         /// <summary>Message Type</summary>
         public MessageType MessageType { get; set; }
 
@@ -23,7 +24,9 @@ namespace G.Network.Messaging
         public uint? Ack { get; set; }
 
         /// <summary>Optional session id(0=invalid)</summary>
-        public ulong SessionId { get; set; }
+        public long SessionId { get; set; }
+
+        public long UserSuid { get; set; }
 
         /// <summary>Encryption key index</summary>
         public KeyIndex KeyIndex { get; set; }
@@ -41,19 +44,21 @@ namespace G.Network.Messaging
         /// <summary>Deserialized message(Message body)</summary>
         public ReadOnlyMemory<byte> Body { get; set; }
 
+
         // internal pooled buffers
         private byte[] _decryptedBuffer;
-        private byte[] _messageBuffer;
-
         // Allocate once and reuse for efficiency.
         private uint[] _remoteEncryptionKeyBuffer = null;
 
 
         #region Pooling
 
+        public static long TotalRentCount => _messagePool.TotalRentCount;
+        public static long TotalReturnCount => _messagePool.TotalReturnCount;
+
         private static ArrayPool<byte> BufferPool = ArrayPool<byte>.Shared;
 
-        private const int PoolSizePerCpu = 1024;
+        private const int PoolSizePerCpu = 8192;
         private static readonly  DefaultObjectPool<IncomingMessage> _messagePool =
             new DefaultObjectPool<IncomingMessage>(() => new IncomingMessage(), Environment.ProcessorCount * PoolSizePerCpu, PoolSizePerCpu);
 
@@ -94,6 +99,7 @@ namespace G.Network.Messaging
             Seq = null;
             Ack = null;
             SessionId = 0;
+            UserSuid = 0;
             KeyIndex = 0;
             RemoteEncryptionKeyIndex = KeyIndex.None;
             RemoteEncryptionKey = null;
@@ -111,89 +117,56 @@ namespace G.Network.Messaging
                 ArrayPool<byte>.Shared.Return(_decryptedBuffer);
                 _decryptedBuffer = null;
             }
-
-            if (_messageBuffer != null)
-            {
-                ArrayPool<byte>.Shared.Return(_messageBuffer);
-                _messageBuffer = null;
-            }
         }
         #endregion
 
-
-        /// <summary>
-        /// Byte stream queue에서 메시지 하나 꺼내오기를 시도함.
-        /// 메시지는 복호화 및 압축해제까지만 처리함.
-        ///
-        /// 실제 메시지로 Deserializing은 외부에서 해야함. (뭐 하려면 할수도 있긴 할듯..)
-        /// 주의: 메시지 읽기시에 실패하면 예외를 던질 수 있음.
-        /// 예외를 던지지 않고 그냥 마지막 오류를 잡아내서 건네주는게 맞으려나?
-        /// </summary>
-        public static bool TryDequeue(ByteStreamQueue stream, KeyChain keyChain, out IncomingMessage message)
+        public static int Parse(Memory<byte> data, KeyChain keyChain, out IncomingMessage message)
         {
             message = null;
 
-            var messageBuffer = BufferPool.Rent(MessageConstants.DefaultDequeueMessageBufferLength);
+            var span = data.Span;
             try
             {
                 // Even the length of the message cannot be read, so return immediately
-                if (!stream.Peek(messageBuffer, 2))
+                if (span.Length < 2)
                 {
-                    return false;
+                    return 0;
                 }
 
-                int length = BinaryPrimitives.ReadUInt16LittleEndian(messageBuffer.AsSpan());
+                // Get the total message length including header and body.
+                int messageLength = BinaryPrimitives.ReadUInt16LittleEndian(span);
 
                 // Check if the message length is safe
-                if (length < MessageConstants.InitialHeaderLength || length > MessageConstants.MaxMessageLength)
+                if (messageLength < MessageConstants.InitialHeaderLength || messageLength > MessageConstants.MaxMessageLength)
                 {
-                    throw new InvalidProtocolException($"Invalid message length={length}");
+                    throw new InvalidProtocolException($"Invalid message length={messageLength}");
                 }
 
                 // There is no data to read into the stream yet. Should be processed when it is filled more.
-                if (length > stream.Count)
+                if (messageLength > data.Length)
                 {
-                    return false;
+                    return 0;
                 }
-
-                // If the length of the message is larger than the currently allocated buffer, the buffer must be reallocated.
-                if (length > messageBuffer.Length)
-                {
-                    BufferPool.Return(messageBuffer);
-                    messageBuffer = BufferPool.Rent(length);
-                }
-
-                // Dequeue message data from stream.
-                //todo SequenceReader로 처리할 경우에는 복사가 필요없음.
-                //나중에 바꿔주도록 하자.
-                stream.Dequeue(messageBuffer, length);
 
                 // Perform deserialization.
-                message = Deserialize(messageBuffer.AsMemory(0, length), keyChain);
-                message._messageBuffer = messageBuffer; // Since it is a borrowed memory, it must be freed later.
-                messageBuffer = null; // own allocated memory buffer
-
-                return true;
+                int readedLength = Deserialize(data.Slice(0, messageLength), keyChain, out message);
+                return readedLength;
             }
-            //예외는 그냥 외부로 전파한다?
-            //아니면 마지막 예외를 넘겨주는 형태로 처리해야하나?
-            //catch (Exception)
-            //{
-            //    return false;
-            //}
-            finally
+            catch (Exception)
             {
-                if (messageBuffer != null)
+                if (message != null)
                 {
-                    BufferPool.Return(messageBuffer);
+                    message.Return();
                 }
+
+                throw;
             }
         }
 
-        /// <summary>Deserialize message</summary>
-        private static IncomingMessage Deserialize(ReadOnlyMemory<byte> memory, KeyChain keyChain)
+        // Deserialize message.
+        private static int Deserialize(ReadOnlyMemory<byte> memory, KeyChain keyChain, out IncomingMessage message)
         {
-            var message = _messagePool.Rent();
+            message = _messagePool.Rent();
 
             var span = memory.Span;
 
@@ -233,7 +206,17 @@ namespace G.Network.Messaging
             {
                 CheckRequiredLength(span, 8);
 
-                message.SessionId = BinaryPrimitives.ReadUInt64LittleEndian(span);
+                message.SessionId = BinaryPrimitives.ReadInt64LittleEndian(span);
+                span = span.Slice(8);
+                readPosition += 8;
+            }
+
+            // UserSuid?
+            if ((flags & MessageConstants.HasUserSuidMask) != 0)
+            {
+                CheckRequiredLength(span, 8);
+
+                message.UserSuid = BinaryPrimitives.ReadInt64LittleEndian(span);
                 span = span.Slice(8);
                 readPosition += 8;
             }
@@ -336,16 +319,15 @@ namespace G.Network.Messaging
                 message.Body = ReadOnlyMemory<byte>.Empty;
             }
 
-            //_logger.Debug($"Body bytes: {message.Body.Length}");
-
             // Check if you have read all the way to the end.
-            // If there is still data left, someone has put the data randomly and should be treated as an error.
+            // If there is still data left, someone has put the data randomly
+            // and should be treated as an error.
             if (readPosition != memory.Length)
             {
                 throw new InvalidProtocolException("Message rigging is detected.");
             }
 
-            return message;
+            return readPosition;
         }
 
         public override string ToString()

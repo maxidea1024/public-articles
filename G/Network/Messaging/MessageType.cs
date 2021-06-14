@@ -13,5 +13,7 @@ namespace G.Network.Messaging
         ShutdownTcpAck = 4,
 
         User = 100,
+
+        //todo LocalMessage
     }
 }

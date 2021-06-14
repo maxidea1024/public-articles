@@ -423,7 +423,8 @@ namespace G.Network.Messaging
         {
             var sb = Stringify.Begin();
 
-            Stringify.Append(sb, "MessageType", MessageType);
+            if (MessageType != MessageType.None)
+                Stringify.Append(sb, "MessageType", MessageType);
 
             if (Body != null)
                 Stringify.Append(sb, "Body", Body);

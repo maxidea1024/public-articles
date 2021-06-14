@@ -21,9 +21,9 @@ using Renci.SshNet.Messages;
 
 namespace G.Network
 {
-	internal class TcpTransport
-	{
-		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+    internal class TcpTransport
+    {
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         private const int SendBufferMax = 32768;
         private const int UnitBufferSize = 65536;
@@ -34,16 +34,16 @@ namespace G.Network
 
         public IPEndPoint RemoteEndPoint { get; internal set; }
 
-		private CancellationTokenSource _cts { get; set; }
+        private CancellationTokenSource _cts { get; set; }
 
-		internal Socket _socket;
+        internal Socket _socket;
 
-		private KeyChain _keyChain = new KeyChain();
-		internal KeyChain KeyChain => _keyChain;
+        private KeyChain _keyChain = new KeyChain();
+        internal KeyChain KeyChain => _keyChain;
 
-		private SemaphoreSlim _semaphoreConn = new SemaphoreSlim(1, 1);
+        private SemaphoreSlim _semaphoreConn = new SemaphoreSlim(1, 1);
         private object _socketLock = new object();
-		private object _sendingLock = new object();
+        private object _sendingLock = new object();
         private object _receivingLock = new object();
 
         private byte[] _receiveBuffer = new byte[UnitBufferSize];
@@ -61,19 +61,19 @@ namespace G.Network
 
         internal readonly Queue<OutgoingMessage> _unsent = new Queue<OutgoingMessage>();
 
-		internal TcpServer Server { get; set; }
+        internal TcpServer Server { get; set; }
         internal TcpSocket Owner { get; set; }
 
         private bool IsEstablished = false;
 
-		public bool IsConnected
-		{
-			get
-			{
-				try { return _socket != null && _socket.Connected; }
-				catch (Exception) { return false; }
-			}
-		}
+        public bool IsConnected
+        {
+            get
+            {
+                try { return _socket != null && _socket.Connected; }
+                catch (Exception) { return false; }
+            }
+        }
 
         private bool IsSendable
         {
@@ -90,37 +90,37 @@ namespace G.Network
         private int _wasDisconnectCalled = 0;
 
         internal TcpTransport()
-	    {
+        {
             _keyChain.Reset();
-		}
+        }
 
-		internal void SetCommonKey(uint[] key)
-		{
-			_keyChain.Set(KeyIndex.Common, key);
-		}
+        internal void SetCommonKey(uint[] key)
+        {
+            _keyChain.Set(KeyIndex.Common, key);
+        }
 
-		internal void SetCommonKey(string base62Key)
-		{
-			_keyChain.Set(KeyIndex.Common, base62Key);
-		}
+        internal void SetCommonKey(string base62Key)
+        {
+            _keyChain.Set(KeyIndex.Common, base62Key);
+        }
 
-		internal async Task InitializeAsync(Socket socket)
-		{
-			try
+        internal async Task InitializeAsync(Socket socket)
+        {
+            try
             {
                 var now = SystemClock.Milliseconds;
 
                 CreatedTime = now;
 
-				_cts = new CancellationTokenSource();
+                _cts = new CancellationTokenSource();
 
-				_socket = socket;
-				_socket.NoDelay = true;
-				_socket.LingerState = new LingerOption(true, 0);
+                _socket = socket;
+                _socket.NoDelay = true;
+                _socket.LingerState = new LingerOption(true, 0);
 
-				//todo common은 리셋하지 말자!
-				//_keyChain.Reset();
-				_keyChain.Set(KeyIndex.Remote);
+                //todo common은 리셋하지 말자!
+                //_keyChain.Reset();
+                _keyChain.Set(KeyIndex.Remote);
 
                 lock (_receivingLock)
                 {
@@ -160,7 +160,7 @@ namespace G.Network
                 // Caching remote endpoint.
                 RemoteEndPoint = (IPEndPoint)_socket.RemoteEndPoint;
 
-				try
+                try
                 {
                     await OnConnectAsync();
                 }
@@ -173,11 +173,11 @@ namespace G.Network
                 CheckPendingMessages(true);
 
                 // Start receiving and processing.
-				_ = Task.Run(async () => await RunToReceiveAsync());
-			}
-			catch (Exception)
-			{
-				try
+                _ = Task.Run(async () => await RunToReceiveAsync());
+            }
+            catch (Exception)
+            {
+                try
                 {
                     await OnConnectErrorAsync(-1);
                 }
@@ -186,44 +186,44 @@ namespace G.Network
                     _logger.Error(e);
                 }
 
-				throw;
-			}
-		}
+                throw;
+            }
+        }
 
-		internal async Task<bool> ConnectAsync(IPAddress host, int port)
-		{
-			try
-			{
-				//await DisconnectAsync(DisconnectReason.ByLocal);
+        internal async Task<bool> ConnectAsync(IPAddress host, int port)
+        {
+            try
+            {
+                //await DisconnectAsync(DisconnectReason.ByLocal);
 
-				//연결을 중복해서 요청하지 못하도록함.
-				//await _semaphoreConn.WaitAsync();
+                //연결을 중복해서 요청하지 못하도록함.
+                //await _semaphoreConn.WaitAsync();
 
-				var socket = new Socket(host.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                var socket = new Socket(host.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-				await socket.ConnectAsync(host, port);
+                await socket.ConnectAsync(host, port);
 
-				await InitializeAsync(socket);
+                await InitializeAsync(socket);
 
                 CheckPendingMessages(true);
 
-				return true;
-			}
-			catch (Exception e)
-			{
-				// _logger.Error(e);
-				// if 0 == Id, then no Release..
-				// connect 요청 할때 에러가 발생한 경우..
+                return true;
+            }
+            catch (Exception e)
+            {
+                // _logger.Error(e);
+                // if 0 == Id, then no Release..
+                // connect 요청 할때 에러가 발생한 경우..
 
-				//if (_socket == null && 0 == _semaphoreConn.CurrentCount)
-				//{
-				//	_semaphoreConn.Release();
-				//	_logger.Debug("tried _semaphoreConn.Release.. Count[ {0} ]", _semaphoreConn.CurrentCount);
-				//}
+                //if (_socket == null && 0 == _semaphoreConn.CurrentCount)
+                //{
+                //  _semaphoreConn.Release();
+                //  _logger.Debug("tried _semaphoreConn.Release.. Count[ {0} ]", _semaphoreConn.CurrentCount);
+                //}
 
-				_logger.Error(e);
+                _logger.Error(e);
 
-				try
+                try
                 {
                     await OnConnectErrorAsync(-1);
                 }
@@ -232,18 +232,18 @@ namespace G.Network
                     _logger.Error(e2);
                 }
 
-				await DisconnectAsync(DisconnectReason.ConnectFailure, true);
+                await DisconnectAsync(DisconnectReason.ConnectFailure, true);
 
-				return false;
-			}
-		}
+                return false;
+            }
+        }
 
-		private async Task RunToReceiveAsync()
-		{
-			try
-			{
-				while (!_cts.IsCancellationRequested)
-				{
+        private async Task RunToReceiveAsync()
+        {
+            try
+            {
+                while (!_cts.IsCancellationRequested)
+                {
                     int receivedBytes = await _socket.ReceiveAsync(
                         _receiveBuffer.AsMemory(_receivedSize, _receiveBuffer.Length - _receivedSize),
                         SocketFlags.None);
@@ -266,10 +266,10 @@ namespace G.Network
                     }
 
                     await ProcessAsync();
-				}
-			}
-			catch (SocketException e)
-			{
+                }
+            }
+            catch (SocketException e)
+            {
                 if (e.SocketErrorCode == SocketError.Success)
                 {
                     Log($"RunToReceiveAsync: Disconnected from remote.");
@@ -279,25 +279,25 @@ namespace G.Network
                     Log($"RunToReceiveAsync: SocketException SocketErrorCode: {e.SocketErrorCode}");
                 }
 
-				await DisconnectAsync(DisconnectReason.RecvFailure);
-			}
-			catch (OperationCanceledException)
-			{
-				Log($"RunToReceiveAsync. OperationCanceledException.");
+                await DisconnectAsync(DisconnectReason.RecvFailure);
+            }
+            catch (OperationCanceledException)
+            {
+                Log($"RunToReceiveAsync. OperationCanceledException.");
 
-				await DisconnectAsync(DisconnectReason.RecvFailure);
-			}
-			catch (Exception e)
-			{
+                await DisconnectAsync(DisconnectReason.RecvFailure);
+            }
+            catch (Exception e)
+            {
                 if (e is ObjectDisposedException || e is NullReferenceException)
                 {
                     return;
                 }
 
-				Log($"RunToReceiveAsync. Exception.  e: {e}");
-				await DisconnectAsync(DisconnectReason.RecvFailure);
-			}
-		}
+                Log($"RunToReceiveAsync. Exception.  e: {e}");
+                await DisconnectAsync(DisconnectReason.RecvFailure);
+            }
+        }
 
         private bool ParseMessages()
         {
@@ -372,24 +372,24 @@ namespace G.Network
             }
         }
 
-		protected virtual async Task OnConnectAsync()
-	    {
+        protected virtual async Task OnConnectAsync()
+        {
             if (Owner != null)
             {
                 await Owner.OnConnectAsync();
             }
-		}
+        }
 
-		protected virtual async Task OnConnectErrorAsync(int error)
-		{
+        protected virtual async Task OnConnectErrorAsync(int error)
+        {
             if (Owner != null)
             {
                 await Owner.OnConnectErrorAsync(error);
             }
-		}
+        }
 
-		protected virtual async Task OnDisconnectAsync(DisconnectReason disconnectReason)
-	    {
+        protected virtual async Task OnDisconnectAsync(DisconnectReason disconnectReason)
+        {
             lock (_sendingLock)
             {
                 while (_unsent.Count > 0)
@@ -410,17 +410,17 @@ namespace G.Network
                     await Owner.OnDisconnectAsync(disconnectReason);
                 }
             }
-		}
+        }
 
-		protected virtual async Task<bool> OnProcessAsync(ReadOnlyMemory<byte> memory)
-		{
-			if (Owner != null)
+        protected virtual async Task<bool> OnProcessAsync(ReadOnlyMemory<byte> memory)
+        {
+            if (Owner != null)
             {
                 return await Owner.OnProcessAsync(memory);
             }
 
             return true;
-	    }
+        }
 
         public void SendMessage(OutgoingMessage message, bool sendingFirst = false)
         {
@@ -434,8 +434,8 @@ namespace G.Network
                     _unsent.Enqueue(message);
                 }
 
-				return;
-			}
+                return;
+            }
 
             try
             {
@@ -500,7 +500,7 @@ namespace G.Network
             }
         }
 
-		// Sends all pendeing messages to wire.
+        // Sends all pendeing messages to wire.
         private void SendPendingMessages(bool shouldBeginSend)
         {
             try
@@ -674,7 +674,7 @@ namespace G.Network
 
                             while (_sending.TryDequeue(out var m))
                             {
-								// Reliable messages should be returned to the pool only
+                                // Reliable messages should be returned to the pool only
                                 // when an Ack is received or the connection is completely disconnected.
                                 if (!m.Seq.HasValue)
                                 {
@@ -785,8 +785,8 @@ namespace G.Network
 
         private void Log(string message)
         {
-	        long sessionId = 0;
-	        if (Owner != null)
+            long sessionId = 0;
+            if (Owner != null)
             {
                 sessionId = Owner.SessionId;
             }
@@ -862,35 +862,35 @@ namespace G.Network
 
         private void ReEncodeMessage(OutgoingMessage message)
         {
-			//todo 만약 KeyIndex가 common이면 재 암호화할 필요는 없다.
+            //todo 만약 KeyIndex가 common이면 재 암호화할 필요는 없다.
 
             message.Rebuild(_keyChain);
         }
 
         internal void SendPacket(BaseProtocol protocol, uint uniqueKey, CompressionType compressionType)
         {
-			var message = OutgoingMessage.Rent();
-			message.MessageType = MessageType.User;
-			message.CompressionType = compressionType;
+            var message = OutgoingMessage.Rent();
+            message.MessageType = MessageType.User;
+            message.CompressionType = compressionType;
 
             // 이 값이 0이 아니면, 이 값에 해당하는 메시지가 이미 있을 경우 최종 메시지로 대체함.
             // 아직 실제 Collapsing 기능이 구현된건 아님.
             // 보낸 메시지에서 찾아서 업데이트 쳐주는 형태로 처리하면 될듯한데.
             message.UniqueKey = uniqueKey;
 
-			message.Body = protocol;
-			SendMessage(message);
+            message.Body = protocol;
+            SendMessage(message);
         }
 
         //todo DoubleBufferedQueue를 지원하도록 하자.
         private async Task ProcessAsync()
-		{
+        {
             IncomingMessage incomingMessage = null;
-			var needToDisconnect = false;
+            var needToDisconnect = false;
             DisconnectReason disconnectReason = DisconnectReason.ByLocal;
 
-			try
-			{
+            try
+            {
                 while (!_cts.IsCancellationRequested)
                 {
                     //todo 구지 이렇게 지저분하게 처리해야할까? Transport와 Owner가 나뉘어져 있어서 발생하는
@@ -974,7 +974,7 @@ namespace G.Network
 
                                 // 재연결 요청
 
-								//todo 전역 세션이 expired된 상태라면, 오류코드를 달리 주는것도 좋을듯..
+                                //todo 전역 세션이 expired된 상태라면, 오류코드를 달리 주는것도 좋을듯..
 
                                 remote = await Server.FindRemoteForRecoverAsync(incomingMessage.SessionId);
                                 if (remote == null)
@@ -1034,7 +1034,7 @@ namespace G.Network
 
                             //Attach된 이후에는 Owner의 메시지큐를 사용해야함.
 
-							//todo 이름은 변경해주자.
+                            //todo 이름은 변경해주자.
                             Owner?.OnAuthenticated();
 
                             return;
@@ -1046,7 +1046,7 @@ namespace G.Network
                         {
                             IsEstablished = true;
 
-							//todo 뭔가 처리가 누락되는건 아닌지 확인하자.
+                            //todo 뭔가 처리가 누락되는건 아닌지 확인하자.
                             Owner.SessionId = incomingMessage.SessionId;
                             Owner.OnAuthenticated();
                         }
@@ -1063,8 +1063,8 @@ namespace G.Network
                     }
 
 
-					//todo 아래 메시지는 Attached가 된 상태가 아니라면 처리할 수 없다.
-					//명확하게 구분지어서 처리하도록 하자.
+                    //todo 아래 메시지는 Attached가 된 상태가 아니라면 처리할 수 없다.
+                    //명확하게 구분지어서 처리하도록 하자.
 
                     //todo 몇개를 잃어버리는건가?
 
@@ -1097,34 +1097,34 @@ namespace G.Network
                     incomingMessage.Return();
                     incomingMessage = null;
                 }
-			}
-			catch (InvalidProtocolException)
-			{
-				_logger.Debug("Invalid Protocol");
+            }
+            catch (InvalidProtocolException)
+            {
+                _logger.Debug("Invalid Protocol");
 
-				needToDisconnect = true;
-			}
-			catch (Exception e)
-			{
-				_logger.Error(e);
+                needToDisconnect = true;
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e);
 
-				needToDisconnect = true;
-			}
-			finally
-			{
-				incomingMessage?.Return();
+                needToDisconnect = true;
+            }
+            finally
+            {
+                incomingMessage?.Return();
 
-				if (needToDisconnect)
-				{
-					// 오류던 뭐던 의도적으로 끊은 상황.
-					await DisconnectAsync(disconnectReason);
-				}
-			}
-		}
+                if (needToDisconnect)
+                {
+                    // 오류던 뭐던 의도적으로 끊은 상황.
+                    await DisconnectAsync(disconnectReason);
+                }
+            }
+        }
 
         // ClosingTicket 시스템을 구현하면 문제가 사라질듯 싶다.
-		internal async Task<bool> DisconnectAsync(DisconnectReason disconnectReason = DisconnectReason.ByLocal, bool suppressOwnerCallback = false)
-		{
+        internal async Task<bool> DisconnectAsync(DisconnectReason disconnectReason = DisconnectReason.ByLocal, bool suppressOwnerCallback = false)
+        {
             _logger.Debug($"DisconnectAsync: DisconnectReason={disconnectReason}");
 
             bool shouldHardClose =  disconnectReason == DisconnectReason.ByLocal ||
@@ -1207,7 +1207,7 @@ namespace G.Network
                 catch (Exception e) { _logger.Error(e); }
             }
 
-			return true;
-		}
-	}
+            return true;
+        }
+    }
 }

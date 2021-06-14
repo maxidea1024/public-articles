@@ -2,14 +2,14 @@
 
 namespace G.Network
 {
-	[AttributeUsage(AttributeTargets.Class)]
-	public class ProtocolHandlerAttribute : Attribute
-	{
-		public string ProtocolNamespace { get; private set; }
+    [AttributeUsage(AttributeTargets.Class)]
+    public class ProtocolHandlerAttribute : Attribute
+    {
+        public string ProtocolNamespace { get; private set; }
 
-		public ProtocolHandlerAttribute(string protocolNamespace = null)
-		{
-			ProtocolNamespace = protocolNamespace;
-		}
-	}
+        public ProtocolHandlerAttribute(string protocolNamespace = null)
+        {
+            ProtocolNamespace = protocolNamespace;
+        }
+    }
 }

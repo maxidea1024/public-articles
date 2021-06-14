@@ -7,27 +7,27 @@ using G.Util;
 
 namespace G.Network
 {
-	public abstract class TcpRemote : TcpSocket
+    public abstract class TcpRemote : TcpSocket
     {
-		private static NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
 
-		private static readonly int WaitTime = 10_000;
+        private static readonly int WaitTime = 10_000;
 
-		public TimeBomb TimeBomb { get; set; }
-		public TaskTimer AliveTimer { get; set; }
+        public TimeBomb TimeBomb { get; set; }
+        public TaskTimer AliveTimer { get; set; }
 
-		public long UsableTime { get; set; }
+        public long UsableTime { get; set; }
 
-		//internal override async Task InitializeAsync(Socket socket, bool reconnecting)
-		//{
-		//	//await _semaphoreConn.WaitAsync();
+        //internal override async Task InitializeAsync(Socket socket, bool reconnecting)
+        //{
+        //  //await _semaphoreConn.WaitAsync();
         //
-		//	RemoteEndPoint = (IPEndPoint)socket.RemoteEndPoint;
+        //  RemoteEndPoint = (IPEndPoint)socket.RemoteEndPoint;
         //
-		//	await base.InitializeAsync(socket, reconnecting);
-		//}
+        //  await base.InitializeAsync(socket, reconnecting);
+        //}
 
-		public override async Task OnDisconnectAsync(DisconnectReason disconnectReason)
+        public override async Task OnDisconnectAsync(DisconnectReason disconnectReason)
         {
             try
             {

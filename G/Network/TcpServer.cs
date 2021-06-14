@@ -13,11 +13,11 @@ using PlayTogetherSocket;
 
 namespace G.Network
 {
-	public abstract class TcpServer
+    public abstract class TcpServer
     {
-		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private const int HouseKeepingInterval = 1_000;
+        private const int HouseKeepingInterval = 1_000;
 
         //todo 세션 오버랩되는 이슈가 있을수 있어서, 10초 정도로 조정
         //근본적으로는 userUID로 기존 suspended remote객체를 제거하는게 좋을듯.
@@ -26,28 +26,28 @@ namespace G.Network
         private const int CandidateTimeout = 8_000;
         private const int LongIdleTimeout = 1000 * 60 * 2;
 
-		public IPAddress Ip => IPAddress.Any;
-		public int Port { get; private set; }
-		public Type RemoteType { get; private set; }
-		public int RemoteMax { get; private set; }
+        public IPAddress Ip => IPAddress.Any;
+        public int Port { get; private set; }
+        public Type RemoteType { get; private set; }
+        public int RemoteMax { get; private set; }
 
-		private InterlockedFlag _running = new InterlockedFlag();
-		private Socket _listener;
-		private CancellationTokenSource _cts;
-		private SemaphoreSlim _acceptSemaphore;
+        private InterlockedFlag _running = new InterlockedFlag();
+        private Socket _listener;
+        private CancellationTokenSource _cts;
+        private SemaphoreSlim _acceptSemaphore;
 
-		protected SemaphoreLock _semaphoreLock = new SemaphoreLock(TimeSpan.FromSeconds(30));
-		//protected readonly AsyncLock _semaphoreLock = new AsyncLock();
+        protected SemaphoreLock _semaphoreLock = new SemaphoreLock(TimeSpan.FromSeconds(30));
+        //protected readonly AsyncLock _semaphoreLock = new AsyncLock();
 
-		private Queue<TcpRemote> _disconnectedRemotes = new Queue<TcpRemote>();
-		private Dictionary<long, TcpRemote> _connectedRemotes = new Dictionary<long, TcpRemote>();
+        private Queue<TcpRemote> _disconnectedRemotes = new Queue<TcpRemote>();
+        private Dictionary<long, TcpRemote> _connectedRemotes = new Dictionary<long, TcpRemote>();
 
         private Dictionary<long, TcpRemote> _suspendedRemotes = new Dictionary<long, TcpRemote>();
         private List<TcpTransport> _candidates = new List<TcpTransport>();
 
-		public int DisconnectedRemoteCount => _disconnectedRemotes.Count;
-		public int ConnectedRemoteCount => _connectedRemotes.Count;
-		public int AcceptableCount => _acceptSemaphore.CurrentCount;
+        public int DisconnectedRemoteCount => _disconnectedRemotes.Count;
+        public int ConnectedRemoteCount => _connectedRemotes.Count;
+        public int AcceptableCount => _acceptSemaphore.CurrentCount;
 
         internal UID64Generator _sessionIdGenerator = new UID64Generator(0, 0, 0);
 
@@ -58,24 +58,24 @@ namespace G.Network
         internal long _reconnectFails = 0;
 
 
-		//todo remove gc
-		public async Task<TcpRemote[]> GetAllRemotesAsync()
-		{
-			using (await _semaphoreLock.LockAsync())
-			{
-				return _connectedRemotes.Values.ToArray();
-			}
-		}
-
-		public TcpServer(Type remoteType, int remoteMax, int remoteInitialCount = 1000)
+        //todo remove gc
+        public async Task<TcpRemote[]> GetAllRemotesAsync()
         {
-			if (remoteInitialCount > remoteMax)
+            using (await _semaphoreLock.LockAsync())
+            {
+                return _connectedRemotes.Values.ToArray();
+            }
+        }
+
+        public TcpServer(Type remoteType, int remoteMax, int remoteInitialCount = 1000)
+        {
+            if (remoteInitialCount > remoteMax)
             {
                 remoteInitialCount = remoteMax;
             }
 
-			RemoteType = remoteType;
-			RemoteMax = remoteMax;
+            RemoteType = remoteType;
+            RemoteMax = remoteMax;
 
             if (TblServerVariable.NetworkPooling)
             {
@@ -85,45 +85,45 @@ namespace G.Network
                     _disconnectedRemotes.Enqueue(remote);
                 }
             }
-		}
+        }
 
         ~TcpServer()
         {
-			StopAsync().Wait();
+            StopAsync().Wait();
         }
 
-		private TcpRemote CreateRemote()
-		{
-			TcpRemote remote = (TcpRemote)Activator.CreateInstance(RemoteType);
-			remote.Server = this;
-			return remote;
-		}
-
-		public bool Start(int port)
+        private TcpRemote CreateRemote()
         {
-			try
-			{
-				if (!_running.Set())
+            TcpRemote remote = (TcpRemote)Activator.CreateInstance(RemoteType);
+            remote.Server = this;
+            return remote;
+        }
+
+        public bool Start(int port)
+        {
+            try
+            {
+                if (!_running.Set())
                 {
                     return false;
                 }
 
-				Port = port;
+                Port = port;
 
-				_listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 _listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-				_listener.NoDelay = true;
-				_listener.LingerState = new LingerOption(true, 0);
+                _listener.NoDelay = true;
+                _listener.LingerState = new LingerOption(true, 0);
 
-				IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, port);
-				_listener.Bind(endPoint);
-				_listener.Listen(100);
+                IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, port);
+                _listener.Bind(endPoint);
+                _listener.Listen(100);
 
-				OnStart(_listener);
+                OnStart(_listener);
 
-				_cts = new CancellationTokenSource();
+                _cts = new CancellationTokenSource();
 
-				_acceptSemaphore = new SemaphoreSlim(RemoteMax, RemoteMax);
+                _acceptSemaphore = new SemaphoreSlim(RemoteMax, RemoteMax);
 
                 // Start accept loop.
                 _ = Task.Run(async () => await RunToAcceptAsync(), _cts.Token);
@@ -131,14 +131,14 @@ namespace G.Network
                 // Start house-keeping loop.
                 _ = Task.Run(async () => await HouseKeepingAsync(), _cts.Token);
 
-				return true;
-			}
-			catch (Exception e)
-			{
-				_logger.Error(e);
-				return false;
-			}
-		}
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e);
+                return false;
+            }
+        }
 
         private async Task RunToAcceptAsync()
         {
@@ -171,25 +171,25 @@ namespace G.Network
             }
         }
 
-		public void Stop(TimeSpan? timeout = null)
-		{
-			StopAsync(timeout).Wait();
-		}
+        public void Stop(TimeSpan? timeout = null)
+        {
+            StopAsync(timeout).Wait();
+        }
 
         public async Task StopAsync(TimeSpan? timeout = null)
         {
-			if (!_running.Reset())
+            if (!_running.Reset())
             {
                 return;
             }
 
-			timeout ??= TimeSpan.FromSeconds(10);
+            timeout ??= TimeSpan.FromSeconds(10);
 
-			_cts?.Cancel();
+            _cts?.Cancel();
 
-			_listener.Dispose();
+            _listener.Dispose();
 
-			OnStop();
+            OnStop();
 
             //Lock 이슈가 있음.
 
@@ -211,20 +211,20 @@ namespace G.Network
                 _suspendedRemotes.Clear();
             }
 
-			var remotes = await GetAllRemotesAsync();
-			foreach (var remote in remotes)
-			{
-				try { await remote.DisconnectAsync(DisconnectReason.ByLocal); } catch { }
-			}
+            var remotes = await GetAllRemotesAsync();
+            foreach (var remote in remotes)
+            {
+                try { await remote.DisconnectAsync(DisconnectReason.ByLocal); } catch { }
+            }
 
-			DateTime outTime = DateTime.Now + timeout.Value;
-			while (true)
-			{
-				if (ConnectedRemoteCount <= 0) break;
-				if (DateTime.Now > outTime) break;
+            DateTime outTime = DateTime.Now + timeout.Value;
+            while (true)
+            {
+                if (ConnectedRemoteCount <= 0) break;
+                if (DateTime.Now > outTime) break;
 
-				await Task.Delay(1000);
-			}
+                await Task.Delay(1000);
+            }
         }
 
         private async Task HouseKeepingAsync()
@@ -294,12 +294,12 @@ namespace G.Network
             {
                 foreach (var pair in _suspendedRemotes)
                 {
-	                var remote = pair.Value;
+                    var remote = pair.Value;
 
                     //todo 보관하고 있는 SentMessages가 과할때도 접속을 종료하는게 좋을듯..
                     if ((now - pair.Value.SuspendedTime) > SuspendedRemoteTimeout)
                     {
-						_suspendedRemotes.Remove(remote.SessionId);
+                        _suspendedRemotes.Remove(remote.SessionId);
 
                         _logger.Debug($"Purge expired suspended remote: SessionId={remote.SessionId}, RemoteAddr={remote.RemoteEndPoint}, SuspendedTime={remote.SuspendedTime}");
 
@@ -331,8 +331,8 @@ namespace G.Network
                         candidate.DisableReconnecting = true;
                         _ = candidate.DisconnectAsync(DisconnectReason.ByLocal);
                     }
-				}
-			}
+                }
+            }
         }
 
         private async Task PurgeLongIdleRemotesAsync()
@@ -356,26 +356,26 @@ namespace G.Network
                         remote.DisableReconnecting();
                         _ = remote.DisconnectAsync(DisconnectReason.ByLocal);
                     }
-				}
-			}
+                }
+            }
         }
 
-		internal async Task CheckOutAsync(Socket acceptedSocket)
-		{
+        internal async Task CheckOutAsync(Socket acceptedSocket)
+        {
             TcpTransport transport = null;
 
-			try
-			{
-				//todo Pooling..
-				//_logger.Debug($"CheckOutAsync: RemoteAddress={acceptedSocket.RemoteEndPoint}");
+            try
+            {
+                //todo Pooling..
+                //_logger.Debug($"CheckOutAsync: RemoteAddress={acceptedSocket.RemoteEndPoint}");
 
                 transport = new TcpTransport();
                 transport.CreatedTime = SystemClock.Milliseconds;
                 transport.Server = this;
                 await transport.InitializeAsync(acceptedSocket);
 
-				using (await _semaphoreLock.LockAsync())
-				{
+                using (await _semaphoreLock.LockAsync())
+                {
                     // Since the session is not established yet, it is added to the candidate list.
                     // If a session is not established for a certain period of time, the socket is closed and raised from the list.
                     // The processing is handled by HouseKeeping.
@@ -383,77 +383,77 @@ namespace G.Network
                     {
                         _candidates.Add(transport);
                     }
-				}
-			}
-			catch (Exception e)
-			{
+                }
+            }
+            catch (Exception e)
+            {
                 _logger.Error(e.Message);
 
-				await transport.DisconnectAsync();
+                await transport.DisconnectAsync();
 
-				_acceptSemaphore.Release();
+                _acceptSemaphore.Release();
 
-				throw;
-			}
-		}
+                throw;
+            }
+        }
 
-		internal async Task<bool> CheckInAsync(long sessionId, DisconnectReason disconnectReason)
-		{
-			using (await _semaphoreLock.LockAsync())
-			{
+        internal async Task<bool> CheckInAsync(long sessionId, DisconnectReason disconnectReason)
+        {
+            using (await _semaphoreLock.LockAsync())
+            {
                 _logger.Debug($"TcpServer.CheckInAsync: SessionId={sessionId}, DisconnectReason={disconnectReason}");
 
-				if (_connectedRemotes.TryGetValue(sessionId, out var remote))
-				{
+                if (_connectedRemotes.TryGetValue(sessionId, out var remote))
+                {
                     _logger.Debug($"CheckInAsync: SessionId={sessionId}, RemoteAddr={remote.RemoteEndPoint}");
 
                     remote.ResetSessionId();
 
-					_connectedRemotes.Remove(sessionId);
+                    _connectedRemotes.Remove(sessionId);
 
                     if (TblServerVariable.NetworkPooling)
                     {
                         _disconnectedRemotes.Enqueue(remote);
                     }
 
-					_acceptSemaphore.Release();
-					return true;
-				}
+                    _acceptSemaphore.Release();
+                    return true;
+                }
 
-				return false;
-			}
-		}
+                return false;
+            }
+        }
 
         public async Task<TcpRemote> FindAsync(long sessionId, bool needToLock = true)
         {
-			using (await _semaphoreLock.LockAsync(needToLock))
-			{
-				if (_connectedRemotes.TryGetValue(sessionId, out var remote))
+            using (await _semaphoreLock.LockAsync(needToLock))
+            {
+                if (_connectedRemotes.TryGetValue(sessionId, out var remote))
                 {
                     return remote;
                 }
-				else
+                else
                 {
                     return null;
                 }
-			}
+            }
         }
 
-		protected virtual void OnStart(Socket socket)
-		{
-		}
+        protected virtual void OnStart(Socket socket)
+        {
+        }
 
-		protected virtual void OnStop()
-		{
-		}
+        protected virtual void OnStop()
+        {
+        }
 
-		protected virtual async Task OnAcceptAsync(TcpRemote remote)
-		{
-		}
+        protected virtual async Task OnAcceptAsync(TcpRemote remote)
+        {
+        }
 
-		protected virtual async Task OnCheckInAsync(TcpRemote remote)
-		{
-		}
+        protected virtual async Task OnCheckInAsync(TcpRemote remote)
+        {
+        }
 
         internal async Task RemoveCandidateAsync(TcpTransport candidate)
         {
@@ -466,29 +466,29 @@ namespace G.Network
 
         internal async Task AddToSuspendedAsync(TcpRemote remote)
         {
-	        if (remote == null)
-	        {
-		        return;
-	        }
+            if (remote == null)
+            {
+                return;
+            }
 
             _logger.Debug($"AddToSuspendedAsync: SessionId={remote.SessionId}");
 
             using (await _semaphoreLock.LockAsync())
             {
-	            if (!_suspendedRemotes.ContainsKey(remote.SessionId))
-	            {
-		            remote.SuspendedTime = SystemClock.Milliseconds;
-		            _suspendedRemotes.Add(remote.SessionId, remote);
-	            }
+                if (!_suspendedRemotes.ContainsKey(remote.SessionId))
+                {
+                    remote.SuspendedTime = SystemClock.Milliseconds;
+                    _suspendedRemotes.Add(remote.SessionId, remote);
+                }
             }
         }
 
         internal async Task RemoveFromSuspendedAsync(TcpRemote remote)
         {
-	        if (remote == null)
-	        {
-		        return;
-	        }
+            if (remote == null)
+            {
+                return;
+            }
 
             using (await _semaphoreLock.LockAsync())
             {
@@ -500,7 +500,7 @@ namespace G.Network
         {
             using (await _semaphoreLock.LockAsync())
             {
-	            TcpRemote remote = null;
+                TcpRemote remote = null;
 
                 // First, find in _suspendedRemotes.
                 if (_suspendedRemotes.TryGetValue(sessionId, out remote))
@@ -522,25 +522,25 @@ namespace G.Network
 
         internal async Task<TcpRemote> AllocateNewRemoteAsync(TcpTransport transport)
         {
-	        var now = SystemClock.Milliseconds;
+            var now = SystemClock.Milliseconds;
 
-	        TcpRemote remote = null;
+            TcpRemote remote = null;
             using (await _semaphoreLock.LockAsync())
             {
-	            if (TblServerVariable.NetworkPooling)
-	            {
-		            if (_disconnectedRemotes.TryPeek(out remote))
-	                {
-	                    if (now >= remote.UsableTime)
-	                    {
-	                        _disconnectedRemotes.Dequeue();
-	                    }
-	                    else
-	                    {
-	                        remote = null;
-	                    }
-	                }
-	            }
+                if (TblServerVariable.NetworkPooling)
+                {
+                    if (_disconnectedRemotes.TryPeek(out remote))
+                    {
+                        if (now >= remote.UsableTime)
+                        {
+                            _disconnectedRemotes.Dequeue();
+                        }
+                        else
+                        {
+                            remote = null;
+                        }
+                    }
+                }
 
                 if (remote == null)
                 {
@@ -604,5 +604,5 @@ namespace G.Network
 
             return false;
         }
-	}
+    }
 }

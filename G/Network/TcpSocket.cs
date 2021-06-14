@@ -42,7 +42,7 @@ namespace G.Network
         public int Port;
         public IPEndPoint EndPoint;
 
-		public IPEndPoint RemoteEndPoint { get; private set; }
+        public IPEndPoint RemoteEndPoint { get; private set; }
 
         public bool IsConnected => Transport.IsConnected || IsSuspended;
         public bool IsSuspended => SuspendedTime > 0;
@@ -68,11 +68,11 @@ namespace G.Network
         //protected SemaphoreSlim _semaphoreConn = new SemaphoreSlim(1, 1);
 
         // These can be accessed by TcpServer
-		internal TcpServer Server;
+        internal TcpServer Server;
 
         private int _wasDisconnectCalled;
 
-		//todo 상태 관리로 처리하는게 바람직해보임!
+        //todo 상태 관리로 처리하는게 바람직해보임!
         private bool _waitForInitialAck = false;
 
         // 보내기 작업 관련한 락
@@ -355,7 +355,7 @@ namespace G.Network
 
                 //todo 상태로 처리하도록 하자.
 
-				// In the reconnection situation, immediately after authentication,
+                // In the reconnection situation, immediately after authentication,
                 // it should be in a state of waiting for the other party's ack.
                 if (_waitForInitialAck)
                 {
@@ -468,7 +468,7 @@ namespace G.Network
 
             // Send ack if there is no recently sent ack or less than received seq.
             if (LastSentAck == null ||
-				SeqNumberHelper32.Less(LastSentAck.Value, LastRecvSeq.Value + 1))
+                SeqNumberHelper32.Less(LastSentAck.Value, LastRecvSeq.Value + 1))
             {
                 SendAck(LastRecvSeq.Value + 1);
             }

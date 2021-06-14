@@ -425,7 +425,7 @@ namespace G.Network
         public void SendMessage(OutgoingMessage message, bool sendingFirst = false)
         {
             string bodyTypeName = message.Body != null ? $":{message.Body.GetType().ToString()}" : "";
-            _logger.Debug($"{RemoteEndPoint}.SendMessage: MessageType={message.MessageType}{bodyTypeName}");
+            _logger.Debug($"{RemoteEndPoint}.SendMessage: {message}");
 
             if (!sendingFirst && !IsEstablished)
             {
@@ -678,14 +678,14 @@ namespace G.Network
                                 // when an Ack is received or the connection is completely disconnected.
                                 if (!m.Seq.HasValue)
                                 {
-                                    _logger.Debug($"SENT AND CONSUME message: {m.MessageType}:{m.Body}");
+                                    _logger.Debug($"SENT AND CONSUME message: {m}");
 
                                     // There is no further reference, so we return it into pool here.
                                     m.Return();
                                 }
                                 else
                                 {
-                                    _logger.Debug($"SENT AND KEEP message: {m.MessageType}:{m.Body}");
+                                    _logger.Debug($"SENT AND KEEP message: {m}");
                                 }
                             }
                         }
@@ -714,14 +714,14 @@ namespace G.Network
                                     // when an Ack is received or the connection is completely disconnected.
                                     if (!m.Seq.HasValue)
                                     {
-                                        _logger.Debug($"SENT AND FLUSH MESSAGE: {m.MessageType}:{m.Body}");
+                                        _logger.Debug($"SENT AND FLUSH MESSAGE: {m}");
 
                                         // There is no further reference, so we return it into pool here.
                                         m.Return();
                                     }
                                     else
                                     {
-                                        _logger.Debug($"SENT AND KEEP MESSAGE: {m.MessageType}:{m.Body}");
+                                        _logger.Debug($"SENT AND KEEP MESSAGE: {m}");
                                     }
 
                                     sent -= length;

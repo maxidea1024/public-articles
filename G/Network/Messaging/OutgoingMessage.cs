@@ -203,8 +203,8 @@ namespace G.Network.Messaging
 
                             // Replace body to compressed.
                             PackedBody = compressed;
-							//todo 압축 버퍼를 풀링했을 경우 풀에 반납해줘야하므로...
-							//_pooledCompressedBuffer = compressed.Array;
+                            //todo 압축 버퍼를 풀링했을 경우 풀에 반납해줘야하므로...
+                            //_pooledCompressedBuffer = compressed.Array;
                         }
                     }
                 }
@@ -265,9 +265,9 @@ namespace G.Network.Messaging
                 // Replace body to compressed.
                 PackedBody = compressed;
 
-				//todo 압축 버퍼를 풀링했을 경우 풀에 반납해줘야하므로...
-				//기존에 압축했던 버퍼는 풀에 반납해야함!
-				//_pooledCompressedBuffer = compressed.Array;
+                //todo 압축 버퍼를 풀링했을 경우 풀에 반납해줘야하므로...
+                //기존에 압축했던 버퍼는 풀에 반납해야함!
+                //_pooledCompressedBuffer = compressed.Array;
             }
 
             // Reencryption
@@ -421,8 +421,35 @@ namespace G.Network.Messaging
 
         public override string ToString()
         {
-            //todo Stringify로 처리하는게 좋을듯..
-            return JsonSerializer.Serialize(this);
+            var sb = Stringify.Begin();
+
+            Stringify.Append(sb, "MessageType", MessageType);
+
+            if (Body != null)
+                Stringify.Append(sb, "Body", Body);
+
+            if (KeyIndex != KeyIndex.None)
+                Stringify.Append(sb, "KeyIndex", KeyIndex);
+
+            if (RemoteEncryptionKeyIndex != KeyIndex.None)
+                Stringify.Append(sb, "RemoteEncryptionKeyIndex", RemoteEncryptionKeyIndex);
+
+            if (Seq != null)
+                Stringify.Append(sb, "Seq", Seq.Value);
+
+            if (Ack != null)
+                Stringify.Append(sb, "Ack", Ack.Value);
+
+            if (SessionId != 0)
+                Stringify.Append(sb, "SessionId", SessionId);
+
+            if (UserSuid != 0)
+                Stringify.Append(sb, "UserSuid", UserSuid);
+
+            if (CompressionType != CompressionType.None)
+                Stringify.Append(sb, "CompressionType", CompressionType);
+
+            return Stringify.End(sb);
         }
     }
 }

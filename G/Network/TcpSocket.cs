@@ -341,7 +341,7 @@ namespace G.Network
 
                         if (SeqNumberHelper32.Less(m.Seq.Value, ack))
                         {
-                            _logger.Debug($"...Purge sent message: Message={m.MessageType}:{m.Body}, Seq={m.Seq.Value}");
+                            _logger.Debug($"...Purge sent message: Message={m}");
 
                             // Dequeue and return into pool.
                             _sent.Dequeue().Return();
@@ -373,7 +373,7 @@ namespace G.Network
                             if (SeqNumberHelper32.LessOrEqual(ack, m.Seq.Value))
                             {
                                 // Resend a message that has already been sent but has not been received by the other party
-                                _logger.Debug($"...Resend a message: Message={m.MessageType}:{m.Body}, Seq={m.Seq.Value}");
+                                _logger.Debug($"...Resend a message: Message={m}");
 
                                 Transport.SendMessage(m);
                             }

@@ -17,7 +17,7 @@ namespace G.Network
     {
         private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private const int HouseKeepingInterval = 1_000;
+        private const int HouseKeepingInterval = 5_000;
 
         //todo 세션 오버랩되는 이슈가 있을수 있어서, 10초 정도로 조정
         //근본적으로는 userUID로 기존 suspended remote객체를 제거하는게 좋을듯.
@@ -39,11 +39,11 @@ namespace G.Network
         protected SemaphoreLock _semaphoreLock = new SemaphoreLock(TimeSpan.FromSeconds(30));
         //protected readonly AsyncLock _semaphoreLock = new AsyncLock();
 
-        private Queue<TcpRemote> _disconnectedRemotes = new Queue<TcpRemote>();
-        private Dictionary<long, TcpRemote> _connectedRemotes = new Dictionary<long, TcpRemote>();
+        private readonly Queue<TcpRemote> _disconnectedRemotes = new Queue<TcpRemote>();
+        private readonly Dictionary<long, TcpRemote> _connectedRemotes = new Dictionary<long, TcpRemote>();
 
-        private Dictionary<long, TcpRemote> _suspendedRemotes = new Dictionary<long, TcpRemote>();
-        private List<TcpTransport> _candidates = new List<TcpTransport>();
+        private readonly Dictionary<long, TcpRemote> _suspendedRemotes = new Dictionary<long, TcpRemote>();
+        private readonly List<TcpTransport> _candidates = new List<TcpTransport>();
 
         public int DisconnectedRemoteCount => _disconnectedRemotes.Count;
         public int ConnectedRemoteCount => _connectedRemotes.Count;
@@ -51,12 +51,10 @@ namespace G.Network
 
         internal UID64Generator _sessionIdGenerator = new UID64Generator(0, 0, 0);
 
-
         // Stats
         internal long _firstConnects = 0;
         internal long _tryReconnects = 0;
         internal long _reconnectFails = 0;
-
 
         //todo remove gc
         public async Task<TcpRemote[]> GetAllRemotesAsync()
@@ -186,8 +184,10 @@ namespace G.Network
             timeout ??= TimeSpan.FromSeconds(10);
 
             _cts?.Cancel();
+            _cts = null;
 
             _listener.Dispose();
+            _listener = null;
 
             OnStop();
 
@@ -241,33 +241,55 @@ namespace G.Network
                 long outgoingUsedCount = outgoingMessageTotalRentCount - outgoingMessageTotalReturnCount;
                 long incomingUsedCount = incomingMessageTotalRentCount - incomingMessageTotalReturnCount;
 
+                long connectedRemoteCount = 0;
+                long suspendedRemoteCount = 0;
+                long candidateCount = 0;
+                long disconnectedRemoteCount = 0;
+                long firstConnectCount = 0;
+                long tryReconnectCount = 0;
+                long reconnectFailCount = 0;
+
+                //_semaphoreLock 락을 잡은 상태에서 로그를 찍다보면 쳐박히는 문제가 있다.
+
                 using (await _semaphoreLock.LockAsync())
                 {
-                    //todo 통계 수치 항목을 추가하자.
-                    // - 재접속 시도 횟수
-                    // - 신규 접속 횟수
-                    // - 전체 송신량
-                    // - 전체 수신량
-                    // - 전체 연결 횟수
-                    // - 전체 해제 횟수
-                    // - 메시지 객체 풀링 상태
-
-                    string poolingFlag = TblServerVariable.NetworkPooling ? "ON" : "OFF";
-                    _logger.Info($"SESSIONS   > Connecteds={_connectedRemotes.Count}, Suspendeds={_suspendedRemotes.Count}, Candidates={_candidates.Count}, Disconnecteds={_disconnectedRemotes.Count}, FirstConnects={_firstConnects}, TryReconnects={_tryReconnects}, ReconnectFails={_reconnectFails} (POOLING:{poolingFlag})");
-
-                    _logger.Info($"MESSAGEPOOL> Outgoing=(Useds={outgoingUsedCount},Rents={outgoingMessageTotalRentCount},Returns={outgoingMessageTotalReturnCount}), Incoming=(Used={incomingUsedCount},Rents={incomingMessageTotalRentCount},Returns={incomingMessageTotalReturnCount})");
+                    connectedRemoteCount = _connectedRemotes.Count;
+                    suspendedRemoteCount = _suspendedRemotes.Count;
+                    candidateCount = _candidates.Count;
+                    disconnectedRemoteCount = _disconnectedRemotes.Count;
+                    firstConnectCount = _firstConnects;
+                    tryReconnectCount = _tryReconnects;
+                    reconnectFailCount = _reconnectFails;
                 }
 
+                //todo 통계 수치 항목을 추가하자.
+                // - 재접속 시도 횟수
+                // - 신규 접속 횟수
+                // - 전체 송신량
+                // - 전체 수신량
+                // - 전체 연결 횟수
+                // - 전체 해제 횟수
+                // - 메시지 객체 풀링 상태
+
+                string poolingFlag = TblServerVariable.NetworkPooling ? "ON" : "OFF";
+                _logger.Info($"SESSIONS   > Connecteds={connectedRemoteCount}, Suspendeds={suspendedRemoteCount}, Candidates={candidateCount}, Disconnecteds={disconnectedRemoteCount}, FirstConnects={firstConnectCount}, TryReconnects={tryReconnectCount}, ReconnectFails={reconnectFailCount} (POOLING:{poolingFlag})");
+
+                _logger.Info($"MESSAGEPOOL> Outgoing=(Useds={outgoingUsedCount},Rents={outgoingMessageTotalRentCount},Returns={outgoingMessageTotalReturnCount}), Incoming=(Useds={incomingUsedCount},Rents={incomingMessageTotalRentCount},Returns={incomingMessageTotalReturnCount})");
+
+
                 // Purge all expired suspended remotes.
+                _logger.Debug("  + PurgeExpiredSuspendedRemotesAsync...");
                 await PurgeExpiredSuspendedRemotesAsync();
 
                 // Purge all expired candidates.
+                _logger.Debug("  + PurgeExpiredCandidatesAsync...");
                 await PurgeExpiredCandidatesAsync();
 
                 // Purge all long idle remotes.
+                _logger.Debug("  + PurgeLongIdleRemotesAsync...");
                 await PurgeLongIdleRemotesAsync();
 
-                //DebugList.Add(rented);
+                _logger.Debug("  + DebugListLock...");
                 lock (OutgoingMessage.DebugListLock)
                 {
                     if (OutgoingMessage.DebugList.Count > 0)
@@ -278,7 +300,7 @@ namespace G.Network
                         {
                             var m = OutgoingMessage.DebugList[i];
 
-                            _logger.Debug($"  #{i+1} => {m.MessageType}:{m.Body.GetType().ToString()}");
+                            _logger.Debug($"  #{i+1} => {m}");
                         }
                     }
                 }
@@ -360,7 +382,7 @@ namespace G.Network
             }
         }
 
-        internal async Task CheckOutAsync(Socket acceptedSocket)
+        private async Task CheckOutAsync(Socket acceptedSocket)
         {
             TcpTransport transport = null;
 
@@ -389,7 +411,10 @@ namespace G.Network
             {
                 _logger.Error(e.Message);
 
-                await transport.DisconnectAsync();
+                if (transport != null)
+                {
+                    await transport.DisconnectAsync();
+                }
 
                 _acceptSemaphore.Release();
 

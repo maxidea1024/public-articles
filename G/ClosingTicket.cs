@@ -157,6 +157,8 @@ namespace Lane.Realtime.Server.Internal
     }
 
 
+
+
     Task.Run(async () => await ProcessServerTasksAsync());
 
     // Task큐에 집어 넣어주고 빠진다.
@@ -306,6 +308,7 @@ namespace Lane.Realtime.Server.Internal
                 _logger.Log($"Call HardCloseClient({client.LinkID}) in `{calledWhere}`.");
             }
 
+            //todo 얘도 풀링해야하나?
             client.ClosingTicket = new ClosingTicket
             {
                 CreatedTime = HeartbeatTime,
@@ -360,9 +363,7 @@ namespace Lane.Realtime.Server.Internal
 
         //todo 각각의 task큐에 이벤트를 넣어주고 async-await로 처리하면 되는..
 
-        lock (client._taskQueueLock)
-        {
-            client._taskQueue.Enqueue(new ServerLocalEvent
+        client.EnqueueEvent(new ServerLocalEvent
             {
                 Type = ServerLocalEventType.ClientDisposed,
                 Status = new RtStatus
@@ -376,7 +377,6 @@ namespace Lane.Realtime.Server.Internal
                 LinkId = client.LinkId,
                 SocketError = socketError
             });
-        }
 
         //EnqueueTask(client.LinkId,
         //    new ServerLocalEvent
@@ -459,6 +459,7 @@ namespace Lane.Realtime.Server.Internal
                 foreach (var client in garbages)
                 {
                     _hardClosingRequestedClients.Remote(client); // 키로 제거하는게 좋을듯..
+
                     UnsafeDisposeClient(client);
                 }
             }
@@ -897,4 +898,179 @@ namespace Lane.Realtime.Server.Internal
     {
         //todo
         //서버 태스크 큐에 집어넣어주자.
+    }
+
+
+
+    private void EnqueueTask(LinkId taskOwnerId, LocalEvent localEvent)
+    {
+        var workItem = new UserWorkItem(localEvent);
+        EnqueueTask(taskOwnerId, workItem);
+    }
+
+    private void EnqueueTask(LinkId taskOwnerId, UserWorkItemType type, IncomingMessage receivedMessage)
+    {
+        var workItem = new UserWorkItem(receivedMessage, type);
+        EnqueueTask(taskOwnerId, workItem);
+    }
+
+    private void EnqueueTask(LinkId taskOwnerId, UserWorkItem workItem)
+    {
+        if (taskOwnerId == LinkId.None)
+            return;
+
+        if (workItem == null)
+            return;
+
+        if (taskOwnerId == LinkId.Server)
+        {
+            ServerTaskQueue.Enqueue(workItem);
+            return;
+        }
+
+        lock (_mainLock)
+        {
+            var client = GetClient(taskOwnerId);
+            if (client != null)
+            {
+                client.TaskQueue.Enqueue(workItem);
+                return;
+            }
+
+            var group = GetGroup(taskOwnerId);
+            if (group != null)
+            {
+                group.TaskQueue.Enqueue(workItem);
+                return;
+            }
+        }
+    }
+
+    private async Task DoUserWorkAsync(UserWorkItem workItem)
+    {
+        try
+        {
+            if (workItem.Type == UserWorkItem.RPC)
+            {
+                await DoRpcAsync(workItem);
+            }
+            else if (workItem.Type == UserWorkItem.LocalEvent)
+            {
+                await DoLocalEventAsync(workItem);
+            }
+            else
+            {
+                // do something...
+            }
+        }
+        catch (Exception e)
+        {
+        }
+    }
+
+    private async Task DoLocalEventAsync(UserWorkItem workItem)
+    {
+        var localEvent = workItem.LocalEvent;
+
+        try
+        {
+            if (localEvent.Type == LocalEventType.ClientJoinDetermine)
+            {
+                byte[] reply = null;
+                bool approved = true;
+
+                if (HasConnectionRequestCallback)
+                {
+                    approved = await InvokeConnectionRequestCallback(localEvent.RemoveEndPoint, localEvent.UserData, out reply);
+                }
+
+                //fixme 메인락을 잡고 들어가므로, 핸들러에서 시간이 오래걸리면 문제가 생김.
+                using (_mainLock)
+                {
+                    var client = GetCandidateByTcpAddress(localEvent.RemoteEndPoint);
+                    if (client != null)
+                    {
+                        HandleConnectionJoinApproved(client, reply);
+                    }
+                    else
+                    {
+                        HandleConnectionJoinRejected(client, reply);
+                    }
+                }
+            }
+            else if (localEvent.Type == LocalEventType.ClientJoinApproved)
+            {
+                await InvokeClientJoinedCallbackAsync(localEvent.ClientInfo);
+            }
+            else if (localEvent.Type == LocalEventType.ClientDispose)
+            {
+                await InvokeClientLeftCallbackAsync(localEvent.ClientInfo, localEvent.Status, localEvent.UserData);
+            }
+            else if (localEvent.Type == LocalEventType.Information)
+            {
+                await InvokeInformationCallbackAsync(localEvent.Status);
+            }
+            else if (localEvent.Type == LocalEventType.Warning)
+            {
+                await InvokeWarningCallbackAsync(localEvent.Status);
+            }
+            else if (localEvent.Type == LocalEventType.Error)
+            {
+                await InvokeErrorCallbackAsync(localEvent.Status);
+            }
+            else
+            {
+                // What?
+            }
+        }
+        catch (Exception e)
+        {
+            //todo 이중으로 오류가 발생한다면?
+            try
+            {
+                await InvokeExceptionCallbackAsync(localEvent.RemoteId, e);
+            }
+            catch (Exception e2)
+            {
+                //todo Double exception. 를 로그에 기록해주자.
+            }
+
+            //어쨌거나 연결을 끊어야하는거 아닌가?
+        }
+    }
+
+    private void HandleConnectionJoinApproved(RemoteClient client, byte[] reply)
+    {
+        // 이미 메인락을 잡고 들어옴.
+
+        LinkId linkId = _linkIdAllocator.Allocate(HeartbeatTime);
+        client.LinkId = linkId;
+
+        _candidates.Remove(client);
+        _clients.Add(linkId, client);
+
+        // Send `ConnectToServerSuccess` message to client.
+        var response = new MessageOut();
+        response.Write(CoreMessageType.ConnectToServerSuccess);
+        response.Write(linkId);
+        response.Write(_serverInstanceId);
+        response.Write(reply);
+        response.Write(client.ExternalAddress);
+        client.SendMessage(response);
+
+        EnqueueLocalEvent(new ServerLocalEvent
+        {
+            Type = LocalEventType.ClientJoinApproved,
+            ClientInfo = client.GetInfo()
+        });
+    }
+
+    private void HandleConnectionJoinRejected(RemoteClient client, byte[] reply)
+    {
+        // 이미 메인락을 잡고 들어옴.
+
+        RejectCandidateConnection(client,
+            RtSttusCodes.ConnectToServerDenied,
+            reply: reply,
+            calledWhere: "HandleConnectionJoinRejectedAsync");
     }

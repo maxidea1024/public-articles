@@ -9,13 +9,9 @@ namespace Lane.Realtime.Server.Internal
     internal class ClosingTicket
     {
         public int Reason { get; set; }
-
         public string Detail { get; set; }
-
         public byte[] ShutdownComment { get; set; }
-
         public long CreatedTime { get; set; }
-
         public SocketError SocketError { get; set; }
     }
 }
@@ -28,7 +24,8 @@ namespace Lane.Realtime.Server.Internal
 
     public RtServer(RtServerOptions serverOptions)
     {
-        //todo 이건 Start에서 해주는게 맞지 않나?
+        ServerOptions = PreValidations.CheckNotNull(serverOptions).Clone();
+        ServerOptions.Validates();
 
         // 그룹을 미리 만들어 놓아야할 경우.
         if (serverOptions.PreAssignedGroupIdStart > LinkId.Last &&
@@ -41,17 +38,37 @@ namespace Lane.Realtime.Server.Internal
 
             for (int i = 0; i < ServerOptions.PreAssignedGroupIdCount; i++)
             {
-                //todo
-                //그룹을 미리 만들어둔다.
-                //해당 그룹은 방과 같은 개념이다.
+                LinkId groupId = ServerOptions.PreAssignedGroupIdStart + i;
+                CreateGroup(null, null, null, groupId);
+            }
+        }
+        else
+        {
+            if (ServerOptions.PreferPooledIDGeneration)
+            {
+                _linkIDAllocator = new RoundRobinLinkIDAllocator();
+            }
+            else
+            {
+                _linkIDAllocator = new PooledLinkIDAllocator(200); //todo 이 don't time도 설정할 수 있게 빼주자.
             }
         }
 
+        // Set server instance uid
         _serverInstanceId = Guid.NewGuid();
 
-        //todo 내부 메시지를 보내는데 구지 RPC를 사용할 필요는 없어보임.
+        _proxyS2C = new RealtimeEngine.ProxyS2C { InternalUseOnly = true };
+        _stubC2S = new RealtimeEngine.StubC2S
+        {
+            InternalUseOnly = true,
+            ShutdownTcpAsync = StubShutdownTcpAsync,
+            ShutdownTcpHandshake = StubShutdownTcpHandshakeAsync,
+            ReportClientCoreLogsToServerAsync = Stub_ReportClientCoreLogsToServerAsync,
+        };
 
-        // 미리 만들어둔다.
+        BindProxy(_proxyS2C);
+        BindStub(_stubC2S);
+
         _remoteConnectionConfig = new RemoteConnectionConfig
         {
             PingInterval = ServerOptions.PingInterval,
@@ -63,6 +80,8 @@ namespace Lane.Realtime.Server.Internal
     // 시작을 하는데 딱히 준비할게 없네?
     public async Task StartAsync()
     {
+        //todo 여기서 그룹을 만들고 하는게 맞으려나?
+
         using (_mainLock)
         {
             if (_listeners.Count > 0)
@@ -157,7 +176,7 @@ namespace Lane.Realtime.Server.Internal
     }
 
 
-
+    // 동일한 태스크를 어디에 넣어주느냐에 따라서 실행 환경이 달라진다.
 
     Task.Run(async () => await ProcessServerTasksAsync());
 
@@ -225,16 +244,18 @@ namespace Lane.Realtime.Server.Internal
         //EnqueueTask(LinkId.Server, localEvent);
     }
 
-    public bool SetRemoteTag(LinkId remoteId, object tag)
+    public bool SetTag(LinkId remoteId, object tag)
     {
         lock (_mainLock)
         {
+            // 설정 대상이 서버라면.
             if (remoteId == LinkId.Server)
             {
                 _serverTag = tag;
                 return true;
             }
 
+            // 설정 대상이 클라이언트라면.
             var client = GetClient(remoteId);
             if (client != null)
             {
@@ -242,6 +263,7 @@ namespace Lane.Realtime.Server.Internal
                 return true;
             }
 
+            // 설정 대상이 그룹이라면.
             var group = GetGroup(remoteId);
             if (group != null)
             {
@@ -261,9 +283,14 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
+    // 서버가 시작 되었음을 확인.
     private void CheckServerStarted(string calledWhere)
     {
-        // 서버가 시작 되었음을 확인하는..
+    }
+
+    // 서버가 시작 안되었음을 확인.
+    private void CheckServerNotStarted(string calledWhere)
+    {
     }
 
     // RpcProxy로 메시지를 보낼때 사용하는 전용 함수.
@@ -272,6 +299,7 @@ namespace Lane.Realtime.Server.Internal
         // 메시지를 어떤식으로 처리해야 자연스러울까?
     }
 
+    // 현재 접속되어 있는 클라이언트들의 목록을 조회함.
     public int GetClientIds(ref List<LinkId> clientIds)
     {
         clientIds.Clear();
@@ -287,7 +315,8 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
-    internal void HardCloseConnection(RemoteClient client,
+    // 강제로 끊기
+    internal void HardCloseClient(RemoteClient client,
                                     int reason,
                                     string detail = "",
                                     byte[] comment = null,
@@ -326,12 +355,15 @@ namespace Lane.Realtime.Server.Internal
             client.Transport.CloseSocketHandleOnly();
 
             // 너무 자주 끊기는지 여부 확인. (버그 확인을 위함)
-            CheckTooShortClosingClient(client, "HardCloseConnection");
+            CheckTooShortClosingClient(client, "HardCloseClient");
         }
     }
 
+    // 접속하자마자 연결이 끊기는 경우인지 체크.
+    // 버그로 인해서 끊기는 상황일 수 있으므로, 확인하기 편할 수 있다.
     private void CheckTooShortClosingClient(RemoteClient client, string calledWhere)
     {
+        // 중복 호출 막기
         if (client.DisposeCaller != null)
         {
             return;
@@ -346,12 +378,14 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
+    // 클라이언트가 끊긴 이벤트를 큐잉한다.
     private void EnqueueClientLeftEvent(RemoteClient client,
                                 int reason,
                                 string detail,
                                 byte[] comment,
                                 ocketError socketError)
     {
+        // Candidate는 이벤트를 통지 받지 않는다.
         if (client.LinkId == LinkId.None)
         {
             return;
@@ -395,19 +429,23 @@ namespace Lane.Realtime.Server.Internal
         //    });
     }
 
-    // Soft closing모드에서 너무 오래 머무르고 있으면 강제로 Hard closing모드로 전환한다.
+    /// <summary>
+    /// Soft closing모드에서 너무 오래 머무르고 있으면 강제로 Hard closing모드로 전환한다.
+    /// </summary>
     private void SwitchToHardClosingModeIfSoftClosingGoesTooLongClient(RemoteClient client)
     {
         if (client.SoftClosingRequestedTime != 0 &&
             (HeartbeatTime - client.SoftClosingRequestedTime) > NetworkConfig.ClientSoftClosingTimeout)
         {
-            client.SoftClosingRequestedTime = 0;
-
             if (_logger != null)
             {
                 _logger.Log($"Client {client.RemoteId} is asked to disconnect by itself, but the connection is not disconnected for {NetworkConfig.ClientSoftClosingTimeout}ms, so it switches to forced disconnect mode.");
             }
 
+            // Soft-closing 모드는 해제한다.
+            client.SoftClosingRequestedTime = 0;
+
+            // Hard-closing 모드로 전환한다.
             HardCloseClient(client,
                     reason: RtStatusCodes.DisconnectFromLocal,
                     detail: "",
@@ -416,7 +454,9 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
-    // Hard closing 모드에 있는 리모트들을 정리한다.
+    /// <summary>
+    /// Hard closing 모드에 있는 리모트들을 정리한다.
+    /// </summary>
     private void PurgeHardClosingRequestedClients()
     {
         lock (_mainLock)
@@ -432,6 +472,8 @@ namespace Lane.Realtime.Server.Internal
                 var client = pair.Key;
                 var requestedTime = pair.Value;
 
+                // 너무 오랫동안 머물고 있는 경우에는 경고를 내주어서 해당 내용을 알 수 있도록 해주자.
+
                 // 필요에 의해서 홀드 카운터를 올린 경우.
                 bool isHeld = client.HoldingCount > 0;
 
@@ -445,7 +487,7 @@ namespace Lane.Realtime.Server.Internal
                 nool hasPendingIOs = isSending || isReceiving;
 
                 // 아직 처리중인 작업이 있는지.
-                bool hasPendingTasks = client.PendingTaskCount > 0; //너무 오랫동안 대기할 경우에는 워닝을..
+                bool hasPendingTasks = client.PendingTaskCount > 0;
 
                 if (!isHeld && !hasPendingIOs && !hasPendingTasks)
                 {
@@ -466,8 +508,9 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
-    // 지정한 클라이언트를 제거함.
-    // 직접 호출하면 안됨.
+    /// <summary>
+    /// 지정한 클라이언트를 제거함. 직접 호출하면 안됨.
+    /// </summary>
     private void UnsafeDisposeClient(RemoteClient client)
     {
         // 전송 큐에서 제거함.
@@ -499,10 +542,15 @@ namespace Lane.Realtime.Server.Internal
         }
         else
         {
+            //todo 이게 맞는걸까?
+            //여기까지 올수가 있긴하네...
             _candidates.Remote(client.LinkId);
         }
     }
 
+    /// <summary>
+    /// 너무 오랜기간동안 승인받지 못한 Candidate들을 제거한다.
+    /// </summary>
     private void PurgeTooLongUnmaturedCandidates()
     {
         List<RemoteClient> list = null;
@@ -549,8 +597,10 @@ namespace Lane.Realtime.Server.Internal
                 // 이게 크리티컬 하구나.
                 // 여러군대 보낼때는 메시지를 클론해서 보내야한다는 얘긴데?
                 // 동일한 메시지를 여러군데 보낼때는 어떻게 처리할지를 생각해보는 맞을듯한데...??
-                client.SendMessage(kickMessage);
+
                 client.DecreaseHoldingCount();
+
+                client.SendMessage(kickMessage);
 
                 HardCloseClient(client,
                         reason: RtStatusCodes.DisconnectFromLocal,
@@ -561,6 +611,9 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
+    /// <summary>
+    ///
+    /// </summary>
     private void HardCloseClient(RemoteClient client,
                                 int reason,
                                 string detail = "",
@@ -592,13 +645,12 @@ namespace Lane.Realtime.Server.Internal
 
             EnqueueClientLeftEvent(client, reason, detail, comment, socketError);
 
-            // 여기서 소켓을 닫아줘야 pending io 상태가 해제됨.
+            // Close the socket here to release the pending I/O state.
             client.Transport.CloseSocketHandleOnly();
 
             CheckTooShortClosingClient(client, "HardCloseClient");
         }
     }
-
 
     internal OutgoingMessage MakeConnectToServerRejectedMessage(int reason, string detail = null, byte[] reply = null)
     {
@@ -629,9 +681,7 @@ namespace Lane.Realtime.Server.Internal
         get
         {
             lock (_mainLock)
-            {
                 return _clients.Count;
-            }
         }
     }
 
@@ -640,9 +690,7 @@ namespace Lane.Realtime.Server.Internal
         get
         {
             lock (_mainLock)
-            {
                 return _candidates.Count;
-            }
         }
     }
 
@@ -651,14 +699,12 @@ namespace Lane.Realtime.Server.Internal
         get
         {
             lock (_mainLock)
-            {
                 return _suspendeds.Count;
-            }
         }
     }
 
-    // 연결된 모든 클라이언트를 닫아줌.
-    // 바로 닫히지는 않고 Soft closing -> Hard closing 과정을 거친 후 접속이 해제됨.
+    // Close all connected clients.
+    // It does not close immediately, but after going through the Soft-closing -> Hard-closing process, the connection is released.
     public void CloseAllClients()
     {
         lock (_mainLock)
@@ -675,7 +721,9 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
-    // 지정한 클라이언트를 닫아줌.
+    /// <summary>
+    /// Close the specified client.
+    /// </summary>
     public void CloseClient(LinkId clientId)
     {
         using (_mainLock)
@@ -694,7 +742,9 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
-    // main lock을 걸고 들어오므로 안전함.
+    /// <summary>
+    /// main lock을 걸고 들어오므로 안전함.
+    /// </summary>
     private void RequestSoftClosingToClient(RemoteClient client)
     {
         if (client.SoftClosingRequestedTime != 0)
@@ -710,6 +760,9 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
+    /// <summary>
+    /// Create a group.
+    /// </summary>
     public LinkId CreateGroup(LinkId[] members = null, RtGroupOptions = null, byte[] userData = null, LinkId preAssignedLinkId = LinkId.None)
     {
         options ??= new RtGroupOptions();
@@ -720,6 +773,9 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
+    /// <summary>
+    /// Join the specified member to the group.
+    /// </summary>
     public bool JoinIntoGroup(LinkId groupId, LinkId memberId, byte[] userData = null)
     {
         if (userData == null)
@@ -760,6 +816,9 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
+    /// <summary>
+    /// 지정한 멤버를 그룹에서 내보낸다.
+    /// </summary>
     public bool LeaveGroup(LinkId groupId, LinkId memberId)
     {
         lock (_mainLock)
@@ -804,7 +863,8 @@ namespace Lane.Realtime.Server.Internal
 
     #region C2S RPC Stub
 
-    private async Task Stub_ShutdownTcpAsync(LinkId clientId, RtRpcContext context, byte[] comment)
+    // 클라이언트가 먼저 연결을 끊는 경우, ShutdownTcp를 서버에 요청한다.
+    private async Task StubShutdownTcpAsync(LinkId clientId, RtRpcContext context, byte[] comment)
     {
         lock (_mainLock)
         {
@@ -816,10 +876,12 @@ namespace Lane.Realtime.Server.Internal
         }
 
         // RPC를 사용하지 않고 직접 메시지를 보내도 되지 않을까?
-        _proxyS2C.ShutdownTcpAck(remote, RtRpcCallOptions.ReliableCoreOnly);
+        _proxyS2C.ShutdownTcpAck(clientId, RtRpcCallOptions.ReliableCoreOnly);
     }
 
-    private async Task Stub_ShutdownTcpHandshakeAsync(LinkId clientId, RtRpcContext context)
+    // 클라에서 ShutdownTcp를 받은 직후 서버는 연결을 끊게되며,
+    // 클라가 끊을때 보낸 comment(사용자 메시지)를 핸들러로 넘겨받게 된다.
+    private async Task StubShutdownTcpHandshakeAsync(LinkId clientId, RtRpcContext context)
     {
         lock (_mainLock)
         {
@@ -837,17 +899,23 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
-    private async Task Stub_ReportClientCoreLogsToServerAsync(LinkId clientId, RtRpcCotnext context, string message)
+    // 클라디버깅을 위해서, 옵션이 활설화 되었을 경우 서버에서 클라의 내부 로그를 수집한다.
+    private async Task StubReportClientCoreLogsToServerAsync(LinkId clientId, RtRpcCotnext context, string message)
     {
         if (_logger != null)
+        {
             _logger.Log($"[CLIENT {remote}] {message}");
+        }
     }
 
     #endregion
 
-    // 그룹 목록이 있을 경우에는 확장 시켜줘야함.
-    // 루프백도 지원할지 여부를 결정해야함.
-    // 최적화를 어떻게 할지에 대해서 고민해보는게 좋을듯한데..
+
+    /// <summary>
+    /// 그룹 목록이 있을 경우에는 확장 시켜줘야함.
+    /// 루프백도 지원할지 여부를 결정해야함.
+    /// 최적화를 어떻게 할지에 대해서 고민해보는게 좋을듯한데..
+    /// </summary>
     public override void ExpandSendToList(LinkId[] input, ref LinkId[] output)
     {
         lock (_mainLock)
@@ -893,31 +961,57 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
-    public override void EnqueueWarning(RtStatus info)
+    public override void EnqueueWarningEvent(RtStatus info)
     {
         //todo
         //서버 태스크 큐에 집어넣어주자.
     }
 
+    public override void EnqueueErrorEvent(RtStatus info)
+    {
+        //todo
+        //서버 태스크 큐에 집어넣어주자.
+    }
+
+    public override void EnqueueInformationEvent(RtStatus info)
+    {
+        //todo
+        //서버 태스크 큐에 집어넣어주자.
+    }
+
+
+    /// <summary>
+    /// 일감 하나를 요청함.
+    /// </summary>
     private void EnqueueTask(LinkId taskOwnerId, LocalEvent localEvent)
     {
         var workItem = new UserWorkItem(localEvent);
         EnqueueTask(taskOwnerId, workItem);
     }
 
+    /// <summary>
+    /// 일감 하나를 요청함.
+    /// </summary>
     private void EnqueueTask(LinkId taskOwnerId, UserWorkItemType type, IncomingMessage receivedMessage)
     {
         var workItem = new UserWorkItem(receivedMessage, type);
         EnqueueTask(taskOwnerId, workItem);
     }
 
+    /// <summary>
+    /// 일감 하나를 요청함.
+    /// </summary>
     private void EnqueueTask(LinkId taskOwnerId, UserWorkItem workItem)
     {
         if (taskOwnerId == LinkId.None)
+        {
             return;
+        }
 
         if (workItem == null)
+        {
             return;
+        }
 
         if (taskOwnerId == LinkId.Server)
         {
@@ -943,6 +1037,9 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
+    /// <summary>
+    /// 사용자 일감 하나를 처리함.
+    /// </summary>
     private async Task DoUserWorkAsync(UserWorkItem workItem)
     {
         try
@@ -965,6 +1062,9 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
+    /// <summary>
+    /// 로컬 이벤트 하나를 처리함.
+    /// </summary>
     private async Task DoLocalEventAsync(UserWorkItem workItem)
     {
         var localEvent = workItem.LocalEvent;
@@ -981,20 +1081,23 @@ namespace Lane.Realtime.Server.Internal
                     approved = await InvokeConnectionRequestCallback(localEvent.RemoveEndPoint, localEvent.UserData, out reply);
                 }
 
-                //fixme 메인락을 잡고 들어가므로, 핸들러에서 시간이 오래걸리면 문제가 생김.
                 using (_mainLock)
                 {
                     var client = GetCandidateByTcpAddress(localEvent.RemoteEndPoint);
                     if (client != null)
                     {
                         if (approved)
+                        {
                             HandleConnectionJoinApproved(client, reply);
+                        }
                         else
+                        {
                             HandleConnectionJoinRejected(client, reply);
+                        }
                     }
                 }
             }
-            else if (localEvent.Type == LocalEventType.ClientJoinApproved)
+            else if (localEvent.Type == LocalEventType.ClientJoined)
             {
                 await InvokeClientJoinedCallbackAsync(localEvent.ClientInfo);
             }
@@ -1035,6 +1138,9 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
+    /// <summary>
+    /// 연결이 승인되었음을 알림.
+    /// </summary>
     private void HandleConnectionJoinApproved(RemoteClient client, byte[] reply)
     {
         // 이미 메인락을 잡고 들어옴.
@@ -1061,12 +1167,59 @@ namespace Lane.Realtime.Server.Internal
         });
     }
 
+    /// <summary>
+    /// 연결이 거부 되었음을 알림.
+    /// </summary>
     private void HandleConnectionJoinRejected(RemoteClient client, byte[] reply)
     {
         // 이미 메인락을 잡고 들어옴.
 
         RejectCandidateConnection(client,
-            RtSttusCodes.ConnectToServerDenied,
-            reply: reply,
-            calledWhere: "HandleConnectionJoinRejectedAsync");
+                RtSttusCodes.ConnectToServerDenied,
+                reply: reply,
+                calledWhere: "HandleConnectionJoinRejectedAsync");
     }
+
+
+    #region Listening
+
+    private void StartListening()
+    {
+        if (ServerOptions.UseDynamicListeningPort)
+        {
+            //소켓을 여러게 만들고 처리하자.
+            var listener = new Socket();
+            _listeners.Add(listener);
+        }
+        else
+        {
+            foreach (int listeningPort in ServerOptions.ListeningPorts)
+            {
+                var listener = new RtTcpListener();
+                listener.NewConnection += OnNewConnection;
+                listener.StartListening(ServerOptions.ServerIp, listeningPort);
+
+                _listeners.Add(listener);
+            }
+        }
+    }
+
+    private void StopListening()
+    {
+        lock (_listeningLock)
+        {
+            if (_listeners != null)
+            {
+                foreach (var listener in _listeners)
+                {
+                    listener.CloseSocketHandleOnly();
+                }
+
+                _listeners.Clear();
+            }
+        }
+    }
+
+    //Accept async loop
+
+    #endregion

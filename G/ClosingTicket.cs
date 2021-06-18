@@ -893,14 +893,11 @@ namespace Lane.Realtime.Server.Internal
         }
     }
 
-
     public override void EnqueueWarning(RtStatus info)
     {
         //todo
         //서버 태스크 큐에 집어넣어주자.
     }
-
-
 
     private void EnqueueTask(LinkId taskOwnerId, LocalEvent localEvent)
     {
@@ -990,11 +987,10 @@ namespace Lane.Realtime.Server.Internal
                     var client = GetCandidateByTcpAddress(localEvent.RemoteEndPoint);
                     if (client != null)
                     {
-                        HandleConnectionJoinApproved(client, reply);
-                    }
-                    else
-                    {
-                        HandleConnectionJoinRejected(client, reply);
+                        if (approved)
+                            HandleConnectionJoinApproved(client, reply);
+                        else
+                            HandleConnectionJoinRejected(client, reply);
                     }
                 }
             }
@@ -1002,7 +998,7 @@ namespace Lane.Realtime.Server.Internal
             {
                 await InvokeClientJoinedCallbackAsync(localEvent.ClientInfo);
             }
-            else if (localEvent.Type == LocalEventType.ClientDispose)
+            else if (localEvent.Type == LocalEventType.ClientLeft)
             {
                 await InvokeClientLeftCallbackAsync(localEvent.ClientInfo, localEvent.Status, localEvent.UserData);
             }

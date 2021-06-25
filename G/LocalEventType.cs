@@ -1,10 +1,11 @@
-namespace Lane.Realtime.Server.Internal
+namespace Prom.Realtime.Server.Internal
 {
     internal enum LocalEventType : byte
     {
+        None = 0,
         ClientJoinDetermine = 1,
-        ClientJoined = 2,
-        ClientLeft = 3,
-        LogEvent = 4,
+        ClientJoinApproved = 2,
+        ClientDispose = 3,
+        Log = 4, // Information/Warning/Error
     }
 }

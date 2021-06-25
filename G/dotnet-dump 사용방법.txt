@@ -1,0 +1,41 @@
+[dotnet-dump 설치]
+  dotnet tool install --global dotnet-dump
+
+
+[관리자모드로 전환]
+  sudo -s
+
+
+[경로잡아주기]
+  export PATH=$PATH:$HOME/.dotnet/tools
+
+
+[덤프 수집하기]
+  dotnet-dump collect --process-id 878787
+
+  또는
+
+  dotnet-dump collect -p 878787
+
+
+[파일 복사]
+  생성된 파일을 PC로 가져와서 분석하면 됩니다.
+  Visual-sutido 또는 Rider에서 분석합니다.
+
+
+[주의사항]
+  덤프를 생성할때 관리자 권한으로 전환하지 않으면, 접근 오류가 발생하기 때문에
+  반듯이 관리자 권한으로 전환 후 실행하셔야합니다.
+
+  이때 앞에다가 "sudo dotnet-dump" 이렇게 하면 커맨드를 인식하지 못하므로
+  "sudo -s" 로 관리자 모드로 전환 후
+
+  "dotnet-dump collect -pid {프로세스ID}" 해주세요.
+
+  .net 도구가 있는 경로를 패스로 잡아주지 않으면, 관리자모드에서
+  불편하니 아래처럼 경로를 잡아주세요.
+
+  export PATH=$PATH:$HOME/.dotnet/tools
+
+
+https://github.com/dotnet/diagnostics/blob/main/documentation/dotnet-dump-instructions.md

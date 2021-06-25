@@ -1,9 +1,10 @@
-namespace Lane.Realtime.Server.Internal
+namespace Prom.Realtime.Server.Internal
 {
+    //todo Pooling
     internal class UserWorkItem
     {
         public UserWorkItemType Type { get; private set; }
-        public IncomingMessage Message { get; set; }
+        public IncomingMessage Message { get; private set; }
         public LocalEvent LocalEvent { get; private set; }
         public byte[] RelayedSendData { get; private set; }
         public LinkId RelayedSendLinkId { get; private set; }

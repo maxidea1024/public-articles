@@ -1,1 +1,0 @@
-Select * from mysql.general_log;
